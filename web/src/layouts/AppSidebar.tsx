@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 
 import { Link, routes } from '@redwoodjs/router'
+import { useLocation } from '@redwoodjs/router'
 
 import { NavMain } from 'src/components/NavMain'
 import { NavProjects } from 'src/components/NavProjects'
@@ -30,6 +31,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuAction,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
@@ -185,6 +187,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setOpenMobile } = useSidebar()
+  const { pathname } = useLocation()
 
   const handleLinkClick = () => {
     setOpenMobile(false)
@@ -198,12 +201,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton
+                asChild
+                data-active={pathname === routes[item.url]()}
+              >
                 <Link to={routes[item.url]()} onClick={handleLinkClick}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
+              <SidebarMenuAction className="peer-data-[active=true]/menu-button:opacity-500" />
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
