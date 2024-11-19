@@ -16,6 +16,10 @@ const Routes = () => {
       <Set wrap={AppshellLayout}>
         <Route path="/test" page={TestPage} name="test" />
         <Route path="/home" page={HomePage} name="homey" />
+        <Route path="/add-expense" page={AddExpensePage} name="addExpense" />
+        <Route path="/projects" page={ProjectsPage} name="projects" />
+        <Route path="/trips" page={TripsPage} name="trips" />
+        <Route path="/expenses" page={ExpensesPage} name="expenses" />
       </Set>
       <Route notfound page={NotFoundPage} />
     </Router>

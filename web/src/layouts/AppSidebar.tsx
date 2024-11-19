@@ -42,14 +42,19 @@ import {
 // Menu items.
 const items = [
   {
+    title: 'Home',
+    url: 'homey',
+    icon: Home,
+  },
+  {
     title: 'Test',
     url: 'test',
     icon: Search,
   },
   {
-    title: 'Home',
-    url: 'homey',
-    icon: Home,
+    title: 'Add Expense',
+    url: 'addExpense',
+    icon: Inbox,
   },
 ]
 const data = {
