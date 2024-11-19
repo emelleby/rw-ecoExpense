@@ -16,6 +16,9 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  ChartArea,
+  FolderOpenDot,
+  FlaskRound,
 } from 'lucide-react'
 
 import { Link, routes } from '@redwoodjs/router'
@@ -49,12 +52,27 @@ const items = [
   {
     title: 'Test',
     url: 'test',
-    icon: Search,
+    icon: FlaskRound,
   },
   {
     title: 'Add Expense',
     url: 'addExpense',
     icon: Inbox,
+  },
+  {
+    title: 'Expenses',
+    url: 'expenses',
+    icon: BookOpen,
+  },
+  {
+    title: 'Trips',
+    url: 'trips',
+    icon: Map,
+  },
+  {
+    title: 'Projects',
+    url: 'projects',
+    icon: FolderOpenDot,
   },
 ]
 const data = {
