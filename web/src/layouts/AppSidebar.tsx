@@ -33,6 +33,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from 'src/components/ui/Sidebar'
 
 // This is sample data.
@@ -183,6 +184,11 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { setOpenMobile } = useSidebar()
+
+  const handleLinkClick = () => {
+    setOpenMobile(false)
+  }
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -193,7 +199,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
-                <Link to={routes[item.url]()}>
+                <Link to={routes[item.url]()} onClick={handleLinkClick}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>

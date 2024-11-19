@@ -1,4 +1,3 @@
-import { AppSidebar } from 'src/components/AppSidebar'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,6 +12,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from 'src/components/ui/Sidebar'
+import { AppSidebar } from 'src/layouts/AppSidebar'
 
 export default function DashboardPage() {
   return (
