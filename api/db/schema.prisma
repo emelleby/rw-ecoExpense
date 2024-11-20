@@ -49,7 +49,8 @@ model User {
   id             Int          @id @default(autoincrement())
   username       String       @unique @db.VarChar(64)
   email          String       @unique @db.VarChar(120)
-  passwordHash   String       @db.VarChar(255)
+  firstName      String?      @db.VarChar(100)
+  lastName       String?      @db.VarChar(50)
   isAdmin        Boolean      @default(false)
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id])

@@ -19689,6 +19689,7 @@ __metadata:
     autoprefixer: "npm:^10.4.20"
     class-variance-authority: "npm:^0.7.0"
     clsx: "npm:^2.1.1"
+    humanize-string: "npm:2.1.0"
     lucide-react: "npm:^0.460.0"
     postcss: "npm:^8.4.49"
     postcss-loader: "npm:^8.1.1"
