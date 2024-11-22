@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    // "baseUrl": ".",
+    "baseUrl": ".",
     "noEmit": true,
     "allowJs": true,
     "esModuleInterop": true,

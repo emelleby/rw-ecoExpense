@@ -4,11 +4,10 @@ type AppshellLayoutProps = {
 
 import { Moon, Sun } from 'lucide-react'
 
-import { AppSidebar } from 'src/layouts/AppSidebar'
-
 import { Button } from '@/components/ui/Button'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/Sidebar'
 import { useTheme } from '@/hooks/useTheme'
+import { AppSidebar } from '@/layouts/AppSidebar'
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
