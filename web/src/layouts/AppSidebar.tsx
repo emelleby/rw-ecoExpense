@@ -228,6 +228,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenuButton
                 asChild
                 data-active={pathname === routes[item.url]()}
+                className="pl-4"
               >
                 <Link to={routes[item.url]()} onClick={handleLinkClick}>
                   <item.icon />

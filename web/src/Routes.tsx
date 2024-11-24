@@ -17,7 +17,7 @@ const Routes = () => {
   return (
     <Router useAuth={useAuth}>
       <Route path="/" page={LoginPage} name="login" />
-      <PrivateSet unauthenticated="/">
+      <PrivateSet unauthenticated="login">
         <Set wrap={ScaffoldLayout} title="Projects" titleTo="projects" buttonLabel="New Project" buttonTo="newProject">
           <Route path="/projects/new" page={ProjectNewProjectPage} name="newProject" />
           <Route path="/projects/{id:Int}/edit" page={ProjectEditProjectPage} name="editProject" />
