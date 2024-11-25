@@ -9,11 +9,12 @@ import { Button } from '@/components/ui/Button'
 
 const UserRole = () => {
   const { user } = useUser()
+  const { currentUser } = useAuth()
 
   return (
     <div>
       <h1>Welcome, {user.username}</h1>
-      <p>Your role: {user.publicMetadata?.roles || 'No role assigned'}</p>
+      <p>Your role: {(currentUser.roles as string) || 'No role assigned'}</p>
     </div>
   )
 }
@@ -29,7 +30,15 @@ const TestPage = () => {
         Find me in <code>./web/src/pages/TestPage/TestPage.tsx</code>
       </p>
       <p>{JSON.stringify({ isAuthenticated })}</p>
-      <Button onClick={signUp}>sign up</Button>
+      {/* <Button onClick={signUp}>sign up</Button> */}
+      <Button
+        onClick={(e) => {
+          e.preventDefault()
+          signUp()
+        }}
+      >
+        sign up
+      </Button>
 
       <h2 className="mt-6">Current User Information</h2>
       <pre>{JSON.stringify(currentUser, null, 2)}</pre>

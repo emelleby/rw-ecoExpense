@@ -1,8 +1,6 @@
-import { useEffect } from 'react'
+import { SignInButton, SignedOut } from '@clerk/clerk-react'
 
-import { SignUp, SignIn, SignInButton, SignedOut } from '@clerk/clerk-react'
-
-import { navigate, routes } from '@redwoodjs/router'
+import { Redirect, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
@@ -10,13 +8,7 @@ import { useAuth } from 'src/auth'
 import { Button } from '@/components/ui/Button'
 
 const LoginPage = () => {
-  const { isAuthenticated, signUp, signIn, loading } = useAuth()
-
-  useEffect(() => {
-    if (!loading && isAuthenticated) {
-      navigate(routes.homey())
-    }
-  }, [isAuthenticated, loading])
+  const { isAuthenticated, signUp, loading, hasRole } = useAuth()
 
   if (loading) {
     return (
@@ -24,6 +16,14 @@ const LoginPage = () => {
         <div className="h-8 w-8 animate-spin rounded-full border-t-2 border-white"></div>
       </div>
     )
+  }
+
+  // Redirect if user already has a role and is authenticated
+  if (isAuthenticated) {
+    if (hasRole(['admin', 'member'])) {
+      return <Redirect to={routes.homey()} />
+    }
+    return <Redirect to={routes.onboarding()} />
   }
 
   return (
@@ -35,12 +35,19 @@ const LoginPage = () => {
           Welcome to EcoExpense
         </h1>
         <div className="mt-4 flex flex-row items-center justify-center gap-4">
-          {/* <SignedOut> */}
-          <SignInButton mode="modal" afterSignInUrl={routes.homey()}>
-            <Button>Sign in</Button>
-          </SignInButton>
-          <Button onClick={signUp}>sign up</Button>
-          {/* </SignedOut> */}
+          <SignedOut>
+            <SignInButton mode="modal" afterSignInUrl={routes.homey()}>
+              <Button>Sign in</Button>
+            </SignInButton>
+            <Button
+              onClick={(e) => {
+                e.preventDefault()
+                signUp()
+              }}
+            >
+              sign up
+            </Button>
+          </SignedOut>
         </div>
       </div>
     </>

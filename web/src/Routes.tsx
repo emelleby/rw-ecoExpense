@@ -6,8 +6,6 @@
 //
 // 'src/pages/HomePage/HomePage.js'         -> HomePage
 // 'src/pages/Admin/BooksPage/BooksPage.js' -> AdminBooksPage
-import { useUser } from '@clerk/clerk-react'
-
 import { PrivateSet, Set, Router, Route } from '@redwoodjs/router'
 
 import AppshellLayout from 'src/layouts/AppshellLayout'

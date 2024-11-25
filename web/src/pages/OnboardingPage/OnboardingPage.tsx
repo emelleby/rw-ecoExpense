@@ -8,25 +8,25 @@ import { useAuth } from 'src/auth'
 
 const UserRole = () => {
   const { user } = useUser()
+  const { currentUser } = useAuth()
 
   return (
     <div className="text-white">
       <h1>Welcome, {user.username}</h1>
-      <p>Your role: {user.publicMetadata?.roles || 'No role assigned'}</p>
+      <p>Your role: {(currentUser.roles as string) || 'No role assigned'}</p>
     </div>
   )
 }
 
 const OnboardingPage = () => {
-  const { isAuthenticated } = useAuth()
-  const { user } = useUser()
+  const { isAuthenticated, hasRole } = useAuth()
 
   if (!isAuthenticated) {
     return <Redirect to={routes.login()} />
   }
   // Redirect if user already has a role
-  // if (user.publicMetadata?.role?.length > 0) {
-  if (isAuthenticated) {
+  // Option 2: Use the built-in hasRole helper from auth.ts
+  if (hasRole(['admin', 'member'])) {
     return <Redirect to={routes.homey()} />
   }
 
