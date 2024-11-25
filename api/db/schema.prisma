@@ -4,9 +4,12 @@
 // Read more about both here:
 // https://www.prisma.io/docs/orm/prisma-migrate
 
+// prisma/schema.prisma
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 generator client {
@@ -17,8 +20,111 @@ generator client {
 // Define your own datamodels here and run `yarn redwood prisma migrate dev`
 // to create migrations for them and apply to your dev DB.
 // TODO: Please remove the following example:
-model UserExample {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+enum ReimbursementStatus {
+  NOT_REQUESTED
+  PENDING
+  REIMBURSED
+}
+
+model Organization {
+  id          Int        @id @default(autoincrement())
+  regnr       String     @unique @db.VarChar(9)
+  name        String     @unique @db.VarChar(100)
+  description String?    @db.Text
+  createdAt   DateTime   @default(now())
+  users       User[]
+  roles       Role[]
+  suppliers   Supplier[]
+}
+
+model Role {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(50)
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  users          User[]
+}
+
+model User {
+  id             Int          @id @default(autoincrement())
+  username       String       @unique @db.VarChar(64)
+  email          String       @unique @db.VarChar(120)
+  firstName      String?      @db.VarChar(100)
+  lastName       String?      @db.VarChar(50)
+  isAdmin        Boolean      @default(false)
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  roleId         Int
+  role           Role         @relation(fields: [roleId], references: [id])
+  expenses       Expense[]
+  trips          Trip[]
+  projects       Project[]
+
+  @@index([username], name: "idx_user_username")
+}
+
+model Supplier {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(100)
+  contact        String?      @db.VarChar(100)
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  expenses       Expense[]
+}
+
+model Trip {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(100)
+  startDate           DateTime
+  endDate             DateTime
+  userId              Int
+  user                User                @relation(fields: [userId], references: [id])
+  expenses            Expense[]
+  approvedDate        DateTime?
+  reimbursementStatus ReimbursementStatus @default(NOT_REQUESTED)
+  transactionId       String?             @db.VarChar(100)
+}
+
+model Project {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  description String?   @db.Text
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  expenses    Expense[]
+}
+
+model ExpenseCategory {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique @db.VarChar(50)
+  expenses Expense[]
+}
+
+model Expense {
+  id                 Int             @id @default(autoincrement())
+  amount             Float
+  currency           String          @db.VarChar(3)
+  exchangeRate       Float           @default(1.0)
+  nokAmount          Float
+  date               DateTime        @default(now())
+  description        String?         @db.Text
+  supplierId         Int
+  supplier           Supplier        @relation(fields: [supplierId], references: [id])
+  tripId             Int?
+  trip               Trip?           @relation(fields: [tripId], references: [id])
+  projectId          Int?
+  project            Project?        @relation(fields: [projectId], references: [id])
+  categoryId         Int
+  category           ExpenseCategory @relation(fields: [categoryId], references: [id])
+  userId             Int
+  user               User            @relation(fields: [userId], references: [id])
+  receiptFilename    String?         @db.VarChar(255)
+  receiptPath        String?         @db.VarChar(255)
+  receiptUploadedAt  DateTime?       @default(now())
+  kilometers         Float           @default(0.0)
+  fuelType           String          @default("") @db.VarChar(50)
+  fuelAmountLiters   Float           @default(0.0)
+  scope1Co2Emissions Float           @default(0.0)
+  scope3Co2Emissions Float           @default(0.0)
+  kwh                Float           @default(0.0)
 }
