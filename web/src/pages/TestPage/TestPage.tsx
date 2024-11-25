@@ -13,7 +13,7 @@ const UserRole = () => {
   return (
     <div>
       <h1>Welcome, {user.username}</h1>
-      <p>Your role: {user.publicMetadata?.role || 'No role assigned'}</p>
+      <p>Your role: {user.publicMetadata?.roles || 'No role assigned'}</p>
     </div>
   )
 }

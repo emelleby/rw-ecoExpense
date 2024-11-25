@@ -35,12 +35,12 @@ const LoginPage = () => {
           Welcome to EcoExpense
         </h1>
         <div className="mt-4 flex flex-row items-center justify-center gap-4">
-          <SignedOut>
-            <SignInButton mode="modal" afterSignInUrl={routes.homey()}>
-              <Button>Sign in</Button>
-            </SignInButton>
-            <Button onClick={signUp}>sign up</Button>
-          </SignedOut>
+          {/* <SignedOut> */}
+          <SignInButton mode="modal" afterSignInUrl={routes.homey()}>
+            <Button>Sign in</Button>
+          </SignInButton>
+          <Button onClick={signUp}>sign up</Button>
+          {/* </SignedOut> */}
         </div>
       </div>
     </>
