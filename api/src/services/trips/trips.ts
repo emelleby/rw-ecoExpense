@@ -22,6 +22,7 @@ export const trip: QueryResolvers['trip'] = ({ id }) => {
 //   })
 // }
 
+// This is a custom way of doing it from AI. The above is RW generated.
 export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
   return db.trip.create({
     data: {

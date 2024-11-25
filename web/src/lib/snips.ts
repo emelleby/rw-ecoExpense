@@ -9,3 +9,6 @@
   <SidebarTrigger />
   <main className="container max-w-6xl ">{children}</main>
 </div>
+
+
+

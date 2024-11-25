@@ -8,17 +8,16 @@ export const standard = defineScenario<Prisma.ProjectCreateArgs>({
         name: 'String',
         user: {
           create: {
-            username: 'String7325940',
-            email: 'String9243457',
-            passwordHash: 'String',
+            username: 'String8372830',
+            email: 'String1132189',
             organization: {
-              create: { regnr: 'String8205171', name: 'String1017461' },
+              create: { regnr: 'String7671896', name: 'String8960761' },
             },
             role: {
               create: {
                 name: 'String',
                 organization: {
-                  create: { regnr: 'String5262525', name: 'String6098587' },
+                  create: { regnr: 'String5092569', name: 'String9966258' },
                 },
               },
             },
@@ -31,17 +30,16 @@ export const standard = defineScenario<Prisma.ProjectCreateArgs>({
         name: 'String',
         user: {
           create: {
-            username: 'String5077017',
-            email: 'String8131635',
-            passwordHash: 'String',
+            username: 'String3446428',
+            email: 'String3982933',
             organization: {
-              create: { regnr: 'String8396979', name: 'String8434391' },
+              create: { regnr: 'String1603039', name: 'String3059993' },
             },
             role: {
               create: {
                 name: 'String',
                 organization: {
-                  create: { regnr: 'String3219754', name: 'String2775808' },
+                  create: { regnr: 'String9620736', name: 'String569656' },
                 },
               },
             },

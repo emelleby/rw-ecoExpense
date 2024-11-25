@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+import { UserButton } from '@clerk/clerk-react'
 import {
   AudioWaveform,
   Calendar,
@@ -227,6 +228,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenuButton
                 asChild
                 data-active={pathname === routes[item.url]()}
+                className="pl-4"
               >
                 <Link to={routes[item.url]()} onClick={handleLinkClick}>
                   <item.icon />
@@ -241,7 +243,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <UserButton />
+        {/* <NavUser user={data.user} /> */}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
