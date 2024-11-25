@@ -5,6 +5,7 @@ import { Redirect, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
+import OrganizationCell from 'src/components/OrganizationCell'
 
 const UserRole = () => {
   const { user } = useUser()
@@ -39,7 +40,7 @@ const OnboardingPage = () => {
           <p className="text-white">Onboarding form will go here</p>
           <h2 className="text-yellow-100">Current User Role</h2>
           <UserRole />
-          <p></p>
+          <OrganizationCell />
         </div>
       </div>
 

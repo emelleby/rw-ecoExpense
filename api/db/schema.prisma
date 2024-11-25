@@ -33,16 +33,7 @@ model Organization {
   description String?    @db.Text
   createdAt   DateTime   @default(now())
   users       User[]
-  roles       Role[]
   suppliers   Supplier[]
-}
-
-model Role {
-  id             Int          @id @default(autoincrement())
-  name           String       @db.VarChar(50)
-  organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  users          User[]
 }
 
 model User {
@@ -54,8 +45,6 @@ model User {
   isAdmin        Boolean      @default(false)
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id])
-  roleId         Int
-  role           Role         @relation(fields: [roleId], references: [id])
   expenses       Expense[]
   trips          Trip[]
   projects       Project[]

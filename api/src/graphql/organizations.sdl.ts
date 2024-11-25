@@ -6,7 +6,6 @@ export const schema = gql`
     description: String
     createdAt: DateTime!
     users: [User]!
-    roles: [Role]!
     suppliers: [Supplier]!
   }
 

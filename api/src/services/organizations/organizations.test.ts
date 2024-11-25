@@ -33,11 +33,11 @@ describe('organizations', () => {
 
   scenario('creates a organization', async () => {
     const result = await createOrganization({
-      input: { regnr: 'String1091020', name: 'String7036307' },
+      input: { regnr: 'String7942157', name: 'String934718' },
     })
 
-    expect(result.regnr).toEqual('String1091020')
-    expect(result.name).toEqual('String7036307')
+    expect(result.regnr).toEqual('String7942157')
+    expect(result.name).toEqual('String934718')
   })
 
   scenario('updates a organization', async (scenario: StandardScenario) => {
@@ -46,10 +46,10 @@ describe('organizations', () => {
     })) as Organization
     const result = await updateOrganization({
       id: original.id,
-      input: { regnr: 'String33728702' },
+      input: { regnr: 'String13846332' },
     })
 
-    expect(result.regnr).toEqual('String33728702')
+    expect(result.regnr).toEqual('String13846332')
   })
 
   scenario('deletes a organization', async (scenario: StandardScenario) => {
