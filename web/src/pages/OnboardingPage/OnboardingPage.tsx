@@ -38,6 +38,7 @@ const OnboardingPage = () => {
         <h1 className="mt-6 text-2xl font-bold text-slate-100">
           Complete Your Profile
         </h1>
+
         <div className="mt-8 w-full max-w-md rounded-lg p-6">
           <h2 className="text-yellow-100">Current User Role</h2>
           <UserRole />

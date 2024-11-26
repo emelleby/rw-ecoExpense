@@ -28,7 +28,7 @@ const NewOrganization = () => {
     {
       onCompleted: () => {
         toast.success('Organization created')
-        navigate(routes.organizations())
+        // navigate(routes.home())
       },
       onError: (error) => {
         toast.error(error.message)

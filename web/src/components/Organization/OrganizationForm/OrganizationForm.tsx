@@ -13,9 +13,6 @@ import {
   Submit,
 } from '@redwoodjs/forms'
 
-import { Input } from '@/components/ui/Input'
-// import { Label } from '@/components/ui/Label'
-
 type FormOrganization = NonNullable<EditOrganizationById['organization']>
 
 interface OrganizationFormProps {

@@ -39,9 +39,6 @@ export const User: UserRelationResolvers = {
   organization: (_obj, { root }) => {
     return db.user.findUnique({ where: { id: root?.id } }).organization()
   },
-  role: (_obj, { root }) => {
-    return db.user.findUnique({ where: { id: root?.id } }).role()
-  },
   expenses: (_obj, { root }) => {
     return db.user.findUnique({ where: { id: root?.id } }).expenses()
   },

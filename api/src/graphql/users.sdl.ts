@@ -5,7 +5,7 @@ export const schema = gql`
     email: String!
     firstName: String
     lastName: String
-    isAdmin: Boolean!
+    bankAccount: String
     organizationId: Int!
     organization: Organization!
     expenses: [Expense]!
@@ -25,7 +25,6 @@ export const schema = gql`
     lastName: String
     bankAccount: String
     organizationId: Int!
-    roleId: Int!
   }
 
   input UpdateUserInput {

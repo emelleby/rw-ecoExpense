@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { ChevronsUpDown } from 'lucide-react'
 import type {
   FindOrganizationsQuery,
   FindOrganizationsQueryVariables,
@@ -118,6 +118,7 @@ export const Success = ({
               </Command>
             </PopoverContent>
           </Popover>
+          Hei
         </TabsContent>
         <TabsContent value="create">
           {/* Create form coming next */}
