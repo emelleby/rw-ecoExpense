@@ -41,11 +41,11 @@ const NewOrganization = () => {
   }
 
   return (
-    <div className="rw-segment">
-      <header className="rw-segment-header">
-        <h2 className="rw-heading rw-heading-secondary">New Organization</h2>
+    <div className="">
+      <header className="">
+        <h2 className="font-bold">New Organization</h2>
       </header>
-      <div className="rw-segment-main">
+      <div className="mt-6">
         <OrganizationForm onSave={onSave} loading={loading} error={error} />
       </div>
     </div>

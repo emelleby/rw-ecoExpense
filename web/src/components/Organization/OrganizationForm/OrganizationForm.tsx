@@ -13,6 +13,9 @@ import {
   Submit,
 } from '@redwoodjs/forms'
 
+import { Input } from '@/components/ui/Input'
+// import { Label } from '@/components/ui/Label'
+
 type FormOrganization = NonNullable<EditOrganizationById['organization']>
 
 interface OrganizationFormProps {
@@ -36,7 +39,6 @@ const OrganizationForm = (props: OrganizationFormProps) => {
           titleClassName="rw-form-error-title"
           listClassName="rw-form-error-list"
         />
-
         <Label
           name="regnr"
           className="rw-label"
@@ -48,10 +50,20 @@ const OrganizationForm = (props: OrganizationFormProps) => {
         <TextField
           name="regnr"
           defaultValue={props.organization?.regnr}
-          className="rw-input"
+          className="rw-input text-slate-700"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}
         />
+
+        {/* <Label htmlFor="regnr">Registration Number</Label>
+        <Input
+          type="text"
+          id="regnr"
+          name="regnr"
+          defaultValue={props.organization?.regnr}
+          placeholder="9-digits"
+          className="mt-2 bg-slate-700 text-base text-slate-100"
+        /> */}
 
         <FieldError name="regnr" className="rw-field-error" />
 
@@ -66,7 +78,7 @@ const OrganizationForm = (props: OrganizationFormProps) => {
         <TextField
           name="name"
           defaultValue={props.organization?.name}
-          className="rw-input"
+          className="rw-input text-slate-700"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}
         />
@@ -84,14 +96,14 @@ const OrganizationForm = (props: OrganizationFormProps) => {
         <TextField
           name="description"
           defaultValue={props.organization?.description}
-          className="rw-input"
+          className="rw-input text-slate-700"
           errorClassName="rw-input rw-input-error"
         />
 
         <FieldError name="description" className="rw-field-error" />
 
         <div className="rw-button-group">
-          <Submit disabled={props.loading} className="rw-button rw-button-blue">
+          <Submit disabled={props.loading} className="rw-button">
             Save
           </Submit>
         </div>

@@ -12,7 +12,7 @@ const UserRole = () => {
   const { currentUser } = useAuth()
 
   return (
-    <div className="text-white">
+    <div className="text-slate-50">
       <h1>Welcome, {user.username}</h1>
       <p>Your role: {(currentUser.roles as string) || 'No role assigned'}</p>
     </div>
@@ -34,10 +34,11 @@ const OnboardingPage = () => {
   return (
     <>
       <Metadata title="Onboarding" description="Onboarding page" />
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-700">
-        <h1 className="text-2xl font-bold text-white">Complete Your Profile</h1>
-        <div className="mt-8 w-full max-w-md rounded-lg bg-slate-800 p-6">
-          <p className="text-white">Onboarding form will go here</p>
+      <div className="flex min-h-screen flex-col items-center bg-slate-800">
+        <h1 className="mt-6 text-2xl font-bold text-slate-100">
+          Complete Your Profile
+        </h1>
+        <div className="mt-8 w-full max-w-md rounded-lg p-6">
           <h2 className="text-yellow-100">Current User Role</h2>
           <UserRole />
           <OrganizationCell />

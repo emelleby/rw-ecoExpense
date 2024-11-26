@@ -8,8 +8,6 @@ export const schema = gql`
     isAdmin: Boolean!
     organizationId: Int!
     organization: Organization!
-    roleId: Int!
-    role: Role!
     expenses: [Expense]!
     trips: [Trip]!
     projects: [Project]!
@@ -25,7 +23,7 @@ export const schema = gql`
     email: String!
     firstName: String
     lastName: String
-    isAdmin: Boolean!
+    bankAccount: String
     organizationId: Int!
     roleId: Int!
   }
@@ -35,9 +33,8 @@ export const schema = gql`
     email: String
     firstName: String
     lastName: String
-    isAdmin: Boolean
+    bankAccount: String
     organizationId: Int
-    roleId: Int
   }
 
   type Mutation {
