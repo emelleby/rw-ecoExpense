@@ -42,7 +42,11 @@ export const getCurrentUser = async (
   // }
 
   // Be careful to only return information that should be accessible on the web side.
-  return { id, roles: decoded.metadata?.roles || [], ...decoded.metadata }
+  return {
+    id,
+    roles: decoded.metadata?.roles || [],
+    ...decoded.metadata,
+  }
 }
 
 /**

@@ -1,6 +1,7 @@
 export const schema = gql`
   type User {
     id: Int!
+    clerkId: String
     username: String!
     email: String!
     firstName: String
@@ -19,6 +20,7 @@ export const schema = gql`
   }
 
   input CreateUserInput {
+    clerkId: String
     username: String!
     email: String!
     firstName: String
@@ -28,6 +30,7 @@ export const schema = gql`
   }
 
   input UpdateUserInput {
+    clerkId: String
     username: String
     email: String
     firstName: String
@@ -40,5 +43,7 @@ export const schema = gql`
     createUser(input: CreateUserInput!): User! @requireAuth
     updateUser(id: Int!, input: UpdateUserInput!): User! @requireAuth
     deleteUser(id: Int!): User! @requireAuth
+    updateUserRole(id: String!, role: String!, organizationId: Int!): User!
+      @skipAuth
   }
 `

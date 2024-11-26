@@ -20,7 +20,7 @@ const UserRole = () => {
 }
 
 const OnboardingPage = () => {
-  const { isAuthenticated, hasRole } = useAuth()
+  const { isAuthenticated, hasRole, currentUser, userMetadata } = useAuth()
 
   if (!isAuthenticated) {
     return <Redirect to={routes.login()} />
@@ -43,6 +43,21 @@ const OnboardingPage = () => {
           <h2 className="text-yellow-100">Current User Role</h2>
           <UserRole />
           <OrganizationCell />
+        </div>
+        <div className="mt-8 w-full max-w-lg rounded-lg p-6 text-white">
+          <h2 className="text-white">Current userMetadata Information</h2>
+          <pre>{JSON.stringify(userMetadata.username, null, 2)}</pre>
+          <pre>
+            {JSON.stringify(
+              userMetadata.primaryEmailAddress.emailAddress,
+              null,
+              2
+            )}
+          </pre>
+          <pre>{JSON.stringify(userMetadata.unsafeMetadata, null, 2)}</pre>
+          <pre>{JSON.stringify(userMetadata, null, 2)}</pre>
+          {/* <h2 className="mt-6 text-white">Current User Information</h2>
+          <pre>{JSON.stringify(currentUser, null, 2)}</pre> */}
         </div>
       </div>
 

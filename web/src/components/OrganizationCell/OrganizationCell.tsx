@@ -1,19 +1,24 @@
 import { useState } from 'react'
 
+import { useUser } from '@clerk/clerk-react'
 import { ChevronsUpDown } from 'lucide-react'
 import type {
   FindOrganizationsQuery,
   FindOrganizationsQueryVariables,
 } from 'types/graphql'
 
+import { navigate, routes } from '@redwoodjs/router'
 import type {
   CellSuccessProps,
   CellFailureProps,
   TypedDocumentNode,
 } from '@redwoodjs/web'
+import { useMutation } from '@redwoodjs/web'
+import { toast } from '@redwoodjs/web/toast'
 
 import NewOrganization from '../Organization/NewOrganization/NewOrganization'
 
+import { useAuth } from '@/auth'
 import { Button } from '@/components/ui/Button'
 import {
   Command,
@@ -43,7 +48,23 @@ export const QUERY: TypedDocumentNode<
     }
   }
 `
-
+const UPDATE_USER_ROLE = gql`
+  mutation UpdateUserRole($id: String!, $role: String!, $organizationId: Int!) {
+    updateUserRole(id: $id, role: $role, organizationId: $organizationId) {
+      id
+    }
+  }
+`
+const CREATE_USER = gql`
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      id
+      username
+      email
+      organizationId
+    }
+  }
+`
 export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => (
@@ -65,6 +86,50 @@ export const Success = ({
 }: CellSuccessProps<FindOrganizationsQuery>) => {
   const [open, setOpen] = useState(false)
   const [selectedOrg, setSelectedOrg] = useState<string>('')
+  const { currentUser, userMetadata } = useAuth()
+  const { user } = useUser()
+  const [updateUserRole] = useMutation(UPDATE_USER_ROLE)
+  const [createUser] = useMutation(CREATE_USER)
+
+  const handleJoinOrganization = async (selectedOrg: string) => {
+    const selectedOrgData = organizations?.find(
+      (org) => org.name === selectedOrg
+    )
+    if (!selectedOrgData) {
+      toast.error('Organization not found')
+      return
+    }
+    try {
+      await createUser({
+        variables: {
+          input: {
+            clerkId: user.id,
+            username: user.username,
+            email: user.primaryEmailAddress.emailAddress,
+            organizationId: selectedOrgData.id,
+          },
+        },
+      })
+
+      // Then update Clerk role
+      await updateUserRole({
+        variables: {
+          id: user.id,
+          role: 'member',
+          organizationId: selectedOrgData.id,
+        },
+      })
+      // Reload the session to get new metadata
+      await user.reload()
+      // Redirect to home after successful join
+      navigate(routes.homey())
+      toast.success('Successfully joined organization')
+      // Update Clerk metadata next
+    } catch (error) {
+      toast.error('Failed to create user')
+      console.error(error)
+    }
+  }
 
   const orgList = Array.isArray(organizations) ? organizations : []
   return (
@@ -118,7 +183,13 @@ export const Success = ({
               </Command>
             </PopoverContent>
           </Popover>
-          Hei
+          <Button
+            onClick={() => handleJoinOrganization(selectedOrg)}
+            disabled={!selectedOrg}
+            className="rw-button mt-4 w-full"
+          >
+            Join Organization
+          </Button>
         </TabsContent>
         <TabsContent value="create">
           {/* Create form coming next */}

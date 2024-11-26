@@ -1,3 +1,4 @@
+import { clerkClient } from '@clerk/express'
 import type {
   QueryResolvers,
   MutationResolvers,
@@ -26,6 +27,25 @@ export const updateUser: MutationResolvers['updateUser'] = ({ id, input }) => {
   return db.user.update({
     data: input,
     where: { id },
+  })
+}
+
+export const updateUserRole: MutationResolvers['updateUserRole'] = async ({
+  id,
+  role,
+  organizationId,
+}) => {
+  // Update Clerk user metadata
+  await clerkClient.users.updateUser(id, {
+    publicMetadata: {
+      roles: role,
+      organizationId,
+    },
+  })
+
+  // Find and return the DB user
+  return db.user.findUnique({
+    where: { clerkId: id },
   })
 }
 
