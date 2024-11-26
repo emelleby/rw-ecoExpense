@@ -43,10 +43,11 @@ export const updateUserRole: MutationResolvers['updateUserRole'] = async ({
     },
   })
 
-  // Find and return the DB user
-  return db.user.findUnique({
+  // Find and return existing user
+  const user = await db.user.findUnique({
     where: { clerkId: id },
   })
+  return user
 }
 
 export const deleteUser: MutationResolvers['deleteUser'] = ({ id }) => {

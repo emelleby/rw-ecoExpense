@@ -1,3 +1,4 @@
+import { useUser } from '@clerk/clerk-react'
 import type {
   CreateOrganizationMutation,
   CreateOrganizationInput,
@@ -21,14 +22,56 @@ const CREATE_ORGANIZATION_MUTATION: TypedDocumentNode<
     }
   }
 `
+const UPDATE_USER_ROLE = gql`
+  mutation UpdateUserRole($id: String!, $role: String!, $organizationId: Int!) {
+    updateUserRole(id: $id, role: $role, organizationId: $organizationId) {
+      id
+    }
+  }
+`
+const CREATE_USER = gql`
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      id
+      username
+      email
+      organizationId
+    }
+  }
+`
 
 const NewOrganization = () => {
+  const { user } = useUser()
+  const [createUser] = useMutation(CREATE_USER)
+  const [updateUserRole] = useMutation(UPDATE_USER_ROLE)
+
   const [createOrganization, { loading, error }] = useMutation(
     CREATE_ORGANIZATION_MUTATION,
     {
-      onCompleted: () => {
+      onCompleted: async (data) => {
+        // First create the user
+        await createUser({
+          variables: {
+            input: {
+              clerkId: user.id,
+              username: user.username,
+              email: user.primaryEmailAddress.emailAddress,
+              organizationId: data.createOrganization.id,
+            },
+          },
+        })
+
+        // Then update the role
+        await updateUserRole({
+          variables: {
+            id: user.id,
+            role: 'admin',
+            organizationId: data.createOrganization.id,
+          },
+        })
+        await user.reload()
         toast.success('Organization created')
-        // navigate(routes.home())
+        navigate(routes.homey())
       },
       onError: (error) => {
         toast.error(error.message)
