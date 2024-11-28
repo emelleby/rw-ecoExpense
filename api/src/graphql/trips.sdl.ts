@@ -2,6 +2,7 @@ export const schema = gql`
   type Trip {
     id: Int!
     name: String!
+    description: String
     startDate: DateTime!
     endDate: DateTime!
     userId: Int!
@@ -28,13 +29,13 @@ export const schema = gql`
     startDate: DateTime!
     endDate: DateTime!
     userId: Int!
-    approvedDate: DateTime
+    description: String
     reimbursementStatus: ReimbursementStatus = NOT_REQUESTED
-    transactionId: String
   }
 
   input UpdateTripInput {
     name: String
+    description: String
     startDate: DateTime
     endDate: DateTime
     userId: Int

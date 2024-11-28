@@ -2,6 +2,7 @@ type AppshellLayoutProps = {
   children?: React.ReactNode
 }
 
+import { UserButton } from '@clerk/clerk-react'
 import { Moon, Sun } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
@@ -36,6 +37,7 @@ const AppshellLayout = ({ children }: AppshellLayoutProps) => {
           </div>
           <div className="flex items-center">
             <ThemeToggle />
+            <UserButton />
           </div>
         </header>
         <main className="container max-w-6xl flex-1">{children}</main>

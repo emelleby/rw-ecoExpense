@@ -2,6 +2,7 @@
 
 import { AuthenticationError, ForbiddenError } from '@redwoodjs/graphql-server'
 
+import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
 
 /**
@@ -28,24 +29,38 @@ export const getCurrentUser = async (
     return null
   }
 
-  const { id, ..._rest } = decoded
+  // Here we are trying to get the user from the database.
+  const { id: clerkId, ..._rest } = decoded
 
-  // Fetch the user from Clerk
-  // const { user } = useUser()
-  // console.log('user', user)
+  // Get DB user if exists
+  const dbUser = await db.user.findUnique({
+    where: { clerkId },
+  })
 
-  // Be careful to only return information that should be accessible on the web side.
-  // return {
-  //   id,
-  //   roles: user.publicMetadata?.roles || [],
-  //   ...user.publicMetadata,
-  // }
-
-  // Be careful to only return information that should be accessible on the web side.
   return {
-    id,
-    roles: decoded.metadata?.roles || [],
+    id: clerkId,
+    dbUserId: dbUser?.id,
     ...decoded.metadata,
+    ..._rest,
+
+    // const { id, ..._rest } = decoded
+
+    // Fetch the user from Clerk
+    // const { user } = useUser()
+    // console.log('user', user)
+
+    // Be careful to only return information that should be accessible on the web side.
+    // return {
+    //   id,
+    //   roles: user.publicMetadata?.roles || [],
+    //   ...user.publicMetadata,
+    // }
+
+    // Be careful to only return information that should be accessible on the web side.
+    // return {
+    //   id,
+    //   roles: decoded.metadata?.roles || [],
+    //   ...decoded.metadata,
   }
 }
 

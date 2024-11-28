@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { UserButton } from '@clerk/clerk-react'
+// import { UserButton } from '@clerk/clerk-react'
 import {
   AudioWaveform,
   Calendar,
@@ -102,25 +102,25 @@ const data = {
   navMain: [
     {
       title: 'Building Your Application',
-      url: '#',
+      url: 'homey',
     },
     {
-      title: 'Playground',
+      title: 'Homepage',
       url: '#',
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: 'History',
-          url: '#',
+          title: 'Test',
+          url: 'test',
         },
         {
-          title: 'Starred',
-          url: '#',
+          title: 'Expenses',
+          url: 'expenses',
         },
         {
-          title: 'Settings',
-          url: '#',
+          title: 'New Trip',
+          url: 'trips/new',
         },
       ],
     },
@@ -192,8 +192,8 @@ const data = {
   ],
   projects: [
     {
-      name: 'Design Engineering',
-      url: '#',
+      name: 'Home',
+      url: 'http://localhost:8910/home',
       icon: Frame,
     },
     {
@@ -243,7 +243,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <UserButton />
+        {/* <UserButton /> */}
         {/* <NavUser user={data.user} /> */}
       </SidebarFooter>
       <SidebarRail />

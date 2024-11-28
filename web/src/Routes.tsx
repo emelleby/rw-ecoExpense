@@ -37,10 +37,12 @@ const Routes = () => {
             <Route path="/projects/{id:Int}" page={ProjectProjectPage} name="project" />
             <Route path="/projects" page={ProjectProjectsPage} name="projects" />
           </Set>
-          <Set wrap={ScaffoldLayout} title="Trips" titleTo="trips" buttonLabel="New Trip" buttonTo="newTrip">
+          <Set wrap={AppshellLayout} title="Trips" titleTo="trips" buttonLabel="New Trip" buttonTo="newTrip">
             <Route path="/trips/new" page={TripNewTripPage} name="newTrip" />
             <Route path="/trips/{id:Int}/edit" page={TripEditTripPage} name="editTrip" />
             <Route path="/trips/{id:Int}" page={TripTripPage} name="trip" />
+            <Route path="/trips" page={TripTripsPage} name="trips" />
+
             {/* <Route path="/trips" page={TripTripsPage} name="trips" /> */}
           </Set>
           <Set wrap={AppshellLayout}>
@@ -50,7 +52,6 @@ const Routes = () => {
             {/* <Route path="/projects" page={ProjectsPage} name="projects" /> */}
             {/* <Route path="/trips" page={TripsPage} name="trips" /> */}
             <Route path="/expenses" page={ExpensesPage} name="expenses" />
-            <Route path="/trips" page={TripTripsPage} name="trips" />
           </Set>
         </PrivateSet>
       </PrivateSet>

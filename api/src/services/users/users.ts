@@ -30,6 +30,7 @@ export const updateUser: MutationResolvers['updateUser'] = ({ id, input }) => {
   })
 }
 
+// This code block has been added to support updating user roles. /services/users/users.ts
 export const updateUserRole: MutationResolvers['updateUserRole'] = async ({
   id,
   role,

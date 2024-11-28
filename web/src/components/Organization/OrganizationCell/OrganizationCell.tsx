@@ -1,3 +1,6 @@
+// This file is not in use. We are using the OrganizationCell component one level up at the moment.
+
+import { useAuth } from '@clerk/clerk-react'
 import type {
   FindOrganizationById,
   FindOrganizationByIdVariables,

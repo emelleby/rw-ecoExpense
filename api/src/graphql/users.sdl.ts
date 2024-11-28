@@ -43,6 +43,7 @@ export const schema = gql`
     createUser(input: CreateUserInput!): User! @requireAuth
     updateUser(id: Int!, input: UpdateUserInput!): User! @requireAuth
     deleteUser(id: Int!): User! @requireAuth
+    # This line has been added to support updating user roles
     updateUserRole(id: String!, role: String!, organizationId: Int!): User!
       @skipAuth
   }

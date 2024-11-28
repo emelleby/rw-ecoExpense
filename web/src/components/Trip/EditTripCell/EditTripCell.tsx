@@ -20,6 +20,7 @@ export const QUERY: TypedDocumentNode<EditTripById> = gql`
     trip: trip(id: $id) {
       id
       name
+      description
       startDate
       endDate
       userId
@@ -38,6 +39,7 @@ const UPDATE_TRIP_MUTATION: TypedDocumentNode<
     updateTrip(id: $id, input: $input) {
       id
       name
+      description
       startDate
       endDate
       userId

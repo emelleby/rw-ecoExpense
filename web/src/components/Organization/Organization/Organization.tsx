@@ -1,3 +1,4 @@
+// This is the Show organization component
 import type {
   DeleteOrganizationMutation,
   DeleteOrganizationMutationVariables,

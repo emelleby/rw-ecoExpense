@@ -1,3 +1,4 @@
+// This is the component that is in the onboarding page
 import { useUser } from '@clerk/clerk-react'
 import type {
   CreateOrganizationMutation,

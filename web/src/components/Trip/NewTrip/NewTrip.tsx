@@ -9,6 +9,7 @@ import { useMutation } from '@redwoodjs/web'
 import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { useAuth } from 'src/auth'
 import TripForm from 'src/components/Trip/TripForm'
 
 const CREATE_TRIP_MUTATION: TypedDocumentNode<
@@ -23,6 +24,9 @@ const CREATE_TRIP_MUTATION: TypedDocumentNode<
 `
 
 const NewTrip = () => {
+  const { currentUser } = useAuth()
+  const userId = Number(currentUser.dbUserId)
+
   const [createTrip, { loading, error }] = useMutation(CREATE_TRIP_MUTATION, {
     onCompleted: () => {
       toast.success('Trip created')
@@ -34,7 +38,14 @@ const NewTrip = () => {
   })
 
   const onSave = (input: CreateTripInput) => {
-    createTrip({ variables: { input } })
+    createTrip({
+      variables: {
+        input: {
+          ...input,
+          userId: userId,
+        },
+      },
+    })
   }
 
   return (
