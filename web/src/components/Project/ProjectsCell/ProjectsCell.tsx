@@ -25,7 +25,7 @@ export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => {
   return (
-    <div className="rw-text-center">
+    <div className="rw-text-center mt-6">
       No projects yet.{' '}
       <Link to={routes.newProject()} className="rw-link">
         Create one?

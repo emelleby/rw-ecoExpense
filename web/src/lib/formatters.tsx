@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { format } from 'date-fns'
 import humanize from 'humanize-string'
 
 const MAX_STRING_LENGTH = 150
@@ -39,18 +40,22 @@ export const jsonTruncate = (obj: unknown) => {
   return truncate(JSON.stringify(obj, null, 2))
 }
 
-export const timeTag = (dateTime?: string) => {
-  let output: string | JSX.Element = ''
+// export const timeTag = (dateTime?: string) => {
+//   let output: string | JSX.Element = ''
 
-  if (dateTime) {
-    output = (
-      <time dateTime={dateTime} title={dateTime}>
-        {new Date(dateTime).toUTCString()}
-      </time>
-    )
-  }
+//   if (dateTime) {
+//     output = (
+//       <time dateTime={dateTime} title={dateTime}>
+//         {new Date(dateTime).toUTCString()}
+//       </time>
+//     )
+//   }
 
-  return output
+//   return output
+// }
+
+export const timeTag = (datetime: string) => {
+  return format(new Date(datetime), 'PPP')
 }
 
 export const checkboxInputTag = (checked: boolean) => {

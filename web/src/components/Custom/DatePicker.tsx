@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { Calendar } from 'lucide-react'
 
 import { useController } from '@redwoodjs/forms'
@@ -21,7 +21,7 @@ type DatetimeLocalFieldProps = {
   name: string
   className?: string
   errorClassName?: string
-  defaultValue?: Date
+  defaultValue?: string | Date
   onChange?: (date: Date) => void
   validation?: ValidationRules
 }
@@ -42,13 +42,20 @@ const DatetimeLocalField = ({
     rules: validation,
     defaultValue,
   })
-
+  console.log(`DatePicker ${name} defaultValue:`, defaultValue)
+  // Convert ISO string to Date object if needed
+  const initialDate =
+    typeof defaultValue === 'string' ? new Date(defaultValue) : defaultValue
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    defaultValue
+    initialDate
   )
 
   const handleSelect = (date: Date | undefined) => {
+    console.log(`DatePicker ${name} selected:`, date)
+    console.log(`DatePicker ${name} ISO string:`, date?.toISOString())
     setSelectedDate(date)
+
+    // Always store and transmit full ISO string for DB compatibility
     field.onChange(date?.toISOString())
     onChange?.(date)
   }

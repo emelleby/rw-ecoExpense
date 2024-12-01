@@ -33,6 +33,7 @@ interface TripFormProps {
 }
 
 const TripForm = (props: TripFormProps) => {
+  console.log('Trip data:', props.trip)
   const onSubmit = (data: FormTrip) => {
     props.onSave(data, props?.trip?.id)
   }
@@ -91,7 +92,7 @@ const TripForm = (props: TripFormProps) => {
 
         <DatetimeLocalField
           name="startDate"
-          defaultValue={formatDatetime(props.trip?.startDate)}
+          defaultValue={props.trip?.startDate}
           className="rw-input-calendar"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}
@@ -109,7 +110,7 @@ const TripForm = (props: TripFormProps) => {
 
         <DatetimeLocalField
           name="endDate"
-          defaultValue={formatDatetime(props.trip?.endDate)}
+          defaultValue={props.trip?.endDate}
           className="rw-input-calendar"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}

@@ -12,6 +12,15 @@ import { toast } from '@redwoodjs/web/toast'
 import { QUERY } from 'src/components/Project/ProjectsCell'
 import { truncate } from 'src/lib/formatters'
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/Table'
+
 const DELETE_PROJECT_MUTATION: TypedDocumentNode<
   DeleteProjectMutation,
   DeleteProjectMutationVariables
@@ -46,25 +55,25 @@ const ProjectsList = ({ projects }: FindProjects) => {
 
   return (
     <div className="rw-segment rw-table-wrapper-responsive">
-      <table className="rw-table">
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>User id</th>
-            <th>&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Id</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>User Id</TableHead>
+            <TableHead className="text-right">&nbsp;</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {projects.map((project) => (
-            <tr key={project.id}>
-              <td>{truncate(project.id)}</td>
-              <td>{truncate(project.name)}</td>
-              <td>{truncate(project.description)}</td>
-              <td>{truncate(project.userId)}</td>
-              <td>
-                <nav className="rw-table-actions">
+            <TableRow key={project.id}>
+              <TableCell>{truncate(project.id)}</TableCell>
+              <TableCell>{truncate(project.name)}</TableCell>
+              <TableCell>{truncate(project.description)}</TableCell>
+              <TableCell>{truncate(project.userId)}</TableCell>
+              <TableCell>
+                <nav className="flex justify-end space-x-2">
                   <Link
                     to={routes.project({ id: project.id })}
                     title={'Show project ' + project.id + ' detail'}
@@ -88,11 +97,11 @@ const ProjectsList = ({ projects }: FindProjects) => {
                     Delete
                   </button>
                 </nav>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

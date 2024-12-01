@@ -27,6 +27,7 @@ export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
   return db.trip.create({
     data: {
       name: input.name,
+      description: input.description,
       startDate: input.startDate,
       endDate: input.endDate,
       user: {

@@ -21,8 +21,8 @@ export const QUERY: TypedDocumentNode<EditTripById> = gql`
       id
       name
       description
-      startDate
-      endDate
+      startDate # Will receive ISO format from DB
+      endDate # Will receive ISO format from DB
       userId
       approvedDate
       reimbursementStatus
@@ -40,8 +40,8 @@ const UPDATE_TRIP_MUTATION: TypedDocumentNode<
       id
       name
       description
-      startDate
-      endDate
+      startDate # Will send ISO format from DB
+      endDate # Will send ISO format from DB
       userId
       approvedDate
       reimbursementStatus
@@ -57,6 +57,7 @@ export const Failure = ({ error }: CellFailureProps) => (
 )
 
 export const Success = ({ trip }: CellSuccessProps<EditTripById>) => {
+  console.log('EditTripCell data:', trip)
   const [updateTrip, { loading, error }] = useMutation(UPDATE_TRIP_MUTATION, {
     onCompleted: () => {
       toast.success('Trip updated')
@@ -68,6 +69,7 @@ export const Success = ({ trip }: CellSuccessProps<EditTripById>) => {
   })
 
   const onSave = (input: UpdateTripInput, id: EditTripById['trip']['id']) => {
+    console.log('UpdateTrip mutation payload:', { id, input })
     updateTrip({ variables: { id, input } })
   }
 

@@ -5,6 +5,8 @@ type AppshellLayoutProps = {
 import { UserButton } from '@clerk/clerk-react'
 import { Moon, Sun } from 'lucide-react'
 
+import { Toaster } from '@redwoodjs/web/toast'
+
 import { Button } from '@/components/ui/Button'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/Sidebar'
 import { useTheme } from '@/hooks/useTheme'
@@ -38,6 +40,7 @@ const AppshellLayout = ({ children }: AppshellLayoutProps) => {
           <div className="flex items-center">
             <ThemeToggle />
             <UserButton />
+            <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
           </div>
         </header>
         <main className="container max-w-6xl flex-1">{children}</main>
