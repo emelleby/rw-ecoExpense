@@ -58,7 +58,7 @@ const items = [
   },
   {
     title: 'Add Expense',
-    url: 'addExpense',
+    url: 'newExpense',
     icon: Inbox,
   },
   {

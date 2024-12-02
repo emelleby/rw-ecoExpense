@@ -17,7 +17,7 @@ const features = [
     description:
       'Record a new expense with details such as amount, date, and category.',
     buttonText: 'Add Expense',
-    url: 'addExpense',
+    url: 'newExpense',
   },
   {
     title: 'View Expenses',

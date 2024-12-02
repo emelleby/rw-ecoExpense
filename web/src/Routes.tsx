@@ -51,11 +51,16 @@ const Routes = () => {
             <Route path="/test" page={TestPage} name="test" />
             <Route path="/home" page={HomePage} name="homey" />
             <Route path="/add-expense" page={AddExpensePage} name="addExpense" />
-            <Route path="/expenses" page={ExpensesPage} name="expenses" />
+            <Route path="/expenses2" page={ExpensesPage} name="expenses" />
             <Route path="/projects" page={ProjectProjectsPage} name="projects" />
             <Route path="/projects/new" page={ProjectNewProjectPage} name="newProject" />
             <Route path="/projects/{id:Int}/edit" page={ProjectEditProjectPage} name="editProject" />
             <Route path="/projects/{id:Int}" page={ProjectProjectPage} name="project" />
+
+            <Route path="/expenses/new" page={ExpenseNewExpensePage} name="newExpense" />
+            <Route path="/expenses/{id:Int}/edit" page={ExpenseEditExpensePage} name="editExpense" />
+            <Route path="/expenses/{id:Int}" page={ExpenseExpensePage} name="expense" />
+            <Route path="/expenses" page={ExpenseExpensesPage} name="expenses" />
           </Set>
         </PrivateSet>
       </PrivateSet>

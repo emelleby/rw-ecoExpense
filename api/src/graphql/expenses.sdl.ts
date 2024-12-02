@@ -1,31 +1,35 @@
 export const schema = gql`
   type Expense {
     id: Int!
+    categoryId: Int!
+    category: ExpenseCategory!
     amount: Float!
     currency: String!
     exchangeRate: Float!
     nokAmount: Float!
     date: DateTime!
     description: String
-    supplierId: Int!
-    supplier: Supplier!
-    tripId: Int
-    trip: Trip
+    kilometers: Float!
+    fuelType: String!
+    fuelAmountLiters: Float!
+    sectorId: Int
+    Sector: Sector
+    supplierId: Int
+    supplier: Supplier
+    tripId: Int!
+    trip: Trip!
     projectId: Int
     project: Project
-    categoryId: Int!
-    category: ExpenseCategory!
     userId: Int!
     user: User!
     receiptFilename: String
     receiptPath: String
     receiptUploadedAt: DateTime
-    kilometers: Float!
-    fuelType: String!
-    fuelAmountLiters: Float!
     scope1Co2Emissions: Float!
+    scope2Co2Emissions: Float!
     scope3Co2Emissions: Float!
     kwh: Float!
+    scope3CategoryId: Int!
   }
 
   type Query {
@@ -34,49 +38,55 @@ export const schema = gql`
   }
 
   input CreateExpenseInput {
+    categoryId: Int!
     amount: Float!
     currency: String!
     exchangeRate: Float!
     nokAmount: Float!
     date: DateTime!
     description: String
-    supplierId: Int!
-    tripId: Int
+    kilometers: Float!
+    fuelType: String!
+    fuelAmountLiters: Float!
+    sectorId: Int
+    supplierId: Int
+    tripId: Int!
     projectId: Int
-    categoryId: Int!
     userId: Int!
     receiptFilename: String
     receiptPath: String
     receiptUploadedAt: DateTime
-    kilometers: Float!
-    fuelType: String!
-    fuelAmountLiters: Float!
     scope1Co2Emissions: Float!
+    scope2Co2Emissions: Float!
     scope3Co2Emissions: Float!
     kwh: Float!
+    scope3CategoryId: Int!
   }
 
   input UpdateExpenseInput {
+    categoryId: Int
     amount: Float
     currency: String
     exchangeRate: Float
     nokAmount: Float
     date: DateTime
     description: String
+    kilometers: Float
+    fuelType: String
+    fuelAmountLiters: Float
+    sectorId: Int
     supplierId: Int
     tripId: Int
     projectId: Int
-    categoryId: Int
     userId: Int
     receiptFilename: String
     receiptPath: String
     receiptUploadedAt: DateTime
-    kilometers: Float
-    fuelType: String
-    fuelAmountLiters: Float
     scope1Co2Emissions: Float
+    scope2Co2Emissions: Float
     scope3Co2Emissions: Float
     kwh: Float
+    scope3CategoryId: Int
   }
 
   type Mutation {

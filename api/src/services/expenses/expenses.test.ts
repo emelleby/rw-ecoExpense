@@ -1,4 +1,4 @@
-import type { Expense } from '@prisma/client'
+import { Prisma, Expense } from '@prisma/client'
 
 import {
   expenses,
@@ -31,20 +31,20 @@ describe('expenses', () => {
   scenario('creates a expense', async (scenario: StandardScenario) => {
     const result = await createExpense({
       input: {
-        amount: 168763.03014920157,
-        currency: 'String',
-        nokAmount: 2130024.1070896275,
-        supplierId: scenario.expense.two.supplierId,
         categoryId: scenario.expense.two.categoryId,
+        amount: 309798.09458905994,
+        currency: 'String',
+        nokAmount: 7600771.620770918,
+        tripId: scenario.expense.two.tripId,
         userId: scenario.expense.two.userId,
       },
     })
 
-    expect(result.amount).toEqual(168763.03014920157)
-    expect(result.currency).toEqual('String')
-    expect(result.nokAmount).toEqual(2130024.1070896275)
-    expect(result.supplierId).toEqual(scenario.expense.two.supplierId)
     expect(result.categoryId).toEqual(scenario.expense.two.categoryId)
+    expect(result.amount).toEqual(new Prisma.Decimal(309798.09458905994))
+    expect(result.currency).toEqual('String')
+    expect(result.nokAmount).toEqual(new Prisma.Decimal(7600771.620770918))
+    expect(result.tripId).toEqual(scenario.expense.two.tripId)
     expect(result.userId).toEqual(scenario.expense.two.userId)
   })
 
@@ -52,10 +52,10 @@ describe('expenses', () => {
     const original = (await expense({ id: scenario.expense.one.id })) as Expense
     const result = await updateExpense({
       id: original.id,
-      input: { amount: 8891296.867525356 },
+      input: { amount: 1084566.0444929984 },
     })
 
-    expect(result.amount).toEqual(8891296.867525356)
+    expect(result.amount).toEqual(new Prisma.Decimal(1084566.0444929984))
   })
 
   scenario('deletes a expense', async (scenario: StandardScenario) => {
