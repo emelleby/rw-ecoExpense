@@ -27,7 +27,7 @@ const OnboardingPage = () => {
   }
   // Redirect if user already has a role
   // Option 2: Use the built-in hasRole helper from auth.ts
-  if (hasRole(['admin', 'member'])) {
+  if (hasRole(['admin', 'member', 'superuser'])) {
     return <Redirect to={routes.homey()} />
   }
 

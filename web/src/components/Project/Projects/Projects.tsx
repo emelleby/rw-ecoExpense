@@ -54,55 +54,63 @@ const ProjectsList = ({ projects }: FindProjects) => {
   }
 
   return (
-    <div className="rw-segment rw-table-wrapper-responsive">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Id</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>User Id</TableHead>
-            <TableHead className="text-right">&nbsp;</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {projects.map((project) => (
-            <TableRow key={project.id}>
-              <TableCell>{truncate(project.id)}</TableCell>
-              <TableCell>{truncate(project.name)}</TableCell>
-              <TableCell>{truncate(project.description)}</TableCell>
-              <TableCell>{truncate(project.userId)}</TableCell>
-              <TableCell>
-                <nav className="flex justify-end space-x-2">
-                  <Link
-                    to={routes.project({ id: project.id })}
-                    title={'Show project ' + project.id + ' detail'}
-                    className="rw-button rw-button-small"
-                  >
-                    Show
-                  </Link>
-                  <Link
-                    to={routes.editProject({ id: project.id })}
-                    title={'Edit project ' + project.id}
-                    className="rw-button rw-button-small rw-button-blue"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    title={'Delete project ' + project.id}
-                    className="rw-button rw-button-small rw-button-red"
-                    onClick={() => onDeleteClick(project.id)}
-                  >
-                    Delete
-                  </button>
-                </nav>
-              </TableCell>
+    <>
+      <Link
+        to={routes.newProject()}
+        className="rw-button rw-button-primary m-4 items-center"
+      >
+        <div className="rw-button-icon">+</div> New Project
+      </Link>
+      <div className="rw-segment rw-table-wrapper-responsive">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Id</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>User Id</TableHead>
+              <TableHead className="text-right">&nbsp;</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {projects.map((project) => (
+              <TableRow key={project.id}>
+                <TableCell>{truncate(project.id)}</TableCell>
+                <TableCell>{truncate(project.name)}</TableCell>
+                <TableCell>{truncate(project.description)}</TableCell>
+                <TableCell>{truncate(project.userId)}</TableCell>
+                <TableCell>
+                  <nav className="flex justify-end space-x-2">
+                    <Link
+                      to={routes.project({ id: project.id })}
+                      title={'Show project ' + project.id + ' detail'}
+                      className="rw-button rw-button-small"
+                    >
+                      Show
+                    </Link>
+                    <Link
+                      to={routes.editProject({ id: project.id })}
+                      title={'Edit project ' + project.id}
+                      className="rw-button rw-button-small rw-button-blue"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      type="button"
+                      title={'Delete project ' + project.id}
+                      className="rw-button rw-button-small rw-button-red"
+                      onClick={() => onDeleteClick(project.id)}
+                    >
+                      Delete
+                    </button>
+                  </nav>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   )
 }
 

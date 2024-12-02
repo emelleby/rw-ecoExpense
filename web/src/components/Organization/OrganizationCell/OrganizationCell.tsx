@@ -25,6 +25,13 @@ export const QUERY: TypedDocumentNode<
       name
       description
       createdAt
+      users {
+        id
+        username
+        email
+        firstName
+        lastName
+      }
     }
   }
 `

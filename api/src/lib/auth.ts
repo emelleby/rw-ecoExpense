@@ -77,7 +77,7 @@ export const isAuthenticated = () => {
  * When checking role membership, roles can be a single value, a list, or none.
  * You can use Prisma enums too (if you're using them for roles), just import your enum type from `@prisma/client`
  */
-type AllowedRoles = 'admin' | 'member' | string | string[]
+type AllowedRoles = 'admin' | 'member' | 'superuser' | string | string[]
 
 /**
  * Checks if the currentUser is authenticated (and assigned one of the given roles)

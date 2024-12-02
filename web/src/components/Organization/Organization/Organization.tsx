@@ -12,6 +12,8 @@ import { toast } from '@redwoodjs/web/toast'
 
 import { timeTag } from 'src/lib/formatters'
 
+import OrganizationUsers from '@/components/OrganizationUsers/OrganizationUsers'
+
 const DELETE_ORGANIZATION_MUTATION: TypedDocumentNode<
   DeleteOrganizationMutation,
   DeleteOrganizationMutationVariables
@@ -92,6 +94,7 @@ const Organization = ({ organization }: Props) => {
           Delete
         </button>
       </nav>
+      <OrganizationUsers users={organization.users} />
     </>
   )
 }

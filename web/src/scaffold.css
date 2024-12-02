@@ -116,7 +116,7 @@
   @apply bg-rose-700 text-white;
 }
 .rw-button-icon {
-  @apply mr-1 text-xl leading-5;
+  @apply mr-1 text-xl leading-5 h-6;
 }
 .rw-button-group {
   @apply mx-2 my-3 flex justify-center;
@@ -213,6 +213,12 @@
 }
 .rw-table-actions .rw-button:hover {
   @apply bg-gray-500 text-white;
+}
+.rw-table-actions .rw-button-green {
+  @apply text-emerald-600;
+}
+.rw-table-actions .rw-button-green:hover {
+  @apply bg-emerald-600 text-white;
 }
 .rw-table-actions .rw-button-blue {
   @apply text-blue-500;

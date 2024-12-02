@@ -49,28 +49,28 @@ const OrganizationsList = ({ organizations }: FindOrganizations) => {
       <table className="rw-table">
         <thead>
           <tr>
-            <th>Id</th>
             <th>Regnr</th>
             <th>Name</th>
             <th>Description</th>
             <th>Created at</th>
-            <th>&nbsp;</th>
+            <th># Members</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {organizations.map((organization) => (
             <tr key={organization.id}>
-              <td>{truncate(organization.id)}</td>
               <td>{truncate(organization.regnr)}</td>
               <td>{truncate(organization.name)}</td>
               <td>{truncate(organization.description)}</td>
               <td>{timeTag(organization.createdAt)}</td>
+              <td>{truncate(organization.users.length)}</td>
               <td>
                 <nav className="rw-table-actions">
                   <Link
                     to={routes.organization({ id: organization.id })}
                     title={'Show organization ' + organization.id + ' detail'}
-                    className="rw-button rw-button-small"
+                    className="rw-button rw-button-small rw-button-green"
                   >
                     Show
                   </Link>

@@ -20,6 +20,7 @@ const ScaffoldLayout = ({
     <div className="rw-scaffold">
       <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
       <header className="rw-header">
+        <Link to={routes.homey()}>Home</Link>
         <h1 className="rw-heading rw-heading-primary">
           <Link to={routes[titleTo]()} className="rw-link">
             {title}

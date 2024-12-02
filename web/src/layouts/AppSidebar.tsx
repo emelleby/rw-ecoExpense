@@ -22,9 +22,10 @@ import {
   FlaskRound,
 } from 'lucide-react'
 
-import { Link, routes } from '@redwoodjs/router'
+import { NavLink, Link, routes } from '@redwoodjs/router'
 import { useLocation } from '@redwoodjs/router'
 
+import { useAuth } from 'src/auth'
 import { NavMain } from 'src/components/NavMain'
 import { NavProjects } from 'src/components/NavProjects'
 import { NavUser } from 'src/components/NavUser'
@@ -212,6 +213,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setOpenMobile } = useSidebar()
   const { pathname } = useLocation()
+  const { hasRole } = useAuth()
 
   const handleLinkClick = () => {
     setOpenMobile(false)
@@ -245,6 +247,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         {/* <UserButton /> */}
         {/* <NavUser user={data.user} /> */}
+        {hasRole('superuser') && (
+          <NavLink
+            to={routes.organizations()}
+            className="text-gray-400"
+            activeClassName="text-gray-900"
+          >
+            Manage Organizations
+          </NavLink>
+        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
