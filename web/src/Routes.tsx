@@ -21,6 +21,12 @@ const Routes = () => {
   console.log('currentUser', currentUser)
   return (
     <Router useAuth={useAuth}>
+      <PrivateSet wrap={ScaffoldLayout} whileLoadingPage={LoaderSpinner} unauthenticated="homey" roles={['superuser']} title="Sectors" titleTo="sectors" buttonLabel="New Sector" buttonTo="newSector">
+        <Route path="/sectors/new" page={SectorNewSectorPage} name="newSector" />
+        <Route path="/sectors/{id:Int}/edit" page={SectorEditSectorPage} name="editSector" />
+        <Route path="/sectors/{id:Int}" page={SectorSectorPage} name="sector" />
+        <Route path="/sectors" page={SectorSectorsPage} name="sectors" />
+      </PrivateSet>
       <PrivateSet whileLoadingPage={LoaderSpinner} unauthenticated="homey" roles={['superuser']} wrap={ScaffoldLayout} title="Organizations" titleTo="organizations" buttonLabel="New Organization" buttonTo="newOrganization">
         <Route path="/admin/organizations/new" page={OrganizationNewOrganizationPage} name="newOrganization" />
         <Route path="/admin/organizations/{id:Int}/edit" page={OrganizationEditOrganizationPage} name="editOrganization" />

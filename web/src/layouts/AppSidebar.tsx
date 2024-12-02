@@ -248,13 +248,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <UserButton /> */}
         {/* <NavUser user={data.user} /> */}
         {hasRole('superuser') && (
-          <NavLink
-            to={routes.organizations()}
-            className="text-gray-400"
-            activeClassName="text-gray-900"
-          >
-            Manage Organizations
-          </NavLink>
+          <div className="flex flex-col space-y-4">
+            <NavLink
+              to={routes.organizations()}
+              className="text-gray-400"
+              activeClassName="text-gray-900"
+            >
+              Manage Organizations
+            </NavLink>
+            <NavLink
+              to={routes.sectors()}
+              className="text-gray-400"
+              activeClassName="text-gray-900"
+            >
+              Manage Sectors
+            </NavLink>
+            {/* Add more NavLinks as needed */}
+          </div>
         )}
       </SidebarFooter>
       <SidebarRail />
