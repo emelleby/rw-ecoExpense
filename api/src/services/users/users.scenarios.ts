@@ -5,37 +5,19 @@ export const standard = defineScenario<Prisma.UserCreateArgs>({
   user: {
     one: {
       data: {
-        username: 'String9713308',
-        email: 'String6045150',
-        firstName: 'String',
+        username: 'String9745742',
+        email: 'String9402059',
         organization: {
-          create: { regnr: 'String3765678', name: 'String6081827' },
-        },
-        role: {
-          create: {
-            name: 'String',
-            organization: {
-              create: { regnr: 'String6228968', name: 'String324556' },
-            },
-          },
+          create: { regnr: 'String4331466', name: 'String1427716' },
         },
       },
     },
     two: {
       data: {
-        username: 'String5148374',
-        email: 'String4951751',
-        firstName: 'String',
+        username: 'String5461410',
+        email: 'String8558713',
         organization: {
-          create: { regnr: 'String854651', name: 'String3778119' },
-        },
-        role: {
-          create: {
-            name: 'String',
-            organization: {
-              create: { regnr: 'String9665663', name: 'String4351475' },
-            },
-          },
+          create: { regnr: 'String413794', name: 'String6299238' },
         },
       },
     },

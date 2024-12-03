@@ -1,0 +1,21 @@
+// This code block has been added to support updating user roles. /services/users/users.ts
+export const updateUserRole: MutationResolvers['updateUserRole'] = async ({
+  id,
+  role,
+  organizationId,
+}) => {
+  // Update Clerk user metadata
+  await clerkClient.users.updateUser(id, {
+    publicMetadata: {
+      roles: role,
+      organizationId,
+    },
+  })
+
+  // Find and return existing user
+  const user = await db.user.findUnique({
+    where: { clerkId: id },
+  })
+  return user
+}
+

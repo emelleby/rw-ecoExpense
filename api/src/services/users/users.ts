@@ -1,3 +1,4 @@
+import { clerkClient } from '@clerk/express'
 import type {
   QueryResolvers,
   MutationResolvers,
@@ -29,6 +30,27 @@ export const updateUser: MutationResolvers['updateUser'] = ({ id, input }) => {
   })
 }
 
+// This code block has been added to support updating user roles. /services/users/users.ts
+export const updateUserRole: MutationResolvers['updateUserRole'] = async ({
+  id,
+  role,
+  organizationId,
+}) => {
+  // Update Clerk user metadata
+  await clerkClient.users.updateUser(id, {
+    publicMetadata: {
+      roles: role,
+      organizationId,
+    },
+  })
+
+  // Find and return existing user
+  const user = await db.user.findUnique({
+    where: { clerkId: id },
+  })
+  return user
+}
+
 export const deleteUser: MutationResolvers['deleteUser'] = ({ id }) => {
   return db.user.delete({
     where: { id },
@@ -38,9 +60,6 @@ export const deleteUser: MutationResolvers['deleteUser'] = ({ id }) => {
 export const User: UserRelationResolvers = {
   organization: (_obj, { root }) => {
     return db.user.findUnique({ where: { id: root?.id } }).organization()
-  },
-  role: (_obj, { root }) => {
-    return db.user.findUnique({ where: { id: root?.id } }).role()
   },
   expenses: (_obj, { root }) => {
     return db.user.findUnique({ where: { id: root?.id } }).expenses()

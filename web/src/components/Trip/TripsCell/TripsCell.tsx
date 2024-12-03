@@ -1,4 +1,5 @@
-import type { FindTrips, FindTripsVariables } from 'types/graphql'
+// import type { FindTrips, FindTripsVariables } from 'types/graphql'
+import type { TripsByUser, TripsByUserVariables } from 'types/graphql'
 
 import { Link, routes } from '@redwoodjs/router'
 import type {
@@ -9,11 +10,12 @@ import type {
 
 import Trips from 'src/components/Trip/Trips'
 
-export const QUERY: TypedDocumentNode<FindTrips, FindTripsVariables> = gql`
-  query FindTrips {
-    trips {
+export const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
+  query TripsByUser {
+    tripsByUser {
       id
       name
+      description
       startDate
       endDate
       userId
@@ -23,6 +25,21 @@ export const QUERY: TypedDocumentNode<FindTrips, FindTripsVariables> = gql`
     }
   }
 `
+
+// export const QUERY: TypedDocumentNode<FindTrips, FindTripsVariables> = gql`
+//   query FindTrips {
+//     trips {
+//       id
+//       name
+//       startDate
+//       endDate
+//       userId
+//       approvedDate
+//       reimbursementStatus
+//       transactionId
+//     }
+//   }
+// `
 
 export const Loading = () => <div>Loading...</div>
 
@@ -37,12 +54,12 @@ export const Empty = () => {
   )
 }
 
-export const Failure = ({ error }: CellFailureProps<FindTrips>) => (
+export const Failure = ({ error }: CellFailureProps<TripsByUser>) => (
   <div className="rw-cell-error">{error?.message}</div>
 )
 
 export const Success = ({
-  trips,
-}: CellSuccessProps<FindTrips, FindTripsVariables>) => {
-  return <Trips trips={trips} />
+  tripsByUser,
+}: CellSuccessProps<TripsByUser, TripsByUserVariables>) => {
+  return <Trips tripsByUser={tripsByUser} />
 }

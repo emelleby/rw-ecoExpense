@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { UserButton } from '@clerk/clerk-react'
+// import { UserButton } from '@clerk/clerk-react'
 import {
   AudioWaveform,
   Calendar,
@@ -22,9 +22,10 @@ import {
   FlaskRound,
 } from 'lucide-react'
 
-import { Link, routes } from '@redwoodjs/router'
+import { NavLink, Link, routes } from '@redwoodjs/router'
 import { useLocation } from '@redwoodjs/router'
 
+import { useAuth } from 'src/auth'
 import { NavMain } from 'src/components/NavMain'
 import { NavProjects } from 'src/components/NavProjects'
 import { NavUser } from 'src/components/NavUser'
@@ -57,7 +58,7 @@ const items = [
   },
   {
     title: 'Add Expense',
-    url: 'addExpense',
+    url: 'newExpense',
     icon: Inbox,
   },
   {
@@ -102,25 +103,25 @@ const data = {
   navMain: [
     {
       title: 'Building Your Application',
-      url: '#',
+      url: 'homey',
     },
     {
-      title: 'Playground',
+      title: 'Homepage',
       url: '#',
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: 'History',
-          url: '#',
+          title: 'Test',
+          url: 'test',
         },
         {
-          title: 'Starred',
-          url: '#',
+          title: 'Expenses',
+          url: 'expenses',
         },
         {
-          title: 'Settings',
-          url: '#',
+          title: 'New Trip',
+          url: 'trips/new',
         },
       ],
     },
@@ -192,8 +193,8 @@ const data = {
   ],
   projects: [
     {
-      name: 'Design Engineering',
-      url: '#',
+      name: 'Home',
+      url: 'http://localhost:8910/home',
       icon: Frame,
     },
     {
@@ -212,6 +213,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setOpenMobile } = useSidebar()
   const { pathname } = useLocation()
+  const { hasRole } = useAuth()
 
   const handleLinkClick = () => {
     setOpenMobile(false)
@@ -243,8 +245,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <UserButton />
+        {/* <UserButton /> */}
         {/* <NavUser user={data.user} /> */}
+        {hasRole('superuser') && (
+          <div className="flex flex-col space-y-4">
+            <NavLink
+              to={routes.organizations()}
+              className="text-gray-400"
+              activeClassName="text-gray-900"
+            >
+              Manage Organizations
+            </NavLink>
+            <NavLink
+              to={routes.sectors()}
+              className="text-gray-400"
+              activeClassName="text-gray-900"
+            >
+              Manage Sectors
+            </NavLink>
+            {/* Add more NavLinks as needed */}
+          </div>
+        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

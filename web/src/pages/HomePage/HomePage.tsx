@@ -11,40 +11,40 @@ import {
   CardFooter,
 } from 'src/components/ui/Card'
 
+const features = [
+  {
+    title: 'Add New Expense',
+    description:
+      'Record a new expense with details such as amount, date, and category.',
+    buttonText: 'Add Expense',
+    url: 'newExpense',
+  },
+  {
+    title: 'View Expenses',
+    description: 'See a list of all recorded expenses and their details.',
+    buttonText: 'View Expenses',
+    url: 'expenses',
+  },
+  {
+    title: 'Manage Suppliers',
+    description: 'Add or view suppliers for your expenses.',
+    buttonText: 'Manage Suppliers',
+    url: 'test',
+  },
+  {
+    title: 'Manage Trips',
+    description: 'Create or view trips to associate with expenses.',
+    buttonText: 'Manage Trips',
+    url: 'trips',
+  },
+  {
+    title: 'Manage Projects',
+    description: 'Create or view projects to associate with expenses.',
+    buttonText: 'Manage Projects',
+    url: 'projects',
+  },
+]
 const HomePage = () => {
-  const features = [
-    {
-      title: 'Add New Expense',
-      description:
-        'Record a new expense with details such as amount, date, and category.',
-      buttonText: 'Add Expense',
-      url: 'addExpense',
-    },
-    {
-      title: 'View Expenses',
-      description: 'See a list of all recorded expenses and their details.',
-      buttonText: 'View Expenses',
-      url: 'expenses',
-    },
-    {
-      title: 'Manage Suppliers',
-      description: 'Add or view suppliers for your expenses.',
-      buttonText: 'Manage Suppliers',
-      url: 'test',
-    },
-    {
-      title: 'Manage Trips',
-      description: 'Create or view trips to associate with expenses.',
-      buttonText: 'Manage Trips',
-      url: 'trips',
-    },
-    {
-      title: 'Manage Projects',
-      description: 'Create or view projects to associate with expenses.',
-      buttonText: 'Manage Projects',
-      url: 'projects',
-    },
-  ]
   return (
     <>
       <Metadata title="Home" description="Home page" />
@@ -69,9 +69,13 @@ const HomePage = () => {
                 <p className="mb-4">{feature.description}</p>
               </CardContent>
               <CardFooter className="mt-auto">
-                <Link to={routes[feature.url]()}>
-                  <Button>{feature.buttonText}</Button>
-                </Link>
+                {routes[feature.url] ? (
+                  <Link to={routes[feature.url]()}>
+                    <Button>{feature.buttonText}</Button>
+                  </Link>
+                ) : (
+                  <p>Invalid route</p>
+                )}
               </CardFooter>
             </Card>
           ))}

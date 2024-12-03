@@ -5,33 +5,32 @@ export const standard = defineScenario<Prisma.ExpenseCreateArgs>({
   expense: {
     one: {
       data: {
-        amount: 5331541.8083723,
+        amount: 8182321.249507456,
         currency: 'String',
-        nokAmount: 5962913.464817204,
-        supplier: {
+        nokAmount: 4129900.1445682524,
+        category: { create: { name: 'String333652' } },
+        trip: {
           create: {
             name: 'String',
-            organization: {
-              create: { regnr: 'String8799290', name: 'String7570699' },
+            startDate: '2024-12-02T20:00:56.229Z',
+            endDate: '2024-12-02T20:00:56.229Z',
+            user: {
+              create: {
+                username: 'String2282011',
+                email: 'String4473013',
+                organization: {
+                  create: { regnr: 'String628283', name: 'String3049273' },
+                },
+              },
             },
           },
         },
-        category: { create: { name: 'String1691293' } },
         user: {
           create: {
-            username: 'String7269584',
-            email: 'String771949',
-            passwordHash: 'String',
+            username: 'String3300629',
+            email: 'String4377260',
             organization: {
-              create: { regnr: 'String5252997', name: 'String2218503' },
-            },
-            role: {
-              create: {
-                name: 'String',
-                organization: {
-                  create: { regnr: 'String4302930', name: 'String5307512' },
-                },
-              },
+              create: { regnr: 'String6214258', name: 'String2117459' },
             },
           },
         },
@@ -39,33 +38,32 @@ export const standard = defineScenario<Prisma.ExpenseCreateArgs>({
     },
     two: {
       data: {
-        amount: 9332082.496461939,
+        amount: 8011036.815225876,
         currency: 'String',
-        nokAmount: 6917784.51323203,
-        supplier: {
+        nokAmount: 9565364.218960198,
+        category: { create: { name: 'String8151301' } },
+        trip: {
           create: {
             name: 'String',
-            organization: {
-              create: { regnr: 'String4305169', name: 'String871823' },
+            startDate: '2024-12-02T20:00:56.229Z',
+            endDate: '2024-12-02T20:00:56.229Z',
+            user: {
+              create: {
+                username: 'String2224934',
+                email: 'String6192527',
+                organization: {
+                  create: { regnr: 'String5072257', name: 'String6367941' },
+                },
+              },
             },
           },
         },
-        category: { create: { name: 'String7268796' } },
         user: {
           create: {
-            username: 'String9429463',
-            email: 'String4972862',
-            passwordHash: 'String',
+            username: 'String9060805',
+            email: 'String8802792',
             organization: {
-              create: { regnr: 'String1152693', name: 'String2220123' },
-            },
-            role: {
-              create: {
-                name: 'String',
-                organization: {
-                  create: { regnr: 'String217694', name: 'String3763879' },
-                },
-              },
+              create: { regnr: 'String3990121', name: 'String9595385' },
             },
           },
         },

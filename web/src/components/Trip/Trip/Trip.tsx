@@ -11,6 +11,9 @@ import { toast } from '@redwoodjs/web/toast'
 
 import { formatEnum, timeTag } from 'src/lib/formatters'
 
+import { Badge } from '@/components/ui/Badge'
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/Table'
+
 const DELETE_TRIP_MUTATION: TypedDocumentNode<
   DeleteTripMutation,
   DeleteTripMutationVariables
@@ -48,45 +51,45 @@ const Trip = ({ trip }: Props) => {
       <div className="rw-segment">
         <header className="rw-segment-header">
           <h2 className="rw-heading rw-heading-secondary">
-            Trip {trip.id} Detail
+            Trip Details: {trip.name}
           </h2>
         </header>
-        <table className="rw-table">
-          <tbody>
-            <tr>
-              <th>Id</th>
-              <td>{trip.id}</td>
-            </tr>
-            <tr>
-              <th>Name</th>
-              <td>{trip.name}</td>
-            </tr>
-            <tr>
-              <th>Start date</th>
-              <td>{timeTag(trip.startDate)}</td>
-            </tr>
-            <tr>
-              <th>End date</th>
-              <td>{timeTag(trip.endDate)}</td>
-            </tr>
-            <tr>
-              <th>User id</th>
-              <td>{trip.userId}</td>
-            </tr>
-            <tr>
-              <th>Approved date</th>
-              <td>{timeTag(trip.approvedDate)}</td>
-            </tr>
-            <tr>
-              <th>Reimbursement status</th>
-              <td>{formatEnum(trip.reimbursementStatus)}</td>
-            </tr>
-            <tr>
-              <th>Transaction id</th>
-              <td>{trip.transactionId}</td>
-            </tr>
-          </tbody>
-        </table>
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell className="font-medium">Name</TableCell>
+              <TableCell>{trip.name}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Description</TableCell>
+              <TableCell>{trip.description}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Start Date</TableCell>
+              <TableCell>{timeTag(trip.startDate)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">End Date</TableCell>
+              <TableCell>{timeTag(trip.endDate)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">
+                Reimbursement Status
+              </TableCell>
+              <TableCell>
+                <Badge variant="info">
+                  {formatEnum(trip.reimbursementStatus)}
+                </Badge>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Approved Date</TableCell>
+              <TableCell>
+                {trip.approvedDate ? timeTag(trip.approvedDate) : '-'}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
       <nav className="rw-button-group">
         <Link

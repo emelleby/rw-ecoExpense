@@ -1,5 +1,8 @@
+// import { useUser } from '@clerk/clerk-react'
+
 import { AuthenticationError, ForbiddenError } from '@redwoodjs/graphql-server'
 
+import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
 
 /**
@@ -26,10 +29,39 @@ export const getCurrentUser = async (
     return null
   }
 
-  const { id, ..._rest } = decoded
+  // Here we are trying to get the user from the database.
+  const { id: clerkId, ..._rest } = decoded
 
-  // Be careful to only return information that should be accessible on the web side.
-  return { id }
+  // Get DB user if exists
+  const dbUser = await db.user.findUnique({
+    where: { clerkId },
+  })
+
+  return {
+    id: clerkId,
+    dbUserId: dbUser?.id,
+    ...decoded.metadata,
+    ..._rest,
+
+    // const { id, ..._rest } = decoded
+
+    // Fetch the user from Clerk
+    // const { user } = useUser()
+    // console.log('user', user)
+
+    // Be careful to only return information that should be accessible on the web side.
+    // return {
+    //   id,
+    //   roles: user.publicMetadata?.roles || [],
+    //   ...user.publicMetadata,
+    // }
+
+    // Be careful to only return information that should be accessible on the web side.
+    // return {
+    //   id,
+    //   roles: decoded.metadata?.roles || [],
+    //   ...decoded.metadata,
+  }
 }
 
 /**
@@ -45,12 +77,7 @@ export const isAuthenticated = () => {
  * When checking role membership, roles can be a single value, a list, or none.
  * You can use Prisma enums too (if you're using them for roles), just import your enum type from `@prisma/client`
  */
-type AllowedRoles = string | string[] | undefined
-
-/**
- * When checking role membership, roles can be a single value, a list, or none.
- * You can use Prisma enums too (if you're using them for roles), just import your enum type from `@prisma/client`
- */
+type AllowedRoles = 'admin' | 'member' | 'superuser' | string | string[]
 
 /**
  * Checks if the currentUser is authenticated (and assigned one of the given roles)

@@ -1,15 +1,14 @@
 export const schema = gql`
   type User {
     id: Int!
+    clerkId: String
     username: String!
     email: String!
     firstName: String
     lastName: String
-    isAdmin: Boolean!
+    bankAccount: String
     organizationId: Int!
     organization: Organization!
-    roleId: Int!
-    role: Role!
     expenses: [Expense]!
     trips: [Trip]!
     projects: [Project]!
@@ -21,28 +20,31 @@ export const schema = gql`
   }
 
   input CreateUserInput {
+    clerkId: String
     username: String!
     email: String!
     firstName: String
     lastName: String
-    isAdmin: Boolean!
+    bankAccount: String
     organizationId: Int!
-    roleId: Int!
   }
 
   input UpdateUserInput {
+    clerkId: String
     username: String
     email: String
     firstName: String
     lastName: String
-    isAdmin: Boolean
+    bankAccount: String
     organizationId: Int
-    roleId: Int
   }
 
   type Mutation {
     createUser(input: CreateUserInput!): User! @requireAuth
     updateUser(id: Int!, input: UpdateUserInput!): User! @requireAuth
     deleteUser(id: Int!): User! @requireAuth
+    # This line has been added to support updating user roles
+    updateUserRole(id: String!, role: String!, organizationId: Int!): User!
+      @skipAuth
   }
 `

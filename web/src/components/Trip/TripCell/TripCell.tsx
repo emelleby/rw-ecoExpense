@@ -14,6 +14,7 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
       trip: trip(id: $id) {
         id
         name
+        description
         startDate
         endDate
         userId

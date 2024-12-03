@@ -41,6 +41,12 @@ export const deleteExpense: MutationResolvers['deleteExpense'] = ({ id }) => {
 }
 
 export const Expense: ExpenseRelationResolvers = {
+  category: (_obj, { root }) => {
+    return db.expense.findUnique({ where: { id: root?.id } }).category()
+  },
+  Sector: (_obj, { root }) => {
+    return db.expense.findUnique({ where: { id: root?.id } }).Sector()
+  },
   supplier: (_obj, { root }) => {
     return db.expense.findUnique({ where: { id: root?.id } }).supplier()
   },
@@ -49,9 +55,6 @@ export const Expense: ExpenseRelationResolvers = {
   },
   project: (_obj, { root }) => {
     return db.expense.findUnique({ where: { id: root?.id } }).project()
-  },
-  category: (_obj, { root }) => {
-    return db.expense.findUnique({ where: { id: root?.id } }).category()
   },
   user: (_obj, { root }) => {
     return db.expense.findUnique({ where: { id: root?.id } }).user()

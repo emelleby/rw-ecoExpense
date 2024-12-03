@@ -12,33 +12,57 @@ import AppshellLayout from 'src/layouts/AppshellLayout'
 import ScaffoldLayout from 'src/layouts/ScaffoldLayout'
 
 import { useAuth } from './auth'
+import LoaderSpinner from './components/LoaderSpinner/LoaderSpinner'
 
 const Routes = () => {
+  // const { user } = useUser()
+  // const roles = user.publicMetadata?.roles
+  const { currentUser } = useAuth()
+  console.log('currentUser', currentUser)
   return (
     <Router useAuth={useAuth}>
+      <PrivateSet wrap={ScaffoldLayout} whileLoadingPage={LoaderSpinner} unauthenticated="homey" roles={['superuser']} title="Sectors" titleTo="sectors" buttonLabel="New Sector" buttonTo="newSector">
+        <Route path="/sectors/new" page={SectorNewSectorPage} name="newSector" />
+        <Route path="/sectors/{id:Int}/edit" page={SectorEditSectorPage} name="editSector" />
+        <Route path="/sectors/{id:Int}" page={SectorSectorPage} name="sector" />
+        <Route path="/sectors" page={SectorSectorsPage} name="sectors" />
+      </PrivateSet>
+      <PrivateSet whileLoadingPage={LoaderSpinner} unauthenticated="homey" roles={['superuser']} wrap={ScaffoldLayout} title="Organizations" titleTo="organizations" buttonLabel="New Organization" buttonTo="newOrganization">
+        <Route path="/admin/organizations/new" page={OrganizationNewOrganizationPage} name="newOrganization" />
+        <Route path="/admin/organizations/{id:Int}/edit" page={OrganizationEditOrganizationPage} name="editOrganization" />
+        <Route path="/admin/organizations/{id:Int}" page={OrganizationOrganizationPage} name="organization" />
+        <Route path="/admin/organizations" page={OrganizationOrganizationsPage} name="organizations" />
+      </PrivateSet>
       <Route path="/" page={LoginPage} name="login" />
-      <PrivateSet unauthenticated="login">
-        <Set wrap={ScaffoldLayout} title="Projects" titleTo="projects" buttonLabel="New Project" buttonTo="newProject">
-          <Route path="/projects/new" page={ProjectNewProjectPage} name="newProject" />
-          <Route path="/projects/{id:Int}/edit" page={ProjectEditProjectPage} name="editProject" />
-          <Route path="/projects/{id:Int}" page={ProjectProjectPage} name="project" />
-          <Route path="/projects" page={ProjectProjectsPage} name="projects" />
-        </Set>
-        <Set wrap={ScaffoldLayout} title="Trips" titleTo="trips" buttonLabel="New Trip" buttonTo="newTrip">
-          <Route path="/trips/new" page={TripNewTripPage} name="newTrip" />
-          <Route path="/trips/{id:Int}/edit" page={TripEditTripPage} name="editTrip" />
-          <Route path="/trips/{id:Int}" page={TripTripPage} name="trip" />
-          {/* <Route path="/trips" page={TripTripsPage} name="trips" /> */}
-        </Set>
-        <Set wrap={AppshellLayout}>
-          <Route path="/test" page={TestPage} name="test" />
-          <Route path="/home" page={HomePage} name="homey" />
-          <Route path="/add-expense" page={AddExpensePage} name="addExpense" />
-          {/* <Route path="/projects" page={ProjectsPage} name="projects" /> */}
-          {/* <Route path="/trips" page={TripsPage} name="trips" /> */}
-          <Route path="/expenses" page={ExpensesPage} name="expenses" />
-          <Route path="/trips" page={TripTripsPage} name="trips" />
-        </Set>
+      <PrivateSet whileLoadingPage={LoaderSpinner} unauthenticated="login">
+        <Route path="/onboarding" page={OnboardingPage} name="onboarding" />
+        <PrivateSet unauthenticated="login" roles={['admin', 'member']}>
+          <Set wrap={ScaffoldLayout} title="Projects" titleTo="projects" buttonLabel="New Project" buttonTo="newProject"></Set>
+
+          <Set wrap={AppshellLayout} title="Trips" titleTo="trips" buttonLabel="New Trip" buttonTo="newTrip">
+            <Route path="/trips/new" page={TripNewTripPage} name="newTrip" />
+            <Route path="/trips/{id:Int}/edit" page={TripEditTripPage} name="editTrip" />
+            <Route path="/trips/{id:Int}" page={TripTripPage} name="trip" />
+            <Route path="/trips" page={TripTripsPage} name="trips" />
+
+            {/* <Route path="/trips" page={TripTripsPage} name="trips" /> */}
+          </Set>
+          <Set wrap={AppshellLayout}>
+            <Route path="/test" page={TestPage} name="test" />
+            <Route path="/home" page={HomePage} name="homey" />
+            <Route path="/add-expense" page={AddExpensePage} name="addExpense" />
+            <Route path="/expenses2" page={ExpensesPage} name="expenses" />
+            <Route path="/projects" page={ProjectProjectsPage} name="projects" />
+            <Route path="/projects/new" page={ProjectNewProjectPage} name="newProject" />
+            <Route path="/projects/{id:Int}/edit" page={ProjectEditProjectPage} name="editProject" />
+            <Route path="/projects/{id:Int}" page={ProjectProjectPage} name="project" />
+
+            <Route path="/expenses/new" page={ExpenseNewExpensePage} name="newExpense" />
+            <Route path="/expenses/{id:Int}/edit" page={ExpenseEditExpensePage} name="editExpense" />
+            <Route path="/expenses/{id:Int}" page={ExpenseExpensePage} name="expense" />
+            <Route path="/expenses" page={ExpenseExpensesPage} name="expenses" />
+          </Set>
+        </PrivateSet>
       </PrivateSet>
       <Route notfound page={NotFoundPage} />
     </Router>

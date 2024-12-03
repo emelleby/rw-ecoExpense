@@ -16,6 +16,17 @@ export const project: QueryResolvers['project'] = ({ id }) => {
   })
 }
 
+// Added to only fetch projects for the current user
+export const projectsByUser: QueryResolvers['projectsByUser'] = () => {
+  const currentUser = context.currentUser
+
+  return db.project.findMany({
+    where: {
+      userId: currentUser.dbUserId,
+    },
+  })
+}
+
 export const createProject: MutationResolvers['createProject'] = ({
   input,
 }) => {

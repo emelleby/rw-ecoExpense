@@ -1,14 +1,14 @@
 import { render } from '@redwoodjs/testing/web'
 
-import ProjectsPage from './ProjectsPage'
+import OrganizationUsers from './OrganizationUsers'
 
 //   Improve this test with help from the Redwood Testing Doc:
-//   https://redwoodjs.com/docs/testing#testing-pages-layouts
+//    https://redwoodjs.com/docs/testing#testing-components
 
-describe('ProjectsPage', () => {
+describe('OrganizationUsers', () => {
   it('renders successfully', () => {
     expect(() => {
-      render(<ProjectsPage />)
+      render(<OrganizationUsers />)
     }).not.toThrow()
   })
 })
