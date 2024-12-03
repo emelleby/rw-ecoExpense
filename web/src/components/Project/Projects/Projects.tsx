@@ -1,7 +1,7 @@
 import type {
   DeleteProjectMutation,
   DeleteProjectMutationVariables,
-  FindProjects,
+  FindProjectsbyUser,
 } from 'types/graphql'
 
 import { Link, routes } from '@redwoodjs/router'
@@ -32,7 +32,7 @@ const DELETE_PROJECT_MUTATION: TypedDocumentNode<
   }
 `
 
-const ProjectsList = ({ projects }: FindProjects) => {
+const ProjectsList = ({ projects }: FindProjectsbyUser) => {
   const [deleteProject] = useMutation(DELETE_PROJECT_MUTATION, {
     onCompleted: () => {
       toast.success('Project deleted')
@@ -65,20 +65,18 @@ const ProjectsList = ({ projects }: FindProjects) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Id</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>User Id</TableHead>
+              <TableHead># Expenses</TableHead>
               <TableHead className="text-right">&nbsp;</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {projects.map((project) => (
               <TableRow key={project.id}>
-                <TableCell>{truncate(project.id)}</TableCell>
                 <TableCell>{truncate(project.name)}</TableCell>
                 <TableCell>{truncate(project.description)}</TableCell>
-                <TableCell>{truncate(project.userId)}</TableCell>
+                <TableCell>{truncate(project.expenses.length)}</TableCell>
                 <TableCell>
                   <nav className="flex justify-end space-x-2">
                     <Link

@@ -1,7 +1,7 @@
 import type {
   DeleteTripMutation,
   DeleteTripMutationVariables,
-  FindTrips,
+  TripsByUser,
 } from 'types/graphql'
 
 import { Link, routes } from '@redwoodjs/router'
@@ -33,7 +33,7 @@ const DELETE_TRIP_MUTATION: TypedDocumentNode<
   }
 `
 
-const TripsList = ({ trips }: FindTrips) => {
+const TripsList = ({ tripsByUser }: TripsByUser) => {
   const [deleteTrip] = useMutation(DELETE_TRIP_MUTATION, {
     onCompleted: () => {
       toast.success('Trip deleted')
@@ -77,7 +77,7 @@ const TripsList = ({ trips }: FindTrips) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {trips.map((trip) => (
+            {tripsByUser.map((trip) => (
               <TableRow key={trip.id}>
                 <TableCell>{truncate(trip.name)}</TableCell>
                 <TableCell>{timeTag(trip.startDate)}</TableCell>

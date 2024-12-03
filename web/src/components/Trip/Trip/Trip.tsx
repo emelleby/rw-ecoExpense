@@ -11,6 +11,7 @@ import { toast } from '@redwoodjs/web/toast'
 
 import { formatEnum, timeTag } from 'src/lib/formatters'
 
+import { Badge } from '@/components/ui/Badge'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/Table'
 
 const DELETE_TRIP_MUTATION: TypedDocumentNode<
@@ -56,12 +57,12 @@ const Trip = ({ trip }: Props) => {
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell className="font-medium">Id</TableCell>
-              <TableCell>{trip.id}</TableCell>
-            </TableRow>
-            <TableRow>
               <TableCell className="font-medium">Name</TableCell>
               <TableCell>{trip.name}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Description</TableCell>
+              <TableCell>{trip.description}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell className="font-medium">Start Date</TableCell>
@@ -75,10 +76,14 @@ const Trip = ({ trip }: Props) => {
               <TableCell className="font-medium">
                 Reimbursement Status
               </TableCell>
-              <TableCell>{formatEnum(trip.reimbursementStatus)}</TableCell>
+              <TableCell>
+                <Badge variant="info">
+                  {formatEnum(trip.reimbursementStatus)}
+                </Badge>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="font-medium">Approved Date</TableCell>
+              <TableCell>Approved Date</TableCell>
               <TableCell>
                 {trip.approvedDate ? timeTag(trip.approvedDate) : '-'}
               </TableCell>
