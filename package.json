@@ -23,7 +23,8 @@
     "node": "=20.x"
   },
   "prisma": {
-    "seed": "yarn rw exec seed"
+    "seed": "yarn rw exec seed",
+    "schema": "api/db/schema.prisma"
   },
   "packageManager": "yarn@4.4.0",
   "resolutions": {

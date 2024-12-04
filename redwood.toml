@@ -14,6 +14,10 @@
     # See https://redwoodjs.com/docs/environment-variables#web
     'CLERK_PUBLISHABLE_KEY'
   ]
+
+[prisma]
+  schemaPath = "api/db/schema.prisma"
+
 [api]
   port = 8911
 [browser]
