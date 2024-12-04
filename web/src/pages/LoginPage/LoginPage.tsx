@@ -8,7 +8,7 @@ import { useAuth } from 'src/auth'
 import { Button } from '@/components/ui/Button'
 
 const LoginPage = () => {
-  const { isAuthenticated, signUp, loading, hasRole } = useAuth()
+  const { isAuthenticated, signUp, loading, hasRole, currentUser } = useAuth()
 
   if (loading) {
     return (
@@ -31,6 +31,7 @@ const LoginPage = () => {
       <Metadata title="Login" description="Login page" />
       <div className="flex min-h-screen flex-col items-center justify-center bg-slate-700">
         <p>{JSON.stringify({ isAuthenticated })}</p>
+        <p>{JSON.stringify({ currentUser })}</p>
         <h1 className="mb-4 flex flex-col items-center justify-center bg-slate-700 text-2xl font-bold leading-none tracking-tight text-white md:text-3xl lg:text-5xl">
           Welcome to EcoExpense
         </h1>

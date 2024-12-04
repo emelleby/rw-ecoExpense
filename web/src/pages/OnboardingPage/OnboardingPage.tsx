@@ -40,7 +40,7 @@ const OnboardingPage = () => {
         </h1>
 
         <div className="mt-8 w-full max-w-md rounded-lg p-6">
-          <h2 className="text-yellow-100">Current User Role</h2>
+          <h2 className="text-yellow-100">Current User Role:</h2>
           <UserRole />
           <OrganizationCell />
         </div>
