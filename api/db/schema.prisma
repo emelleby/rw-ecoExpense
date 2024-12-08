@@ -137,4 +137,16 @@ model Expense {
   scope3Co2Emissions Float           @default(0.0)
   kwh                Float           @default(0.0)
   scope3CategoryId   Int             @default(6)
+  Receipt            Receipt[]
+}
+
+model Receipt {
+  id        Int      @id @default(autoincrement())
+  url       String
+  fileName  String
+  fileType  String
+  expenseId Int      @unique // for one-to-one relation
+  expense   Expense  @relation(fields: [expenseId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
