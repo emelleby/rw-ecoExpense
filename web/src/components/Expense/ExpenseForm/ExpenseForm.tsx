@@ -11,6 +11,8 @@ import {
   Submit,
 } from '@redwoodjs/forms'
 
+import FileUpload from 'src/components/Custom/FileUpload'
+
 type FormExpense = NonNullable<EditExpenseById['expense']>
 
 interface ExpenseFormProps {
@@ -23,6 +25,19 @@ interface ExpenseFormProps {
 const ExpenseForm = (props: ExpenseFormProps) => {
   const onSubmit = (data: FormExpense) => {
     props.onSave(data, props?.expense?.id)
+  }
+
+  const handleFileUploaded = (fileUrl: string) => {
+    // Handle the uploaded file URL
+    console.log('File uploaded:', fileUrl)
+    // Store the URL in both receiptPath and receiptFilename fields
+    const filename = fileUrl.split('/').pop()
+
+    onSubmit({
+      ...props.expense,
+      receiptPath: fileUrl,
+      receiptFilename: filename,
+    })
   }
 
   return (
@@ -408,6 +423,11 @@ const ExpenseForm = (props: ExpenseFormProps) => {
         />
 
         <FieldError name="scope3CategoryId" className="rw-field-error" />
+
+        <FileUpload
+          onUpload={handleFileUploaded}
+          expenseId={props.expense?.id}
+        />
 
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">
