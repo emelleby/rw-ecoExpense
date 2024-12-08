@@ -1,4 +1,9 @@
 export const schema = gql`
+  enum USER_STATUS {
+    ACTIVE
+    INACTIVE
+  }
+
   type User {
     id: Int!
     clerkId: String
@@ -6,6 +11,7 @@ export const schema = gql`
     email: String!
     firstName: String
     lastName: String
+    status: USER_STATUS!
     bankAccount: String
     organizationId: Int!
     organization: Organization!

@@ -26,6 +26,11 @@ enum ReimbursementStatus {
   REIMBURSED
 }
 
+enum USER_STATUS {
+  ACTIVE
+  INACTIVE
+}
+
 model Organization {
   id          Int        @id @default(autoincrement())
   regnr       String     @unique @db.VarChar(9)
@@ -44,6 +49,7 @@ model User {
   firstName      String?      @db.VarChar(100)
   lastName       String?      @db.VarChar(50)
   bankAccount    String?      @db.VarChar(50)
+  status         USER_STATUS  @default(INACTIVE)
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id])
   expenses       Expense[]
