@@ -37,7 +37,7 @@ const Routes = () => {
       <PrivateSet whileLoadingPage={LoaderSpinner} unauthenticated="login">
         <Route path="/onboarding" page={OnboardingPage} name="onboarding" />
         <PrivateSet unauthenticated="login" roles={['admin', 'member']}>
-          <Set wrap={ScaffoldLayout} title="Projects" titleTo="projects" buttonLabel="New Project" buttonTo="newProject"></Set>
+          {/* <Set wrap={ScaffoldLayout} title="Projects" titleTo="projects" buttonLabel="New Project" buttonTo="newProject"></Set> */}
 
           <Set wrap={AppshellLayout} title="Trips" titleTo="trips" buttonLabel="New Trip" buttonTo="newTrip">
             <Route path="/trips/new" page={TripNewTripPage} name="newTrip" />
@@ -46,6 +46,13 @@ const Routes = () => {
             <Route path="/trips" page={TripTripsPage} name="trips" />
 
             {/* <Route path="/trips" page={TripTripsPage} name="trips" /> */}
+          </Set>
+          <Set wrap={AppshellLayout} title="Users" titleTo="users" buttonLabel="New User" buttonTo="newUser">
+            <Route path="/users/new" page={UserNewUserPage} name="newUser" />
+            <Route path="/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
+            <Route path="/users/{id:Int}" page={UserUserPage} name="user" />
+            <Route path="/users/{id:Int}" page={UserUserPage} name="user" />
+            <Route path="/users" page={UserUsersPage} name="users" />
           </Set>
           <Set wrap={AppshellLayout}>
             <Route path="/test" page={TestPage} name="test" />

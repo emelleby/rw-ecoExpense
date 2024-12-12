@@ -20,6 +20,7 @@ import {
   ChartArea,
   FolderOpenDot,
   FlaskRound,
+  User2Icon,
 } from 'lucide-react'
 
 import { NavLink, Link, routes } from '@redwoodjs/router'
@@ -75,6 +76,12 @@ const items = [
     title: 'Projects',
     url: 'projects',
     icon: FolderOpenDot,
+  },
+  {
+    title: 'Users',
+    url: 'users',
+    onlyAdmin: true,
+    icon: User2Icon,
   },
 ]
 const data = {
@@ -225,21 +232,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                data-active={pathname === routes[item.url]()}
-                className="pl-4"
-              >
-                <Link to={routes[item.url]()} onClick={handleLinkClick}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-              <SidebarMenuAction className="peer-data-[active=true]/menu-button:opacity-500" />
-            </SidebarMenuItem>
-          ))}
+          {items.map(
+            (item) =>
+              (!item.onlyAdmin || hasRole('admin')) && (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    data-active={pathname === routes[item.url]()}
+                    className="pl-4"
+                  >
+                    <Link to={routes[item.url]()} onClick={handleLinkClick}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarMenuAction className="peer-data-[active=true]/menu-button:opacity-500" />
+                </SidebarMenuItem>
+              )
+          )}
         </SidebarMenu>
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />

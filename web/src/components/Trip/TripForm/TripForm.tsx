@@ -9,19 +9,10 @@ import {
   TextField,
   TextAreaField,
   // DatetimeLocalField,
-  NumberField,
-  HiddenField,
-  RadioField,
   Submit,
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-
-const formatDatetime = (value) => {
-  if (value) {
-    return value.replace(/:\d{2}\.\d{3}\w/, '')
-  }
-}
 
 type FormTrip = NonNullable<EditTripById['trip']>
 
