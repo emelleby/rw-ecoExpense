@@ -3,11 +3,8 @@ import * as React from 'react'
 // import { UserButton } from '@clerk/clerk-react'
 import {
   AudioWaveform,
-  Calendar,
   Home,
   Inbox,
-  Search,
-  Settings,
   BookOpen,
   Bot,
   Command,
@@ -17,7 +14,6 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
-  ChartArea,
   FolderOpenDot,
   FlaskRound,
   User2Icon,
@@ -29,7 +25,6 @@ import { useLocation } from '@redwoodjs/router'
 import { useAuth } from 'src/auth'
 import { NavMain } from 'src/components/NavMain'
 import { NavProjects } from 'src/components/NavProjects'
-import { NavUser } from 'src/components/NavUser'
 import { TeamSwitcher } from 'src/components/TeamSwitcher'
 import {
   Sidebar,
@@ -110,7 +105,7 @@ const data = {
   navMain: [
     {
       title: 'Building Your Application',
-      url: 'homey',
+      url: 'home',
     },
     {
       title: 'Homepage',
@@ -128,7 +123,7 @@ const data = {
         },
         {
           title: 'New Trip',
-          url: 'trips/new',
+          url: 'newTrip',
         },
       ],
     },
@@ -201,7 +196,7 @@ const data = {
   projects: [
     {
       name: 'Home',
-      url: 'http://localhost:8910/home',
+      url: 'home',
       icon: Frame,
     },
     {

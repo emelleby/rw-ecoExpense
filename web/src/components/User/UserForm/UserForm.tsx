@@ -8,7 +8,6 @@ import {
   Label,
   TextField,
   RadioField,
-  NumberField,
   Submit,
 } from '@redwoodjs/forms'
 
@@ -48,6 +47,7 @@ const UserForm = (props: UserFormProps) => {
           name="clerkId"
           defaultValue={props.user?.clerkId}
           className="rw-input"
+          disabled
           errorClassName="rw-input rw-input-error"
         />
 
@@ -182,12 +182,13 @@ const UserForm = (props: UserFormProps) => {
           Organization id
         </Label>
 
-        <NumberField
+        <TextField
           name="organizationId"
           defaultValue={props.user?.organizationId}
           className="rw-input"
           errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
+          disabled
+          //validation={{ required: true }}
         />
 
         <FieldError name="organizationId" className="rw-field-error" />
