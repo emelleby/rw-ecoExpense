@@ -163,7 +163,7 @@
   @apply mt-1 block text-xs font-semibold uppercase text-rose-600;
 }
 .rw-table-wrapper-responsive {
-  @apply overflow-x-auto;
+  @apply overflow-x-auto overflow-y-auto max-h-[calc(100vh-4rem)] relative;
 }
 .rw-table-wrapper-responsive .rw-table {
   min-width: 48rem;
@@ -184,9 +184,14 @@
 }
 .rw-table thead tr {
   @apply bg-gray-200 text-gray-600;
+  position: sticky;
+  top: 0;
 }
 .rw-table th {
   @apply text-left font-semibold;
+}
+.rw-table thead {
+  @apply sticky top-0 z-10;
 }
 .rw-table thead th {
   @apply text-left;

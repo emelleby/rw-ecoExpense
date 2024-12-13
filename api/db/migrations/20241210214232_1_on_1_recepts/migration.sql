@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Expense" ALTER COLUMN "kilometers" DROP NOT NULL,
+ALTER COLUMN "fuelType" DROP NOT NULL,
+ALTER COLUMN "fuelAmountLiters" DROP NOT NULL,
+ALTER COLUMN "kwh" DROP NOT NULL;

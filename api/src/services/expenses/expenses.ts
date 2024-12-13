@@ -5,22 +5,50 @@ import type {
 } from 'types/graphql'
 
 import { db } from 'src/lib/db'
+import { logger } from 'src/lib/logger'
+// import { context } from '@redwoodjs/graphql-server'
 
 export const expenses: QueryResolvers['expenses'] = () => {
-  return db.expense.findMany()
+  return db.expense.findMany({
+    include: {
+      receipt: true,
+    },
+  })
 }
 
 export const expense: QueryResolvers['expense'] = ({ id }) => {
   return db.expense.findUnique({
     where: { id },
+    include: {
+      receipt: true,
+    },
   })
 }
 
-export const createExpense: MutationResolvers['createExpense'] = ({
+export const createExpense: MutationResolvers['createExpense'] = async ({
   input,
 }) => {
+  const currentUser = context.currentUser
+
+  const { receipt, ...expenseData } = input
+
+  const data = {
+    ...expenseData,
+    userId: currentUser.dbUserId,
+    ...(receipt && {
+      receipt: {
+        create: receipt, // Use `create` for nested writes
+      },
+    }),
+  }
+
+  logger.debug({
+    message: '===== Data being passed to db.expense.create =====',
+    data,
+  })
+
   return db.expense.create({
-    data: input,
+    data,
   })
 }
 
@@ -28,11 +56,49 @@ export const updateExpense: MutationResolvers['updateExpense'] = ({
   id,
   input,
 }) => {
+  const { receipt, ...expenseData } = input
+
   return db.expense.update({
-    data: input,
     where: { id },
+    data: {
+      ...expenseData,
+      receipt: receipt
+        ? {
+            upsert: {
+              create: receipt,
+              update: receipt,
+            },
+          }
+        : undefined,
+    },
+    include: {
+      receipt: true,
+    },
   })
 }
+
+// export const updateExpense: MutationResolvers['updateExpense'] = ({
+//   id,
+//   input,
+// }) => {
+//   const { receipt, ...expenseData } = input
+
+//   return db.expense.update({
+//     where: { id },
+//     data: {
+//       ...expenseData,
+//       receipt: receipt
+//         ? {
+//             update: {
+//               url: receipt.url,
+//               fileName: receipt.fileName,
+//               fileType: receipt.fileType,
+//             },
+//           }
+//         : undefined,
+//     },
+//   })
+// }
 
 export const deleteExpense: MutationResolvers['deleteExpense'] = ({ id }) => {
   return db.expense.delete({

@@ -11,27 +11,19 @@ export const schema = gql`
   }
 
   type Query {
-    receipts: [Receipt!]! @requireAuth
-    receipt(id: Int!): Receipt @requireAuth
+    receipts: [Receipt!]! @skipAuth
+    receipt(id: Int!): Receipt @skipAuth
   }
 
-  input CreateReceiptInput {
+  input ReceiptInput {
     url: String!
     fileName: String!
     fileType: String!
-    expenseId: Int!
-  }
-
-  input UpdateReceiptInput {
-    url: String
-    fileName: String
-    fileType: String
-    expenseId: Int
   }
 
   type Mutation {
-    createReceipt(input: CreateReceiptInput!): Receipt! @requireAuth
-    updateReceipt(id: Int!, input: UpdateReceiptInput!): Receipt! @requireAuth
+    createReceipt(input: ReceiptInput!): Receipt! @requireAuth
+    updateReceipt(id: Int!, input: ReceiptInput!): Receipt! @requireAuth
     deleteReceipt(id: Int!): Receipt! @requireAuth
   }
 `
