@@ -68,15 +68,12 @@ export const createReceipt: MutationResolvers['createReceipt'] = ({
 
 export const deleteReceipt: MutationResolvers['deleteReceipt'] = async ({
   id,
+  url,
 }) => {
   const client = Filestack.init(process.env.REDWOOD_ENV_FILESTACK_API_KEY)
-  console.log('deleteReceipt')
-  const receipt = await db.receipt.findUnique({
-    where: { id },
-  })
 
   // The `security.handle` is the unique part of the Filestack file's url.
-  const handle = receipt.url.split('/').pop()
+  const handle = url.split('/').pop()
   logger.debug({
     message: '===== The handle is =====',
     handle,
@@ -101,7 +98,12 @@ export const deleteReceipt: MutationResolvers['deleteReceipt'] = async ({
   })
   await client.remove(handle, security)
 
-  return db.receipt.delete({ where: { id } })
+  // Check if there was a receipt i DB
+  if (id === 0) {
+    return { success: true }
+  } else {
+    return db.receipt.delete({ where: { id } })
+  }
 }
 
 export const Receipt: ReceiptRelationResolvers = {

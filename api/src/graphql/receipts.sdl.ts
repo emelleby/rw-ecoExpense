@@ -14,6 +14,10 @@ export const schema = gql`
     receipts: [Receipt!]! @skipAuth
     receipt(id: Int!): Receipt @skipAuth
   }
+  type DeleteReceiptResult {
+    id: Int
+    success: Boolean
+  }
 
   input ReceiptInput {
     url: String!
@@ -24,6 +28,6 @@ export const schema = gql`
   type Mutation {
     createReceipt(input: ReceiptInput!): Receipt! @requireAuth
     updateReceipt(id: Int!, input: ReceiptInput!): Receipt! @requireAuth
-    deleteReceipt(id: Int!): Receipt! @requireAuth
+    deleteReceipt(id: Int!, url: String!): DeleteReceiptResult! @requireAuth
   }
 `

@@ -103,6 +103,9 @@ export const updateExpense: MutationResolvers['updateExpense'] = ({
 export const deleteExpense: MutationResolvers['deleteExpense'] = ({ id }) => {
   return db.expense.delete({
     where: { id },
+    include: {
+      receipt: true,
+    },
   })
 }
 
@@ -124,5 +127,8 @@ export const Expense: ExpenseRelationResolvers = {
   },
   user: (_obj, { root }) => {
     return db.expense.findUnique({ where: { id: root?.id } }).user()
+  },
+  receipt: (_obj, { root }) => {
+    return db.expense.findUnique({ where: { id: root?.id } }).receipt()
   },
 }

@@ -64,8 +64,8 @@ const DELETE_RECEIPT_MUTATION: TypedDocumentNode<
   DeleteReceiptMutation,
   DeleteReceiptMutationVariables
 > = gql`
-  mutation DeleteReceiptMutation($id: Int!) {
-    deleteReceipt(id: $id) {
+  mutation DeleteReceiptMutation($id: Int!, $url: String!) {
+    deleteReceipt(id: $id, url: $url) {
       id
     }
   }
@@ -93,7 +93,8 @@ const ExpenseForm = (props: ExpenseFormProps) => {
   })
 
   const onReplaceClick = () => {
-    deleteReceipt({ variables: { id: props?.expense?.receipt?.id } })
+    const receiptId = props?.expense?.receipt?.id || 0
+    deleteReceipt({ variables: { id: receiptId, url: receiptUrl } })
     setReceiptUrl(null)
     setFileName(null)
     setFileType(null)
