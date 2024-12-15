@@ -3,11 +3,8 @@ import * as React from 'react'
 // import { UserButton } from '@clerk/clerk-react'
 import {
   AudioWaveform,
-  Calendar,
   Home,
   Inbox,
-  Search,
-  Settings,
   BookOpen,
   Bot,
   Command,
@@ -17,9 +14,9 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
-  ChartArea,
   FolderOpenDot,
   FlaskRound,
+  User2Icon,
 } from 'lucide-react'
 
 import { NavLink, Link, routes } from '@redwoodjs/router'
@@ -28,7 +25,6 @@ import { useLocation } from '@redwoodjs/router'
 import { useAuth } from 'src/auth'
 import { NavMain } from 'src/components/NavMain'
 import { NavProjects } from 'src/components/NavProjects'
-import { NavUser } from 'src/components/NavUser'
 import { TeamSwitcher } from 'src/components/TeamSwitcher'
 import {
   Sidebar,
@@ -76,6 +72,12 @@ const items = [
     url: 'projects',
     icon: FolderOpenDot,
   },
+  {
+    title: 'Users',
+    url: 'users',
+    onlyAdmin: true,
+    icon: User2Icon,
+  },
 ]
 const data = {
   user: {
@@ -103,7 +105,7 @@ const data = {
   navMain: [
     {
       title: 'Building Your Application',
-      url: 'homey',
+      url: 'home',
     },
     {
       title: 'Homepage',
@@ -121,7 +123,7 @@ const data = {
         },
         {
           title: 'New Trip',
-          url: 'trips/new',
+          url: 'newTrip',
         },
       ],
     },
@@ -194,7 +196,7 @@ const data = {
   projects: [
     {
       name: 'Home',
-      url: 'http://localhost:8910/home',
+      url: 'home',
       icon: Frame,
     },
     {
@@ -225,21 +227,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                data-active={pathname === routes[item.url]()}
-                className="pl-4"
-              >
-                <Link to={routes[item.url]()} onClick={handleLinkClick}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-              <SidebarMenuAction className="peer-data-[active=true]/menu-button:opacity-500" />
-            </SidebarMenuItem>
-          ))}
+          {items.map(
+            (item) =>
+              (!item.onlyAdmin || hasRole('admin')) && (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    data-active={pathname === routes[item.url]()}
+                    className="pl-4"
+                  >
+                    <Link to={routes[item.url]()} onClick={handleLinkClick}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarMenuAction className="peer-data-[active=true]/menu-button:opacity-500" />
+                </SidebarMenuItem>
+              )
+          )}
         </SidebarMenu>
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />

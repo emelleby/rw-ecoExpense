@@ -7,7 +7,7 @@ import { Moon, Sun } from 'lucide-react'
 
 import { Toaster } from '@redwoodjs/web/toast'
 
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/Sidebar'
 import { useTheme } from '@/hooks/useTheme'
 import { AppSidebar } from '@/layouts/AppSidebar'

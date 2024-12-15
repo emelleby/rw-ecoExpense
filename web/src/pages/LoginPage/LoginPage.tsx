@@ -18,8 +18,14 @@ const LoginPage = () => {
     )
   }
 
+  console.log('Hello from LoginPage', { isAuthenticated })
+
   // Redirect if user already has a role and is authenticated
   if (isAuthenticated) {
+    console.log(
+      'Hello from LoginPage',
+      hasRole(['admin', 'member', 'superuser'])
+    )
     if (hasRole(['admin', 'member', 'superuser'])) {
       return <Redirect to={routes.homey()} />
     }

@@ -22,19 +22,17 @@ export const schema = gql`
     project: Project
     userId: Int!
     user: User!
-    receiptFilename: String
-    receiptPath: String
-    receiptUploadedAt: DateTime
     scope1Co2Emissions: Float!
     scope2Co2Emissions: Float!
     scope3Co2Emissions: Float!
     kwh: Float!
     scope3CategoryId: Int!
+    receipt: Receipt
   }
 
   type Query {
-    expenses: [Expense!]! @requireAuth
-    expense(id: Int!): Expense @requireAuth
+    expenses: [Expense!]! @skipAuth
+    expense(id: Int!): Expense @skipAuth
   }
 
   input CreateExpenseInput {
@@ -52,15 +50,12 @@ export const schema = gql`
     supplierId: Int
     tripId: Int!
     projectId: Int
-    userId: Int!
-    receiptFilename: String
-    receiptPath: String
-    receiptUploadedAt: DateTime
     scope1Co2Emissions: Float!
     scope2Co2Emissions: Float!
     scope3Co2Emissions: Float!
     kwh: Float!
     scope3CategoryId: Int!
+    receipt: ReceiptInput
   }
 
   input UpdateExpenseInput {
@@ -78,20 +73,17 @@ export const schema = gql`
     supplierId: Int
     tripId: Int
     projectId: Int
-    userId: Int
-    receiptFilename: String
-    receiptPath: String
-    receiptUploadedAt: DateTime
     scope1Co2Emissions: Float
     scope2Co2Emissions: Float
     scope3Co2Emissions: Float
     kwh: Float
     scope3CategoryId: Int
+    receipt: ReceiptInput
   }
 
   type Mutation {
-    createExpense(input: CreateExpenseInput!): Expense! @requireAuth
-    updateExpense(id: Int!, input: UpdateExpenseInput!): Expense! @requireAuth
+    createExpense(input: CreateExpenseInput!): Expense! @skipAuth
+    updateExpense(id: Int!, input: UpdateExpenseInput!): Expense! @skipAuth
     deleteExpense(id: Int!): Expense! @requireAuth
   }
 `

@@ -5,20 +5,45 @@ import type {
 } from 'types/graphql'
 
 import { db } from 'src/lib/db'
+import { logger } from 'src/lib/logger'
 
 export const trips: QueryResolvers['trips'] = () => {
   return db.trip.findMany()
 }
 
 export const trip: QueryResolvers['trip'] = ({ id }) => {
+  const currentUser = context.currentUser
+  logger.debug({
+    message: '===== CurrentUser Debug =====',
+    'currentUser in service:': currentUser,
+  })
   return db.trip.findUnique({
     where: { id },
   })
 }
 
+export const topTripsByUser: QueryResolvers['topTripsByUser'] = () => {
+  const currentUser = context.currentUser
+
+  return db.trip.findMany({
+    where: {
+      userId: currentUser.dbUserId,
+    },
+    take: 5,
+  })
+}
 // Added to only fetch trips for the current user
 export const tripsByUser: QueryResolvers['tripsByUser'] = () => {
   const currentUser = context.currentUser
+
+  logger.debug({
+    message: '===== Auth Debug =====',
+    hasContext: !!context,
+    contextKeys: Object.keys(context),
+    auth: context?.auth,
+    currentUser: context?.currentUser,
+    headers: context?.event?.headers,
+  })
 
   return db.trip.findMany({
     where: {

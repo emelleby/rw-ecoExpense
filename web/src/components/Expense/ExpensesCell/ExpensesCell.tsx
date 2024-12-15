@@ -29,9 +29,6 @@ export const QUERY: TypedDocumentNode<FindExpenses, FindExpensesVariables> =
         tripId
         projectId
         userId
-        receiptFilename
-        receiptPath
-        receiptUploadedAt
         scope1Co2Emissions
         scope2Co2Emissions
         scope3Co2Emissions
