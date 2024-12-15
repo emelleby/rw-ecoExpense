@@ -11,23 +11,28 @@ export const users: QueryResolvers['users'] = () => {
   return db.user.findMany()
 }
 
+export const usersByOrganization: QueryResolvers['usersByOrganization'] = ({
+  organizationId,
+}) => {
+  return db.user.findMany({
+    where: { organizationId },
+  })
+}
+
 export const user: QueryResolvers['user'] = ({ id }) => {
   return db.user.findUnique({
     where: { id },
   })
 }
 
-export const createUser: MutationResolvers['createUser'] = ({ input }) => {
-  return db.user.create({
-    data: input,
-  })
-}
-
-export const updateUser: MutationResolvers['updateUser'] = ({ id, input }) => {
-  return db.user.update({
-    data: input,
+export const updateUserStatus: MutationResolvers['updateUserStatus'] = async ({
+  id,
+}) => {
+  const user = await db.user.update({
+    data: { status: 'ACTIVE' },
     where: { id },
   })
+  return user
 }
 
 // This code block has been added to support updating user roles. /services/users/users.ts
@@ -49,6 +54,19 @@ export const updateUserRole: MutationResolvers['updateUserRole'] = async ({
     where: { clerkId: id },
   })
   return user
+}
+
+export const createUser: MutationResolvers['createUser'] = ({ input }) => {
+  return db.user.create({
+    data: input,
+  })
+}
+
+export const updateUser: MutationResolvers['updateUser'] = ({ id, input }) => {
+  return db.user.update({
+    data: input,
+    where: { id },
+  })
 }
 
 export const deleteUser: MutationResolvers['deleteUser'] = ({ id }) => {

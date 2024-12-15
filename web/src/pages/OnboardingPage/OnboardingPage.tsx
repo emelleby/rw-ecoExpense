@@ -1,5 +1,5 @@
 // import { Link, routes } from '@redwoodjs/router'
-import { useUser } from '@clerk/clerk-react'
+import { useUser, UserButton } from '@clerk/clerk-react'
 
 import { Redirect, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
@@ -20,7 +20,7 @@ const UserRole = () => {
 }
 
 const OnboardingPage = () => {
-  const { isAuthenticated, hasRole, currentUser, userMetadata } = useAuth()
+  const { isAuthenticated, hasRole, userMetadata } = useAuth()
 
   if (!isAuthenticated) {
     return <Redirect to={routes.login()} />
@@ -35,12 +35,13 @@ const OnboardingPage = () => {
     <>
       <Metadata title="Onboarding" description="Onboarding page" />
       <div className="flex min-h-screen flex-col items-center bg-slate-800">
+        <UserButton />
         <h1 className="mt-6 text-2xl font-bold text-slate-100">
           Complete Your Profile
         </h1>
 
         <div className="mt-8 w-full max-w-md rounded-lg p-6">
-          <h2 className="text-yellow-100">Current User Role</h2>
+          <h2 className="text-yellow-100">Current User Role:</h2>
           <UserRole />
           <OrganizationCell />
         </div>

@@ -7,6 +7,7 @@ export const schema = gql`
     firstName: String
     lastName: String
     bankAccount: String
+    status: USER_STATUS!
     organizationId: Int!
     organization: Organization!
     expenses: [Expense]!
@@ -14,9 +15,15 @@ export const schema = gql`
     projects: [Project]!
   }
 
+  enum USER_STATUS {
+    ACTIVE
+    INACTIVE
+  }
+
   type Query {
     users: [User!]! @requireAuth
     user(id: Int!): User @requireAuth
+    usersByOrganization(organizationId: Int!): [User!]! @requireAuth
   }
 
   input CreateUserInput {
@@ -26,6 +33,7 @@ export const schema = gql`
     firstName: String
     lastName: String
     bankAccount: String
+    status: USER_STATUS!
     organizationId: Int!
   }
 
@@ -36,6 +44,7 @@ export const schema = gql`
     firstName: String
     lastName: String
     bankAccount: String
+    status: USER_STATUS
     organizationId: Int
   }
 
@@ -43,7 +52,7 @@ export const schema = gql`
     createUser(input: CreateUserInput!): User! @requireAuth
     updateUser(id: Int!, input: UpdateUserInput!): User! @requireAuth
     deleteUser(id: Int!): User! @requireAuth
-    # This line has been added to support updating user roles
+    updateUserStatus(id: Int): User! @requireAuth
     updateUserRole(id: String!, role: String!, organizationId: Int!): User!
       @skipAuth
   }

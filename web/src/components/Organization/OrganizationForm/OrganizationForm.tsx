@@ -47,7 +47,7 @@ const OrganizationForm = (props: OrganizationFormProps) => {
         <TextField
           name="regnr"
           defaultValue={props.organization?.regnr}
-          className="rw-input text-slate-700"
+          className="rw-input"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}
         />
@@ -75,7 +75,7 @@ const OrganizationForm = (props: OrganizationFormProps) => {
         <TextField
           name="name"
           defaultValue={props.organization?.name}
-          className="rw-input text-slate-700"
+          className="rw-input"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}
         />
@@ -93,7 +93,7 @@ const OrganizationForm = (props: OrganizationFormProps) => {
         <TextField
           name="description"
           defaultValue={props.organization?.description}
-          className="rw-input text-slate-700"
+          className="rw-input"
           errorClassName="rw-input rw-input-error"
         />
 

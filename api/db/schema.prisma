@@ -26,6 +26,11 @@ enum ReimbursementStatus {
   REIMBURSED
 }
 
+enum USER_STATUS {
+  ACTIVE
+  INACTIVE
+}
+
 model Organization {
   id          Int        @id @default(autoincrement())
   regnr       String     @unique @db.VarChar(9)
@@ -44,6 +49,7 @@ model User {
   firstName      String?      @db.VarChar(100)
   lastName       String?      @db.VarChar(50)
   bankAccount    String?      @db.VarChar(50)
+  status         USER_STATUS  @default(INACTIVE)
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id])
   expenses       Expense[]
@@ -88,6 +94,7 @@ model Project {
 model ExpenseCategory {
   id       Int       @id @default(autoincrement())
   name     String    @unique @db.VarChar(50)
+  norName  String    @unique @db.VarChar(50)
   expenses Expense[]
 }
 
@@ -109,9 +116,9 @@ model Expense {
   nokAmount          Decimal
   date               DateTime        @default(now())
   description        String?         @db.Text
-  kilometers         Float           @default(0.0)
-  fuelType           String          @default("") @db.VarChar(50)
-  fuelAmountLiters   Float           @default(0.0)
+  kilometers         Float?          @default(0.0)
+  fuelType           String?         @default("") @db.VarChar(50)
+  fuelAmountLiters   Float?          @default(0.0)
   sectorId           Int?
   Sector             Sector?         @relation(fields: [sectorId], references: [id])
   supplierId         Int?
@@ -122,12 +129,21 @@ model Expense {
   project            Project?        @relation(fields: [projectId], references: [id])
   userId             Int
   user               User            @relation(fields: [userId], references: [id])
-  receiptFilename    String?         @db.VarChar(255)
-  receiptPath        String?         @db.VarChar(255)
-  receiptUploadedAt  DateTime?       @default(now())
   scope1Co2Emissions Float           @default(0.0)
   scope2Co2Emissions Float           @default(0.0)
   scope3Co2Emissions Float           @default(0.0)
-  kwh                Float           @default(0.0)
+  kwh                Float?          @default(0.0)
   scope3CategoryId   Int             @default(6)
+  receipt            Receipt?
+}
+
+model Receipt {
+  id        Int      @id @default(autoincrement())
+  url       String
+  fileName  String
+  fileType  String
+  expenseId Int      @unique // for one-to-one relation
+  expense   Expense  @relation(fields: [expenseId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

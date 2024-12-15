@@ -45,7 +45,7 @@ const ExpensesList = ({ expenses }: FindExpenses) => {
   }
 
   return (
-    <div className="rw-segment rw-table-wrapper-responsive">
+    <div className="rw-segment rw-table-wrapper-responsive h-max-screen">
       <table className="rw-table">
         <thead>
           <tr>
@@ -65,9 +65,7 @@ const ExpensesList = ({ expenses }: FindExpenses) => {
             <th>Trip id</th>
             <th>Project id</th>
             <th>User id</th>
-            <th>Receipt filename</th>
-            <th>Receipt path</th>
-            <th>Receipt uploaded at</th>
+
             <th>Scope1 co2 emissions</th>
             <th>Scope2 co2 emissions</th>
             <th>Scope3 co2 emissions</th>
@@ -95,9 +93,7 @@ const ExpensesList = ({ expenses }: FindExpenses) => {
               <td>{truncate(expense.tripId)}</td>
               <td>{truncate(expense.projectId)}</td>
               <td>{truncate(expense.userId)}</td>
-              <td>{truncate(expense.receiptFilename)}</td>
-              <td>{truncate(expense.receiptPath)}</td>
-              <td>{timeTag(expense.receiptUploadedAt)}</td>
+
               <td>{truncate(expense.scope1Co2Emissions)}</td>
               <td>{truncate(expense.scope2Co2Emissions)}</td>
               <td>{truncate(expense.scope3Co2Emissions)}</td>

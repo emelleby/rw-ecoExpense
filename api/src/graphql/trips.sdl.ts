@@ -23,6 +23,7 @@ export const schema = gql`
     trips: [Trip!]! @requireAuth
     trip(id: Int!): Trip @requireAuth
     tripsByUser: [Trip!]! @requireAuth
+    topTripsByUser: [Trip!]! @requireAuth
   }
 
   input CreateTripInput {

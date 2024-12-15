@@ -70,8 +70,9 @@ export const Loading = () => <div>Loading...</div>
 export const Empty = () => (
   <div className="rounded-lg bg-slate-800 p-6 text-white">
     <h3 className="text-xl font-semibold">No Organizations Found</h3>
-    <p className="mt-2">Create your first organization to get started</p>
+    <p className="mt-2">Create your first organization to get started!</p>
     {/* We'll add the CreateOrganization component here later */}
+    <NewOrganization />
   </div>
 )
 
@@ -92,6 +93,8 @@ export const Success = ({
   const [createUser] = useMutation(CREATE_USER)
 
   const handleJoinOrganization = async (selectedOrg: string) => {
+    console.log(user)
+
     const selectedOrgData = organizations?.find(
       (org) => org.name === selectedOrg
     )
@@ -103,10 +106,12 @@ export const Success = ({
       await createUser({
         variables: {
           input: {
+            // We should probably change this to use the currentUser
             clerkId: user.id,
             username: user.username,
             email: user.primaryEmailAddress.emailAddress,
             organizationId: selectedOrgData.id,
+            status: 'INACTIVE',
           },
         },
       })

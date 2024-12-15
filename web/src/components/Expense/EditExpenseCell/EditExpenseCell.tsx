@@ -34,14 +34,21 @@ export const QUERY: TypedDocumentNode<EditExpenseById> = gql`
       tripId
       projectId
       userId
-      receiptFilename
-      receiptPath
-      receiptUploadedAt
       scope1Co2Emissions
       scope2Co2Emissions
       scope3Co2Emissions
       kwh
       scope3CategoryId
+      receipt {
+        id
+        url
+        fileName
+        fileType
+      }
+    }
+    expenseCategories {
+      id
+      name
     }
   }
 `
@@ -53,29 +60,12 @@ const UPDATE_EXPENSE_MUTATION: TypedDocumentNode<
   mutation UpdateExpenseMutation($id: Int!, $input: UpdateExpenseInput!) {
     updateExpense(id: $id, input: $input) {
       id
-      categoryId
-      amount
-      currency
-      exchangeRate
-      nokAmount
-      date
-      description
-      kilometers
-      fuelType
-      fuelAmountLiters
-      sectorId
-      supplierId
-      tripId
-      projectId
-      userId
-      receiptFilename
-      receiptPath
-      receiptUploadedAt
-      scope1Co2Emissions
-      scope2Co2Emissions
-      scope3Co2Emissions
-      kwh
-      scope3CategoryId
+      receipt {
+        id
+        url
+        fileName
+        fileType
+      }
     }
   }
 `
@@ -86,7 +76,10 @@ export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>
 )
 
-export const Success = ({ expense }: CellSuccessProps<EditExpenseById>) => {
+export const Success = ({
+  expense,
+  expenseCategories,
+}: CellSuccessProps<EditExpenseById>) => {
   const [updateExpense, { loading, error }] = useMutation(
     UPDATE_EXPENSE_MUTATION,
     {
@@ -117,6 +110,7 @@ export const Success = ({ expense }: CellSuccessProps<EditExpenseById>) => {
       <div className="rw-segment-main">
         <ExpenseForm
           expense={expense}
+          categories={expenseCategories}
           onSave={onSave}
           error={error}
           loading={loading}
