@@ -1,6 +1,19 @@
 'use client'
-
+import gql from 'graphql-tag'
 import { ChevronRight, type LucideIcon } from 'lucide-react'
+import { QuerytopTripsByUser } from 'types/graphql'
+
+import { Link, routes } from '@redwoodjs/router'
+import { TypedDocumentNode, useQuery } from '@redwoodjs/web'
+
+const QUERY: TypedDocumentNode<QuerytopTripsByUser> = gql`
+  query QuerytopTripsByUser {
+    topTripsByUser {
+      id
+      name
+    }
+  }
+`
 
 import {
   Collapsible,
@@ -32,6 +45,10 @@ export function NavMain({
     }[]
   }[]
 }) {
+  const { data } = useQuery(QUERY)
+
+  console.log('Data=', data)
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -53,15 +70,21 @@ export function NavMain({
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </a>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
+                  {item.items?.map((subItem) => {
+                    return (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton asChild>
+                          {subItem.url === '#' ? (
+                            <span>{subItem.title}</span>
+                          ) : (
+                            <Link to={routes[subItem.url]()}>
+                              <span>{subItem.title}</span>
+                            </Link>
+                          )}
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    )
+                  })}
                 </SidebarMenuSub>
               </CollapsibleContent>
             </SidebarMenuItem>

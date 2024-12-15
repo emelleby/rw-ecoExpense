@@ -12,7 +12,7 @@ import { toast } from '@redwoodjs/web/toast'
 import { QUERY } from 'src/components/Trip/TripsCell'
 import { formatEnum, timeTag, truncate } from 'src/lib/formatters'
 
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -57,7 +57,7 @@ const TripsList = ({ tripsByUser }: TripsByUser) => {
   return (
     <>
       <Link
-        to={routes.newProject()}
+        to={routes.newTrip()}
         className="rw-button rw-button-primary m-4 items-center"
       >
         <div className="rw-button-icon">+</div> New Trip
