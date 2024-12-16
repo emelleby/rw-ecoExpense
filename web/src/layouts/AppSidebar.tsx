@@ -8,10 +8,10 @@ import {
   BookOpen,
   Bot,
   Command,
-  Frame,
+  // Frame,
   GalleryVerticalEnd,
   Map,
-  PieChart,
+  //PieChart,
   Settings2,
   SquareTerminal,
   FolderOpenDot,
@@ -24,7 +24,7 @@ import { useLocation } from '@redwoodjs/router'
 
 import { useAuth } from 'src/auth'
 import { NavMain } from 'src/components/NavMain'
-import { NavProjects } from 'src/components/NavProjects'
+//import { NavProjects } from 'src/components/NavProjects'
 import { TeamSwitcher } from 'src/components/TeamSwitcher'
 import {
   Sidebar,
@@ -193,23 +193,6 @@ const data = {
       ],
     },
   ],
-  projects: [
-    {
-      name: 'Home',
-      url: 'home',
-      icon: Frame,
-    },
-    {
-      name: 'Sales & Marketing',
-      url: '#',
-      icon: PieChart,
-    },
-    {
-      name: 'Travel',
-      url: '#',
-      icon: Map,
-    },
-  ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -247,7 +230,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           )}
         </SidebarMenu>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         {/* <UserButton /> */}

@@ -1,6 +1,6 @@
 'use client'
 import gql from 'graphql-tag'
-import { ChevronRight, type LucideIcon } from 'lucide-react'
+import { ChevronRight, MapPin, type LucideIcon } from 'lucide-react'
 import { QuerytopTripsByUser } from 'types/graphql'
 
 import { Link, routes } from '@redwoodjs/router'
@@ -45,7 +45,13 @@ export function NavMain({
     }[]
   }[]
 }) {
-  const { data } = useQuery(QUERY)
+  const { data, loading } = useQuery(QUERY)
+
+  const tripItems =
+    data?.topTripsByUser.map((trip) => ({
+      title: trip.name,
+      id: trip.id,
+    })) || []
 
   console.log('Data=', data)
 
@@ -90,6 +96,44 @@ export function NavMain({
             </SidebarMenuItem>
           </Collapsible>
         ))}
+
+        <Collapsible
+          key={'Top Trips'}
+          asChild
+          defaultOpen={false}
+          className="group/collapsible"
+        >
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton tooltip={'Top Trips'}>
+                <MapPin />
+                <span>{'Top Trips'}</span>
+                <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarMenuSub>
+                {loading ? (
+                  <div>Loading...</div>
+                ) : (
+                  tripItems.map((item) => {
+                    return (
+                      <>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <Link to={routes.trip({ id: item.id })}>
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      </>
+                    )
+                  })
+                )}
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </Collapsible>
       </SidebarMenu>
     </SidebarGroup>
   )

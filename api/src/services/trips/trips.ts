@@ -11,8 +11,9 @@ export const trips: QueryResolvers['trips'] = () => {
 }
 
 export const trip: QueryResolvers['trip'] = ({ id }) => {
+  const currentUser = context.currentUser
   return db.trip.findUnique({
-    where: { id },
+    where: { id, userId: currentUser.dbUserId },
   })
 }
 
