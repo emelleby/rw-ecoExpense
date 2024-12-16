@@ -30,7 +30,6 @@ export const topTripsByUser: QueryResolvers['topTripsByUser'] = () => {
 // Added to only fetch trips for the current user
 export const tripsByUser: QueryResolvers['tripsByUser'] = () => {
   const currentUser = context.currentUser
-
   return db.trip.findMany({
     where: {
       userId: currentUser.dbUserId,

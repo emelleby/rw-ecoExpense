@@ -117,18 +117,7 @@ const Expense = ({ expense }: Props) => {
               <th>User id</th>
               <td>{expense.userId}</td>
             </tr>
-            <tr>
-              <th>Receipt filename</th>
-              <td>{expense.receiptFilename}</td>
-            </tr>
-            <tr>
-              <th>Receipt path</th>
-              <td>{expense.receiptPath}</td>
-            </tr>
-            <tr>
-              <th>Receipt uploaded at</th>
-              <td>{timeTag(expense.receiptUploadedAt)}</td>
-            </tr>
+
             <tr>
               <th>Scope1 co2 emissions</th>
               <td>{expense.scope1Co2Emissions}</td>

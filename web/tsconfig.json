@@ -41,5 +41,5 @@
     "../.redwood/types/includes/web-*",
     "../types",
     "./types"
-  ]
+, "../api/src/lib/fileUpload.ts"  ]
 }
