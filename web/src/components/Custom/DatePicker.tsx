@@ -42,7 +42,7 @@ const DatetimeLocalField = ({
     rules: validation,
     defaultValue,
   })
-  console.log(`DatePicker ${name} defaultValue:`, defaultValue)
+  //console.log(`DatePicker ${name} defaultValue:`, defaultValue)
   // Convert ISO string to Date object if needed
   const initialDate =
     typeof defaultValue === 'string' ? new Date(defaultValue) : defaultValue
@@ -51,8 +51,8 @@ const DatetimeLocalField = ({
   )
 
   const handleSelect = (date: Date | undefined) => {
-    console.log(`DatePicker ${name} selected:`, date)
-    console.log(`DatePicker ${name} ISO string:`, date?.toISOString())
+    //console.log(`DatePicker ${name} selected:`, date)
+    //console.log(`DatePicker ${name} ISO string:`, date?.toISOString())
     setSelectedDate(date)
 
     // Always store and transmit full ISO string for DB compatibility

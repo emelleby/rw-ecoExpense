@@ -100,12 +100,15 @@ export const updateExpense: MutationResolvers['updateExpense'] = ({
 //   })
 // }
 
-export const deleteExpense: MutationResolvers['deleteExpense'] = ({ id }) => {
+export const deleteExpense: MutationResolvers['deleteExpense'] = async ({
+  id,
+}) => {
+  await db.receipt.deleteMany({
+    where: { expenseId: id },
+  })
+
   return db.expense.delete({
     where: { id },
-    include: {
-      receipt: true,
-    },
   })
 }
 

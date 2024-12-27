@@ -2,6 +2,10 @@ import type {
   CreateExpenseMutation,
   CreateExpenseInput,
   CreateExpenseMutationVariables,
+  TripsByUser,
+  TripsByUserVariables,
+  FindProjectsbyUser,
+  FindProjectsbyUserVariables,
 } from 'types/graphql'
 
 import { navigate, routes } from '@redwoodjs/router'
@@ -10,6 +14,7 @@ import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import ExpenseForm from 'src/components/Expense/ExpenseForm'
+import Spinner from 'src/components/ui/Spinner'
 // Add a query to fetch categories
 const CATEGORIES_QUERY = gql`
   query ExpenseCategories {
@@ -36,8 +41,46 @@ const CREATE_EXPENSE_MUTATION: TypedDocumentNode<
   }
 `
 
+const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
+  query TripsByUser {
+    tripsByUser {
+      id
+      name
+    }
+  }
+`
+
+const PROJECTQUERY: TypedDocumentNode<
+  FindProjectsbyUser,
+  FindProjectsbyUserVariables
+> = gql`
+  query FindProjectsbyUser {
+    projects {
+      id
+      name
+    }
+  }
+`
+const Loading = () => (
+  <div className="flex h-screen items-center justify-center">
+    <Spinner />
+  </div>
+)
+
 const NewExpense = () => {
   const { data: categoryData } = useQuery(CATEGORIES_QUERY)
+
+  const {
+    data: tripsData,
+    loading: tripsLoading,
+    error: tripsError,
+  } = useQuery(QUERY)
+  const {
+    data: projectsData,
+    loading: projectsLoading,
+    error: projectsError,
+  } = useQuery(PROJECTQUERY)
+
   const [createExpense, { loading, error }] = useMutation(
     CREATE_EXPENSE_MUTATION,
     {
@@ -76,6 +119,10 @@ const NewExpense = () => {
   //   })
   // }
 
+  if (tripsLoading || projectsLoading) {
+    return <Loading />
+  }
+
   return (
     <div className="rw-segment">
       <header className="rw-segment-header">
@@ -83,6 +130,8 @@ const NewExpense = () => {
       </header>
       <div className="rw-segment-main">
         <ExpenseForm
+          trips={tripsData?.tripsByUser}
+          projects={projectsData?.projects}
           categories={categoryData?.expenseCategories}
           onSave={onSave}
           loading={loading}
