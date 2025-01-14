@@ -57,7 +57,6 @@ export const Failure = ({ error }: CellFailureProps) => (
 )
 
 export const Success = ({ trip }: CellSuccessProps<EditTripById>) => {
-  console.log('EditTripCell data:', trip)
   const [updateTrip, { loading, error }] = useMutation(UPDATE_TRIP_MUTATION, {
     onCompleted: () => {
       toast.success('Trip updated')

@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react'
+import { FC, useState } from 'react'
 
 import type { EditExpenseById, CreateExpenseInput } from 'types/graphql'
 
@@ -6,12 +6,15 @@ import {
   Controller,
   FieldError,
   Label,
-  useFormContext,
+  //useFormContext,
   TextField,
   RWGqlError,
+  useForm,
+  Form,
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
+import { Button } from 'src/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -19,9 +22,11 @@ import {
   SelectValue,
   SelectTrigger,
 } from 'src/components/ui/Select'
-import { cn } from 'src/utils/cn'
+//import { cn } from 'src/utils/cn'
 
-import { FUEL_TYPE_LIST } from './constants'
+import { CommonFields } from './CommonFields'
+import { FEUL_FACTORS_DATA, FUEL_TYPE_LIST } from './constants'
+import UploadReciepts from './UploadReciepts'
 
 import { Switch } from '@/components/ui/Switch'
 
@@ -35,47 +40,114 @@ interface ExpenseFormProps {
   error: RWGqlError
 }
 
-export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
-  const {
-    setValue,
-    getValues,
-    formState: { errors },
-    unregister,
-  } = useFormContext()
+export const CarDistanceBased: FC<ExpenseFormProps> = ({
+  expense,
+  trips,
+  projects,
+  onSave,
+}) => {
+  const formMethods = useForm()
+
+  const [fileName, setFileName] = useState(expense?.receipt?.fileName || '')
+
+  const [fileType, setFileType] = useState(expense?.receipt?.fileType || '')
+
+  const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '')
 
   const handleUpdateDistanceOrFactor = () => {
-    const distance = getValues('distance')
+    const distance = formMethods.getValues('kilometers')
 
-    let factor = getValues('factor')
+    let factor = formMethods.getValues('factor')
 
-    const passengers = getValues('passengers')
+    const passengers = formMethods.getValues('passengers')
 
     factor += passengers
 
-    setValue('nokAmount', factor * distance)
+    if (distance && factor && distance > 0 && factor > 0) {
+      formMethods.setValue('nokAmount', factor * distance)
+    }
   }
 
-  useEffect(() => {
-    // unregister fields when component unmounts
+  const getEmission = async (data) => {
+    const { kilometers, fuelType, fuelConsumption } = data
 
-    return () => {
-      ;[
-        'distance',
-        'feulType',
-        'fuelConsumption',
-        'factor',
-        'passengers',
-        'trailer',
-        'nokAmount',
-        'date',
-      ].forEach((field) => {
-        unregister(field)
-      })
+    const feulConsumed = kilometers / fuelConsumption
+
+    let factor = 0
+
+    const scope3 = FEUL_FACTORS_DATA[fuelType].scope3
+
+    const scope1 = FEUL_FACTORS_DATA[fuelType].scope1
+
+    const scope2 = FEUL_FACTORS_DATA[fuelType].scope2
+
+    const kwh = FEUL_FACTORS_DATA[fuelType].kwh * feulConsumed
+
+    factor = (scope1 || 0) + (scope2 || 0) + (scope3 || 0)
+
+    const scope3Co2Emissions = factor * feulConsumed
+
+    return {
+      scope1Co2Emissions: 0,
+      scope2Co2Emissions: 0,
+      scope3Co2Emissions: scope3Co2Emissions,
+      kwh,
     }
-  }, [unregister])
+  }
+
+  const onSubmit = async (data) => {
+    // Construct the receipt object
+    //console.log('Receipt data submitted:', { receiptUrl, fileName, fileType }
+
+    const {
+      date,
+      kilometers,
+      fuelType,
+      fuelConsumption,
+      projectId,
+      tripId,
+      nokAmount,
+      description,
+    } = data
+
+    const receipt = receiptUrl
+      ? {
+          url: receiptUrl,
+          fileName: fileName!,
+          fileType: fileType!,
+        }
+      : undefined
+
+    const emission = await getEmission(data)
+
+    const dataWithReceipt = {
+      date,
+      projectId,
+      tripId,
+      amount: nokAmount,
+      currency: 'NOK',
+      nokAmount,
+      exchangeRate: 1,
+      categoryId: 2,
+      fuelAmountLiters: fuelConsumption,
+      fuelType,
+      kilometers,
+      description,
+      scope3CategoryId: 6,
+      ...emission,
+      receipt, // Add the nested receipt object
+    }
+
+    // format the data before sending it to the server
+
+    //const formattedData = formatData(dataWithReceipt)
+    onSave(dataWithReceipt, expense?.id)
+
+    //console.log(dataWithReceipt)
+  }
 
   return (
-    <div className="rw-form-wrapper">
+    <Form formMethods={formMethods} onSubmit={onSubmit}>
       <div className=" grid grid-cols-2 gap-4">
         <div>
           <Label
@@ -88,19 +160,16 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
           <div className="relative mt-1 flex items-center">
             <TextField
               name="kilometers"
-              defaultValue={expense?.kilometers}
+              defaultValue={expense?.kilometers ? expense?.kilometers : 0}
               className="rw-input flex-1 pr-16"
               validation={{
                 valueAsNumber: true,
                 required: true,
-                min: 1,
-                setValueAs: (value) => Number(value),
               }}
               onChange={(e) => {
-                const value = e.target.value
+                const value = e.target.value.replace(/[^0-9.]/g, '')
                 e.target.value = value
-                setValue('kilometers', value ? parseInt(value) : '')
-
+                formMethods.setValue('kilometers', value ? parseInt(value) : '')
                 handleUpdateDistanceOrFactor()
               }}
             />
@@ -122,7 +191,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
 
           <Controller
             name="fuelType"
-            defaultValue={expense?.fuelType}
+            defaultValue={expense?.fuelType || FUEL_TYPE_LIST[0].value}
             rules={{ required: true }}
             render={({ field }) => (
               <Select
@@ -131,17 +200,15 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
                   // setValue('economy', VEHICLE_ECONOMY[value])
                 }}
                 value={field.value?.toString()}
-                defaultValue={FUEL_TYPE_LIST[0]}
+                defaultValue={FUEL_TYPE_LIST[0].value}
               >
-                <SelectTrigger
-                  className={cn('w-full', errors?.feulType && 'border-red-500')}
-                >
+                <SelectTrigger>
                   <SelectValue placeholder="Select fuel type..." />
                 </SelectTrigger>
                 <SelectContent>
                   {FUEL_TYPE_LIST.map((feul, index) => (
-                    <SelectItem key={index + 100} value={feul}>
-                      {feul}
+                    <SelectItem key={index + 100} value={feul.value}>
+                      {feul.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -171,7 +238,10 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
               onChange={(e) => {
                 const value = e.target.value.replace(/[^0-9.]/g, '')
                 e.target.value = value
-                setValue('fuelConsumption', value ? parseInt(value) : '')
+                formMethods.setValue(
+                  'fuelConsumption',
+                  value ? parseInt(value) : ''
+                )
               }}
             />
             <span className="absolute right-2 mt-1 text-sm text-gray-500">
@@ -202,7 +272,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
               onChange={(e) => {
                 const value = e.target.value.replace(/[^0-9]/g, '')
                 e.target.value = value
-                setValue('Factor', value ? parseInt(value) : '')
+                formMethods.setValue('Factor', value ? parseInt(value) : '')
               }}
             />
             <span className="absolute right-2 mt-1 text-sm text-gray-500">
@@ -227,12 +297,11 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
             errorClassName="rw-input rw-input-error"
             validation={{
               valueAsNumber: true,
-              setValueAs: (value) => Number(value),
             }}
             onChange={(e) => {
               const value = e.target.value.replace(/[^0-9]/g, '')
               e.target.value = value
-              setValue('passengers', value ? parseInt(value) : '')
+              formMethods.setValue('passengers', value ? parseInt(value) : '')
               if (Number(value) > 0) {
                 handleUpdateDistanceOrFactor()
               }
@@ -253,14 +322,14 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
 
                   // get factor value
 
-                  const factor = getValues('factor')
+                  const factor = formMethods.getValues('factor')
 
                   // if checked add 1 to factor else subtract 1
                   if (value) {
-                    setValue('factor', factor + 1)
+                    formMethods.setValue('factor', factor + 1)
                     handleUpdateDistanceOrFactor()
                   } else {
-                    setValue('factor', factor - 1)
+                    formMethods.setValue('factor', factor - 1)
                     handleUpdateDistanceOrFactor()
                   }
                 }}
@@ -288,8 +357,9 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
           </Label>
           <TextField
             name="nokAmount"
+            disabled
             defaultValue={expense?.nokAmount || 0}
-            className="rw-input"
+            className="rw-input disabled:bg-slate-100"
             errorClassName="rw-input rw-input-error"
             validation={{
               valueAsNumber: true,
@@ -297,7 +367,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
             onChange={(e) => {
               const value = e.target.value.replace(/[^0-9.]/g, '')
               e.target.value = value
-              setValue('nokAmount', value ? parseInt(value) : '')
+              formMethods.setValue('nokAmount', value ? parseInt(value) : '')
             }}
           />
           <FieldError name="nokAmount" className="rw-field-error" />
@@ -322,6 +392,31 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({ expense }) => {
           <FieldError name="date" className="rw-field-error" />
         </div>
       </div>
-    </div>
+
+      <CommonFields
+        projects={projects}
+        trips={trips}
+        tripId={expense?.tripId}
+        description={expense?.description}
+      />
+
+      <div className="mt-6 grid grid-cols-1 gap-4">
+        <UploadReciepts
+          fileName={fileName}
+          fileType={fileType}
+          id={expense?.id}
+          receiptUrl={receiptUrl}
+          setFileName={setFileName}
+          setFileType={setFileType}
+          setReceiptUrl={setReceiptUrl}
+        />
+      </div>
+
+      <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Button type="submit" variant="default" className="w-full">
+          Save
+        </Button>
+      </div>
+    </Form>
   )
 }

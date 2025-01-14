@@ -22,6 +22,20 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
         approvedDate
         reimbursementStatus
         transactionId
+        expenses {
+          scope3Co2Emissions
+          description
+          receipt {
+            url
+          }
+          categoryId
+          nokAmount
+          kwh
+          date
+          category {
+            name
+          }
+        }
       }
     }
   `

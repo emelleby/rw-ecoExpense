@@ -7,6 +7,8 @@ import { Moon, Sun } from 'lucide-react'
 
 import { Toaster } from '@redwoodjs/web/toast'
 
+import useLoader from 'src/hooks/useLoader'
+
 import { Button } from '@/components/ui/button'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/Sidebar'
 import { useTheme } from '@/hooks/useTheme'
@@ -29,6 +31,8 @@ export function ThemeToggle() {
 }
 
 const AppshellLayout = ({ children }: AppshellLayoutProps) => {
+  const { Loader } = useLoader()
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -41,6 +45,7 @@ const AppshellLayout = ({ children }: AppshellLayoutProps) => {
             <ThemeToggle />
             <UserButton />
             <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
+            <Loader />
           </div>
         </header>
         <main className="container max-w-6xl flex-1">{children}</main>

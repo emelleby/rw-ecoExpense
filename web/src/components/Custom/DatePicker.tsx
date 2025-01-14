@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { Calendar } from 'lucide-react'
 
 import { useController } from '@redwoodjs/forms'
@@ -42,6 +42,8 @@ const DatetimeLocalField = ({
     rules: validation,
     defaultValue,
   })
+
+  const [open, setOpen] = useState(false)
   //console.log(`DatePicker ${name} defaultValue:`, defaultValue)
   // Convert ISO string to Date object if needed
   const initialDate =
@@ -58,6 +60,7 @@ const DatetimeLocalField = ({
     // Always store and transmit full ISO string for DB compatibility
     field.onChange(date?.toISOString())
     onChange?.(date)
+    setOpen(false)
   }
 
   return (
@@ -68,7 +71,7 @@ const DatetimeLocalField = ({
         value={selectedDate?.toISOString() || ''}
         {...validation}
       />
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"

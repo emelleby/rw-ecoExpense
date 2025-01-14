@@ -6,8 +6,6 @@ import { Check, ChevronDown } from 'lucide-react'
 
 import { cn } from 'src/utils/cn'
 
-import { CURRENCIES_OF_COUTRIES } from './constants'
-
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -24,18 +22,22 @@ import {
 } from '@/components/ui/Popover'
 
 interface CurrencyFieldProps {
-  currency: string
+  defaultValue: string
   isActive: boolean
-  onCurrencyChange: (value: string) => void
+  Data: Array<{ label: string; value: string | number }>
+  onChangeHandle?: (value: string) => void
+  defaultText: string
 }
 
-export function CurrencyField({
-  currency,
+export function Combobox({
+  defaultValue,
   isActive,
-  onCurrencyChange,
+  onChangeHandle,
+  Data,
+  defaultText,
 }: CurrencyFieldProps) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState(currency)
+  const [value, setValue] = React.useState(defaultValue)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -45,39 +47,44 @@ export function CurrencyField({
           role="combobox"
           disabled={!isActive}
           aria-expanded={open}
-          className="w-full justify-between p-5"
+          className="w-full justify-between font-normal"
         >
           {value
-            ? CURRENCIES_OF_COUTRIES.find(
-                (currency) => currency.value === value
-              )?.label
-            : 'Select Currency...'}
+            ? Data.find((d) => d.value === value)?.label
+            : `Select ${defaultText}...`}
           <ChevronDown className="ml-4 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput
+            onValueChange={(value) => {
+              console.log(value)
+            }}
+            placeholder={`Search ${defaultText}...`}
+          />
           <CommandList>
             <CommandEmpty>No Currency found.</CommandEmpty>
             <CommandGroup>
-              {CURRENCIES_OF_COUTRIES.map((currency) => (
+              {Data.map((d) => (
                 <CommandItem
-                  key={currency.value}
-                  value={currency.value}
+                  key={d.value}
+                  value={d.value.toString()}
                   onSelect={(currentValue) => {
+                    console.log('currentValue', currentValue)
+
                     setValue(currentValue === value ? '' : currentValue)
-                    onCurrencyChange(currentValue)
+                    onChangeHandle(currentValue)
                     setOpen(false)
                   }}
                 >
                   <Check
                     className={cn(
                       'mr-2 h-4 w-4',
-                      value === currency.value ? 'opacity-100' : 'opacity-0'
+                      value === d.value ? 'opacity-100' : 'opacity-0'
                     )}
                   />
-                  {currency.label}
+                  {d.label}
                 </CommandItem>
               ))}
             </CommandGroup>

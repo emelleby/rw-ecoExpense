@@ -8,6 +8,7 @@ import type {
 } from 'types/graphql'
 
 import {
+  CheckboxField,
   Controller,
   FieldError,
   Form,
@@ -30,17 +31,11 @@ import {
 } from 'src/components/ui/Select'
 import { cn } from 'src/utils/cn'
 
-import { CommonFields } from './CommonFields'
-import {
-  ACCOMODATIONTYPES,
-  COUNTRY_EMISSIONS,
-  COUNTRY_NAMES,
-  CURRENCIES_OF_COUTRIES,
-  //CURRENCIES,
-  //EXCHANGE_RATES,
-} from './constants'
-import { getCurrencyConversionRate } from './service'
-import UploadReciepts from './UploadReciepts'
+import AirportSelect from '../AirportSearch'
+import { CommonFields } from '../CommonFields'
+import { CURRENCIES_OF_COUTRIES, FLIGHT_CLASSES } from '../constants'
+import { calculateEmissions, getCurrencyConversionRate } from '../service'
+import UploadReciepts from '../UploadReciepts'
 
 //import { getCurrencyConversionRate } from './service'
 //import UploadReciepts from './UploadReciepts'
@@ -55,16 +50,16 @@ interface ExpenseFormProps {
   error: RWGqlError
 }
 
-export const Accommodation: FC<ExpenseFormProps> = (
-  props: ExpenseFormProps
-) => {
+export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
   const date = new Date()
 
   const formMethods = useForm()
 
   const [exchangeRate, setExchangeRate] = useState(
-    props.expense?.exchangeRate || 1
+    props.expense?.exchangeRate || 0
   )
+
+  const [selectedDate, setSelectedDate] = useState(date)
 
   const [fileName, setFileName] = useState(
     props.expense?.receipt?.fileName || ''
@@ -78,7 +73,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
     props.expense?.receipt?.url || ''
   )
 
-  const [selectedDate, setSelectedDate] = useState(date)
+  const [radiativeFactor, setRadiativeFactor] = useState(true)
 
   const onCurrencyChange = async (value: string) => {
     const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
@@ -93,12 +88,28 @@ export const Accommodation: FC<ExpenseFormProps> = (
   }
 
   const getEmission = async (data) => {
-    const { nights, numberOfPeople, country } = data
+    const { from, via, to, flightClass, flightType, date, passengers } = data
 
+    const d = new Date(date)
+    const route = [from]
+    if (via != '') {
+      route.push(via)
+    }
+    route.push(to)
+    const payload = {
+      route,
+      return: flightType === 'return',
+      class: flightClass,
+      departureDate: `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`,
+      ir_factor: radiativeFactor,
+      travelers: passengers,
+    }
+
+    const result = await calculateEmissions(payload)
     return {
       scope1Co2Emissions: 0,
       scope2Co2Emissions: 0,
-      scope3Co2Emissions: nights * numberOfPeople * COUNTRY_EMISSIONS[country],
+      scope3Co2Emissions: result.total_emissions,
     }
   }
 
@@ -135,7 +146,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
       currency,
       nokAmount,
       exchangeRate,
-      categoryId: 1,
+      categoryId: 4,
       fuelAmountLiters: 0.0,
       fuelType: '',
       kilometers: 0,
@@ -171,106 +182,192 @@ export const Accommodation: FC<ExpenseFormProps> = (
   }, [selectedDate])
 
   return (
-    <Form formMethods={formMethods} onSubmit={onSubmit}>
+    <Form onSubmit={onSubmit} formMethods={formMethods}>
       <div className=" grid grid-cols-2 gap-4">
         <div>
           <Label
-            name="accommodationType"
+            name="flightType"
             className="rw-label mb-2"
             errorClassName="rw-label rw-label-error"
           >
-            Accommodation Type
+            Flight Type
           </Label>
 
           <Controller
-            name="accommodationType"
-            defaultValue={ACCOMODATIONTYPES[0]}
+            name="flightType"
+            defaultValue={'return'}
             rules={{ required: true }}
             render={({ field }) => (
               <Select
                 onValueChange={(value) => field.onChange(value)}
                 value={field.value?.toString()}
-                defaultValue={ACCOMODATIONTYPES[0]}
+                defaultValue={'return'}
               >
                 <SelectTrigger
                   className={cn(
                     'w-full',
-                    formMethods.formState.errors?.accommodationType &&
-                      'border-red-500'
+                    formMethods.formState.errors?.flightType && 'border-red-500'
                   )}
                 >
-                  <SelectValue placeholder="Select a category..." />
+                  <SelectValue placeholder="Select a Flight Type..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {ACCOMODATIONTYPES.map((accommodation, index) => (
-                    <SelectItem key={index} value={accommodation}>
-                      {accommodation}
-                    </SelectItem>
-                  ))}
+                  <SelectItem key={'fReturn'} value={'return'}>
+                    Return
+                  </SelectItem>
+                  <SelectItem key={'fOneway'} value={'oneWay'}>
+                    One Way
+                  </SelectItem>
                 </SelectContent>
               </Select>
             )}
           />
 
-          <FieldError name="accommodationType" className="rw-field-error" />
+          <FieldError name="flightType" className="rw-field-error" />
         </div>
 
         <div>
           <Label
-            name="country"
+            name="from"
             className="rw-label mb-2"
             errorClassName="rw-label rw-label-error"
           >
-            Country
+            From
           </Label>
 
           <Controller
-            name="country"
-            defaultValue={COUNTRY_NAMES[0]}
+            name="from"
+            defaultValue={''}
             rules={{ required: true }}
             render={({ field }) => (
-              <Select
-                onValueChange={(value) => {
+              <AirportSelect
+                label=""
+                onChange={(value) => {
                   field.onChange(value)
-                  console.log(formMethods.getValues('amount'))
+                  console.log(value)
                 }}
-                value={field.value?.toString()}
-                defaultValue={COUNTRY_NAMES[0]}
-              >
-                <SelectTrigger
-                  className={cn(
-                    'w-full',
-                    formMethods.formState.errors?.country && 'border-red-500'
-                  )}
-                >
-                  <SelectValue placeholder="Select a category..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {COUNTRY_NAMES.map((country, index) => (
-                    <SelectItem key={index + 100} value={country}>
-                      {country}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="Select an Origin Airport..."
+                value=""
+              />
             )}
           />
 
-          <FieldError name="country" className="rw-field-error" />
+          <FieldError name="from" className="rw-field-error" />
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div>
           <Label
-            name="numberOfPeople"
+            name="via"
+            className="rw-label mb-2"
+            errorClassName="rw-label rw-label-error"
+          >
+            Via
+          </Label>
+
+          <Controller
+            name="via"
+            defaultValue={''}
+            rules={{ required: false }}
+            render={({ field }) => (
+              <AirportSelect
+                label=""
+                onChange={(value) => {
+                  field.onChange(value)
+                  console.log(value)
+                }}
+                placeholder="Select a Via Airport..."
+                value=""
+              />
+            )}
+          />
+
+          <FieldError name="via" className="rw-field-error" />
+        </div>
+
+        <div>
+          <Label
+            name="to"
+            className="rw-label mb-2"
+            errorClassName="rw-label rw-label-error"
+          >
+            Destination
+          </Label>
+
+          <Controller
+            name="to"
+            defaultValue={''}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <AirportSelect
+                label=""
+                onChange={(value) => {
+                  field.onChange(value)
+                  console.log(value)
+                }}
+                placeholder="Select a Destination Airport..."
+                value=""
+              />
+            )}
+          />
+
+          <FieldError name="to" className="rw-field-error" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div>
+          <Label
+            name="flightClass"
+            className="rw-label mb-2"
+            errorClassName="rw-label rw-label-error"
+          >
+            Flight Class
+          </Label>
+
+          <Controller
+            name="flightClass"
+            defaultValue={'economy'}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <Select
+                onValueChange={(value) => field.onChange(value)}
+                value={field.value?.toString()}
+                defaultValue={'economy'}
+              >
+                <SelectTrigger
+                  className={cn(
+                    'w-full',
+                    formMethods.formState.errors?.flightClass &&
+                      'border-red-500'
+                  )}
+                >
+                  <SelectValue placeholder="Select a Flight Class..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {FLIGHT_CLASSES.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+
+          <FieldError name="flightClass" className="rw-field-error" />
+        </div>
+        <div>
+          <Label
+            name="passengers"
             className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
-            # People
+            # Travelers
           </Label>
           <NumberField
-            name="numberOfPeople"
+            name="passengers"
             defaultValue={1}
             className="rw-input appearance-none"
             errorClassName="rw-input rw-input-error"
@@ -282,33 +379,10 @@ export const Accommodation: FC<ExpenseFormProps> = (
               }
             }}
           />
-          <FieldError name="numberOfPeople" className="rw-field-error" />
-        </div>
-
-        <div>
-          <Label
-            name="nights"
-            className="rw-label"
-            errorClassName="rw-label rw-label-error"
-          >
-            # Nights
-          </Label>
-          <NumberField
-            name="nights"
-            defaultValue={1}
-            className="rw-input"
-            errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: true, required: true, min: 1 }}
-            onChange={(e) => {
-              const value = parseInt(e.target.value)
-              if (value < 1) {
-                e.target.value = '1'
-              }
-            }}
-          />
-          <FieldError name="nights" className="rw-field-error" />
+          <FieldError name="passengers" className="rw-field-error" />
         </div>
       </div>
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div>
           <Label
@@ -327,7 +401,6 @@ export const Accommodation: FC<ExpenseFormProps> = (
           />
           <FieldError name="merchant" className="rw-field-error" />
         </div>
-
         <div>
           <Label
             name="date"
@@ -351,6 +424,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
           <FieldError name="date" className="rw-field-error" />
         </div>
       </div>
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div>
           <Label
@@ -403,6 +477,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
               />
             )}
           />
+
           <FieldError name="currency" className="rw-field-error" />
         </div>
 
@@ -477,6 +552,21 @@ export const Accommodation: FC<ExpenseFormProps> = (
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        <div className="flex items-center space-x-2">
+          <CheckboxField
+            className="mt-7"
+            id="radiativeFactor"
+            checked={radiativeFactor}
+            onChange={(e) => setRadiativeFactor(e.target.checked)}
+            name="radiativeFactor"
+          />
+          <Label name="radiativeFactor" className="rw-label">
+            Include radiative forcing in calculation
+          </Label>
+        </div>
       </div>
 
       <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">

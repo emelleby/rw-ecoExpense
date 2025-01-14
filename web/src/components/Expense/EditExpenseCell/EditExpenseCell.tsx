@@ -76,7 +76,7 @@ const UPDATE_EXPENSE_MUTATION: TypedDocumentNode<
 `
 
 const TRIPS_QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
-  query TripsByUser {
+  query TripsByUserForEditExpenseCell {
     tripsByUser {
       id
       name
@@ -88,7 +88,7 @@ const PROJECTQUERY: TypedDocumentNode<
   FindProjectsbyUser,
   FindProjectsbyUserVariables
 > = gql`
-  query FindProjectsbyUser {
+  query FindProjectsbyUserEditExpenseCell {
     projects {
       id
       name

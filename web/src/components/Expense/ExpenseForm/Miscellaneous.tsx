@@ -1,16 +1,22 @@
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 
-import type { EditExpenseById, CreateExpenseInput } from 'types/graphql'
+import type {
+  EditExpenseById,
+  CreateExpenseInput,
+  FindSectors,
+  FindSectorsVariables,
+} from 'types/graphql'
 
 import {
   Controller,
   FieldError,
-  Label,
-  TextField,
-  RWGqlError,
   Form,
+  Label,
+  RWGqlError,
+  TextField,
   useForm,
 } from '@redwoodjs/forms'
+import { TypedDocumentNode, useQuery } from '@redwoodjs/web'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
 import { Button } from 'src/components/ui/button'
@@ -19,44 +25,66 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectValue,
   SelectTrigger,
+  SelectValue,
 } from 'src/components/ui/Select'
 
+import { Loading } from '../EditExpenseCell'
+
 import { CommonFields } from './CommonFields'
-import { CURRENCIES_OF_COUTRIES, FUEL_TYPE_LIST } from './constants'
+import { CURRENCIES_OF_COUTRIES } from './constants'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
 
 type FormExpense = NonNullable<EditExpenseById['expense']>
 
 interface ExpenseFormProps {
-  onSave: (data: CreateExpenseInput, id?: number) => void
+  onSave: (data: CreateExpenseInput, id?: number) => void // Accept CreateExpenseInput directly
   expense?: FormExpense
   trips: { id: number; name: string }[]
   projects: { id: number; name: string }[]
   error: RWGqlError
 }
 
-export const FeulExpense: FC<ExpenseFormProps> = ({
-  expense,
-  trips,
-  projects,
-  onSave,
-}) => {
-  const formMethods = useForm()
+const QUERY: TypedDocumentNode<FindSectors, FindSectorsVariables> = gql`
+  query FindSectors {
+    sectors {
+      id
+      name
+      factor
+      currency
+    }
+  }
+`
 
+export const Miscellaneous: FC<ExpenseFormProps> = (
+  props: ExpenseFormProps
+) => {
   const date = new Date()
 
-  const [exchangeRate, setExchangeRate] = useState(expense?.exchangeRate || 1)
+  const formMethods = useForm()
+
+  const { data: Sectors, loading } = useQuery(QUERY)
+
+  //const { showLoader, hideLoader } = useLoader()
+
+  const [fileName, setFileName] = useState(
+    props.expense?.receipt?.fileName || ''
+  )
+
+  const [fileType, setFileType] = useState(
+    props.expense?.receipt?.fileType || ''
+  )
+
+  const [receiptUrl, setReceiptUrl] = useState(
+    props.expense?.receipt?.url || ''
+  )
+
+  const [exchangeRate, setExchangeRate] = useState(
+    props.expense?.exchangeRate || 1
+  )
 
   const [selectedDate, setSelectedDate] = useState(date)
-
-  const [fileName, setFileName] = useState(expense?.receipt?.fileName || '')
-
-  const [fileType, setFileType] = useState(expense?.receipt?.fileType || '')
-
-  const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '')
 
   const onCurrencyChange = async (value: string) => {
     const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
@@ -70,59 +98,36 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
     }
   }
 
-  const getEmission = async (data) => {
-    //const { nights, numberOfPeople, country } = data
+  const getSectorFactor = (sectorId: string): number => {
+    const sector = Sectors?.sectors.find(
+      (sector) => sector.id === Number(sectorId)
+    )
+    return sector?.factor || 0
+  }
 
-    console.log(data)
+  const getEmission = async (data) => {
+    const { amount, currency, nokAmount, sectorId } = data
+
+    if (currency === 'EUR') {
+      const emission = getSectorFactor(sectorId) * Number(amount)
+
+      return {
+        scope1Co2Emissions: 0,
+        scope2Co2Emissions: 0,
+        scope3Co2Emissions: Number(emission.toFixed(2)),
+      }
+    }
+
+    const exchangeRate = await getCurrencyConversionRate('EUR', selectedDate)
+
+    const emission =
+      (getSectorFactor(sectorId) * Number(nokAmount)) / exchangeRate
 
     return {
       scope1Co2Emissions: 0,
       scope2Co2Emissions: 0,
-      scope3Co2Emissions: 0,
+      scope3Co2Emissions: Number(emission.toFixed(2)),
     }
-
-    // if (catagory === '4') {
-    //   const {
-    //     flightOrigin,
-    //     flightVia,
-    //     flightDestination,
-    //     flightClass,
-    //     flightType,
-    //     date,
-    //     passengers,
-    //   } = data
-
-    //   console.log(flightType)
-
-    //   const d = new Date(date)
-
-    //   const route = [flightOrigin]
-
-    //   if (flightVia != '') {
-    //     route.push(flightVia)
-    //   }
-
-    //   route.push(flightDestination)
-
-    //   const payload = {
-    //     route,
-    //     return: flightType === 'return',
-    //     class: flightClass,
-    //     departureDate: `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`,
-    //     ir_factor: false,
-    //     travelers: passengers,
-    //   }
-
-    //   console.log(payload)
-
-    //   const result = await calculateEmissions(payload)
-
-    //   return {
-    //     scope1Co2Emissions: 0,
-    //     scope2Co2Emissions: 0,
-    //     scope3Co2Emissions: result.total_emissions,
-    //   }
-    // }
   }
 
   const onSubmit = async (data) => {
@@ -131,11 +136,9 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
 
     const {
       date,
-      fuelType,
       projectId,
       tripId,
       amount,
-      kilometers,
       currency,
       nokAmount,
       exchangeRate,
@@ -160,10 +163,10 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
       currency,
       nokAmount,
       exchangeRate,
-      categoryId: 3,
+      categoryId: 6,
       fuelAmountLiters: 0.0,
-      fuelType,
-      kilometers,
+      fuelType: '',
+      kilometers: 0,
       kwh: 0,
       description,
       scope3CategoryId: 6,
@@ -174,25 +177,44 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
     // format the data before sending it to the server
 
     //const formattedData = formatData(dataWithReceipt)
-    onSave(dataWithReceipt, expense?.id)
+    props.onSave(dataWithReceipt, props?.expense?.id)
 
     //console.log(dataWithReceipt)
   }
 
+  useEffect(() => {
+    async function fetchExchangeRate() {
+      const exchangeRate = await getCurrencyConversionRate(
+        props.expense?.currency,
+        selectedDate
+      )
+      formMethods.setValue('exchangeRate', exchangeRate)
+      setExchangeRate(exchangeRate)
+    }
+    if (props.expense?.currency) {
+      fetchExchangeRate()
+    } else {
+      formMethods.setValue('exchangeRate', 0)
+    }
+  }, [selectedDate])
+
+  if (loading) return <Loading />
+
   return (
     <Form formMethods={formMethods} onSubmit={onSubmit}>
-      <div className=" grid grid-cols-2 gap-4">
+      <div className=" grid grid-cols-1 gap-4">
         <div>
           <Label
-            name="fuelType"
+            name="sectorId"
             className="rw-label mb-2"
             errorClassName="rw-label rw-label-error"
           >
-            Fuel Type
+            Purchace Type
           </Label>
+
           <Controller
-            name="fuelType"
-            defaultValue={expense?.fuelType}
+            name="sectorId"
+            defaultValue={Sectors.sectors[0].id}
             rules={{ required: true }}
             render={({ field }) => (
               <Select
@@ -201,55 +223,68 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
                   // formMethods.setValue('economy', VEHICLE_ECONOMY[value])
                 }}
                 value={field.value?.toString()}
-                defaultValue={FUEL_TYPE_LIST[0].value}
+                defaultValue={Sectors.sectors[0].id.toString()}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select fuel type ..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {FUEL_TYPE_LIST.map((feul, index) => (
-                    <SelectItem key={index + 100} value={feul.value}>
-                      {feul.label}
+                  {Sectors.sectors.map((sector) => (
+                    <SelectItem key={sector.id} value={sector.id.toString()}>
+                      {sector.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             )}
           />
-          <FieldError name="fuelType" className="rw-field-error" />
-        </div>
-        <div>
-          <Label
-            name="kilometers"
-            className="rw-label"
-            errorClassName="rw-label rw-label-error"
-          >
-            Distance
-          </Label>
-          <div className="relative mt-1 flex items-center">
-            <TextField
-              name="kilometers"
-              defaultValue={expense?.kilometers ? expense.kilometers : 0}
-              className="rw-input flex-1 pr-16"
-              validation={{
-                valueAsNumber: true,
-                required: true,
-                //min: 1,
-              }}
-              onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9.]/g, '')
-                e.target.value = value
-                formMethods.setValue('kilometers', value ? parseInt(value) : '')
-              }}
-            />
-            <span className="absolute right-2 mt-1 text-sm text-gray-500">
-              KM
-            </span>
-          </div>
-          <FieldError name="kilometers" className="rw-field-error" />
+
+          <FieldError name="purchaceType" className="rw-field-error" />
         </div>
       </div>
 
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div>
+          <Label
+            name="merchant"
+            className="rw-label"
+            errorClassName="rw-label rw-label-error"
+          >
+            Merchant
+          </Label>
+          <TextField
+            name="merchant"
+            defaultValue={''}
+            className="rw-input"
+            errorClassName="rw-input rw-input-error"
+            validation={{ valueAsNumber: false }}
+          />
+          <FieldError name="merchant" className="rw-field-error" />
+        </div>
+
+        <div>
+          <Label
+            name="date"
+            className="rw-label"
+            errorClassName="rw-label rw-label-error"
+          >
+            Date
+          </Label>
+
+          <DatetimeLocalField
+            name="date"
+            defaultValue={new Date()}
+            onChange={(date) => {
+              setSelectedDate(date)
+            }}
+            className="rw-input-calendar"
+            errorClassName="rw-input rw-input-error"
+            validation={{ required: true }}
+          />
+
+          <FieldError name="date" className="rw-field-error" />
+        </div>
+      </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div>
           <Label
@@ -261,7 +296,7 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
           </Label>
           <TextField
             name="amount"
-            defaultValue={expense?.amount || 0}
+            defaultValue={props?.expense?.amount || 0}
             className="rw-input"
             onChange={(e) => {
               const value = Number(e.target.value.replace(/[^0-9.]/g, ''))
@@ -287,12 +322,12 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
 
           <Controller
             name="currency"
-            defaultValue={expense?.currency}
+            defaultValue={props.expense?.currency}
             rules={{ required: true }}
             render={({ field }) => (
               <Combobox
                 Data={CURRENCIES_OF_COUTRIES}
-                defaultValue={expense?.currency}
+                defaultValue={props.expense?.currency}
                 defaultText="Currency"
                 isActive={true}
                 onChangeHandle={(value) => {
@@ -315,7 +350,7 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
           </Label>
           <TextField
             name="exchangeRate"
-            defaultValue={expense?.exchangeRate}
+            defaultValue={props.expense?.exchangeRate}
             validation={{
               valueAsNumber: true,
             }}
@@ -348,7 +383,9 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
           <TextField
             name="nokAmount"
             disabled
-            defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
+            defaultValue={
+              props.expense?.nokAmount ? Number(props.expense.nokAmount) : 0
+            }
             className="rw-input disabled:bg-slate-100"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
@@ -357,60 +394,18 @@ export const FeulExpense: FC<ExpenseFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div>
-          <Label
-            name="merchant"
-            className="rw-label"
-            errorClassName="rw-label rw-label-error"
-          >
-            Merchant
-          </Label>
-          <TextField
-            name="merchant"
-            defaultValue={''}
-            className="rw-input"
-            errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: false }}
-          />
-          <FieldError name="merchant" className="rw-field-error" />
-        </div>
-        <div>
-          <Label
-            name="date"
-            className="rw-label"
-            errorClassName="rw-label rw-label-error"
-          >
-            Date
-          </Label>
-
-          <DatetimeLocalField
-            name="date"
-            defaultValue={new Date()}
-            onChange={(date) => {
-              setSelectedDate(date)
-            }}
-            className="rw-input-calendar"
-            errorClassName="rw-input rw-input-error"
-            validation={{ required: true }}
-          />
-
-          <FieldError name="date" className="rw-field-error" />
-        </div>
-      </div>
-
       <CommonFields
-        projects={projects}
-        trips={trips}
-        tripId={expense?.tripId}
-        description={expense?.description}
+        projects={props.projects}
+        trips={props.trips}
+        tripId={props.expense?.tripId}
+        description={props.expense?.description}
       />
 
       <div className="mt-6 grid grid-cols-1 gap-4">
         <UploadReciepts
           fileName={fileName}
           fileType={fileType}
-          id={expense?.id}
+          id={props.expense?.id}
           receiptUrl={receiptUrl}
           setFileName={setFileName}
           setFileType={setFileType}

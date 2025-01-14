@@ -1,112 +1,92 @@
-import type {
-  DeleteTripMutation,
-  DeleteTripMutationVariables,
-  FindTripById,
-} from 'types/graphql'
+import { useEffect, useState } from 'react'
 
-import { Link, routes, navigate } from '@redwoodjs/router'
-import { useMutation } from '@redwoodjs/web'
-import type { TypedDocumentNode } from '@redwoodjs/web'
-import { toast } from '@redwoodjs/web/toast'
+import type { FindTripById } from 'types/graphql'
 
-import { formatEnum, timeTag } from 'src/lib/formatters'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from 'src/components/ui/Tabs'
 
-import { Badge } from '@/components/ui/Badge'
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/Table'
-
-const DELETE_TRIP_MUTATION: TypedDocumentNode<
-  DeleteTripMutation,
-  DeleteTripMutationVariables
-> = gql`
-  mutation DeleteTripMutation($id: Int!) {
-    deleteTrip(id: $id) {
-      id
-    }
-  }
-`
+import { ExpenseDetails } from './ExpenseDetails'
+import { ExpenseChart as PieChart } from './PieChart'
+import { RecentExpenses } from './RecentExpenses'
 
 interface Props {
   trip: NonNullable<FindTripById['trip']>
 }
 
 const Trip = ({ trip }: Props) => {
-  const [deleteTrip] = useMutation(DELETE_TRIP_MUTATION, {
-    onCompleted: () => {
-      toast.success('Trip deleted')
-      navigate(routes.trips())
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
+  const [expenses, setExpenses] = useState([])
 
-  const onDeleteClick = (id: DeleteTripMutationVariables['id']) => {
-    if (confirm('Are you sure you want to delete trip ' + id + '?')) {
-      deleteTrip({ variables: { id } })
-    }
-  }
+  // const [deleteTrip] = useMutation(DELETE_TRIP_MUTATION, {
+  //   onCompleted: () => {
+  //     toast.success('Trip deleted')
+  //     navigate(routes.trips())
+  //   },
+  //   onError: (error) => {
+  //     toast.error(error.message)
+  //   },
+  // })
+
+  // const onDeleteClick = (id: DeleteTripMutationVariables['id']) => {
+  //   if (confirm('Are you sure you want to delete trip ' + id + '?')) {
+  //     deleteTrip({ variables: { id } })
+  //   }
+  // }
+
+  useEffect(() => {
+    const data = trip.expenses.map((expense) => {
+      return {
+        category: expense.category.name,
+        emissions: expense.scope3Co2Emissions,
+        amount: expense.nokAmount,
+        id: expense.categoryId,
+        description: expense.description,
+        date: expense.date,
+        imageUrl: expense.receipt?.url,
+      }
+    })
+    setExpenses(data)
+  }, [trip])
 
   return (
-    <>
-      <div className="rw-segment">
-        <header className="rw-segment-header">
-          <h2 className="rw-heading rw-heading-secondary">
-            Trip Details: {trip.name}
-          </h2>
-        </header>
-        <Table>
-          <TableBody>
-            <TableRow>
-              <TableCell className="font-medium">Name</TableCell>
-              <TableCell>{trip.name}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">Description</TableCell>
-              <TableCell>{trip.description}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">Start Date</TableCell>
-              <TableCell>{timeTag(trip.startDate)}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">End Date</TableCell>
-              <TableCell>{timeTag(trip.endDate)}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">
-                Reimbursement Status
-              </TableCell>
-              <TableCell>
-                <Badge variant="info">
-                  {formatEnum(trip.reimbursementStatus)}
-                </Badge>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Approved Date</TableCell>
-              <TableCell>
-                {trip.approvedDate ? timeTag(trip.approvedDate) : '-'}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+    <div className="mx-auto max-w-7xl space-y-8 p-2 sm:p-4 lg:p-8">
+      <h1 className="text-3xl font-bold">Report for {trip.name}</h1>
+      {/* <div>{DateRangeDisplay()}</div> */}
+
+      <Tabs defaultValue="expenses">
+        <TabsList className="h-11 w-full px-3 py-2">
+          <TabsTrigger value="expenses" className="w-full text-base">
+            Expenses
+          </TabsTrigger>
+          <TabsTrigger value="emissions" className="w-full text-base">
+            Emissions
+          </TabsTrigger>
+        </TabsList>
+
+        <div className="mt-8">
+          <TabsContent value="expenses">
+            <div className="grid gap-4 md:grid-cols-2">
+              <PieChart data={expenses} type="amount" />
+              <RecentExpenses expenses={expenses} displayType="amount" />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="emissions">
+            <div className="grid gap-4 md:grid-cols-2">
+              <PieChart data={expenses} type="emissions" />
+              <RecentExpenses expenses={expenses} displayType="emissions" />
+            </div>
+          </TabsContent>
+        </div>
+      </Tabs>
+
+      <div className="flex justify-center">
+        <ExpenseDetails data={expenses} />
       </div>
-      <nav className="rw-button-group">
-        <Link
-          to={routes.editTrip({ id: trip.id })}
-          className="rw-button rw-button-blue"
-        >
-          Edit
-        </Link>
-        <button
-          type="button"
-          className="rw-button rw-button-red"
-          onClick={() => onDeleteClick(trip.id)}
-        >
-          Delete
-        </button>
-      </nav>
-    </>
+    </div>
   )
 }
 

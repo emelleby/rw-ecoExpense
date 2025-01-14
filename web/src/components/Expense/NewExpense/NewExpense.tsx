@@ -15,6 +15,7 @@ import { toast } from '@redwoodjs/web/toast'
 
 import ExpenseForm from 'src/components/Expense/ExpenseForm'
 import Spinner from 'src/components/ui/Spinner'
+import useLoader from 'src/hooks/useLoader'
 // Add a query to fetch categories
 const CATEGORIES_QUERY = gql`
   query ExpenseCategories {
@@ -42,7 +43,7 @@ const CREATE_EXPENSE_MUTATION: TypedDocumentNode<
 `
 
 const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
-  query TripsByUser {
+  query TripsByUserForNewExpense {
     tripsByUser {
       id
       name
@@ -54,7 +55,7 @@ const PROJECTQUERY: TypedDocumentNode<
   FindProjectsbyUser,
   FindProjectsbyUserVariables
 > = gql`
-  query FindProjectsbyUser {
+  query FindProjectsbyUserForNewExpense {
     projects {
       id
       name
@@ -70,16 +71,11 @@ const Loading = () => (
 const NewExpense = () => {
   const { data: categoryData } = useQuery(CATEGORIES_QUERY)
 
-  const {
-    data: tripsData,
-    loading: tripsLoading,
-    error: tripsError,
-  } = useQuery(QUERY)
-  const {
-    data: projectsData,
-    loading: projectsLoading,
-    error: projectsError,
-  } = useQuery(PROJECTQUERY)
+  const { showLoader, hideLoader, Loader } = useLoader()
+
+  const { data: tripsData, loading: tripsLoading } = useQuery(QUERY)
+  const { data: projectsData, loading: projectsLoading } =
+    useQuery(PROJECTQUERY)
 
   const [createExpense, { loading, error }] = useMutation(
     CREATE_EXPENSE_MUTATION,
@@ -96,7 +92,9 @@ const NewExpense = () => {
 
   const onSave = async (input: CreateExpenseInput) => {
     console.log('Input received for NewExpense:', input)
+    showLoader()
     await createExpense({ variables: { input } })
+    hideLoader()
   }
 
   // const onSave = async (input: CreateExpenseInput) => {
@@ -138,6 +136,7 @@ const NewExpense = () => {
           error={error}
         />
       </div>
+      <Loader />
     </div>
   )
 }
