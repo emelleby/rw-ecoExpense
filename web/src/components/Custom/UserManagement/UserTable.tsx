@@ -1,3 +1,5 @@
+import { Link, routes } from '@redwoodjs/router'
+
 import { Button } from '@/components/ui/Button'
 import {
   Table,
@@ -10,7 +12,7 @@ import {
 
 // We should probably import our own types here
 type User = {
-  id: string
+  id: number
   firstName: string
   lastName: string
   email: string
@@ -19,17 +21,17 @@ type User = {
   organizationId: string
 }
 // And our own formatters
-import { TimeTag } from '@/lib/formatters'
+// import { TimeTag } from '@/lib/formatters'
 
-import { format } from 'date-fns'
-export function formatDate(date: Date): string {
-  return format(date, 'MMM dd, yyyy')
-}
+// import { format } from 'date-fns'
+// export function formatDate(date: Date): string {
+//   return format(date, 'MMM dd, yyyy')
+// }
 
 interface UserTableProps {
   users: User[]
   type: 'pending' | 'approved'
-  onAction: (userId: string, action: string) => void
+  onAction: (userId: number) => void
 }
 
 export function UserTable({ users, type, onAction }: UserTableProps) {
@@ -40,7 +42,6 @@ export function UserTable({ users, type, onAction }: UserTableProps) {
           <TableHead>First Name</TableHead>
           <TableHead>Last Name</TableHead>
           <TableHead>Email</TableHead>
-          <TableHead>Created At</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -50,7 +51,6 @@ export function UserTable({ users, type, onAction }: UserTableProps) {
             <TableCell>{user.firstName}</TableCell>
             <TableCell>{user.lastName}</TableCell>
             <TableCell>{user.email}</TableCell>
-            <TableCell>{formatDate(user.createdAt)}</TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-2">
                 {type === 'pending' ? (
@@ -58,31 +58,27 @@ export function UserTable({ users, type, onAction }: UserTableProps) {
                     <Button
                       variant="default"
                       size="sm"
-                      onClick={() => onAction(user.id, 'approve')}
+                      onClick={() => onAction(user.id)}
                     >
                       Approve
                     </Button>
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => onAction(user.id, 'deny')}
+                      onClick={() => onAction(user.id)}
                     >
                       Deny
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onAction(user.id, 'details')}
-                    >
-                      Details
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to={routes.user({ id: user.id })}>Details</Link>
                     </Button>
                     <Button
                       variant="secondary"
                       size="sm"
-                      onClick={() => onAction(user.id, 'reports')}
+                      onClick={() => onAction(user.id)}
                     >
                       Reports
                     </Button>

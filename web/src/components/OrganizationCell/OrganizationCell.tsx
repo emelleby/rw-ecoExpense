@@ -93,6 +93,8 @@ export const Success = ({
   const [createUser] = useMutation(CREATE_USER)
 
   const handleJoinOrganization = async (selectedOrg: string) => {
+    console.log(user)
+
     const selectedOrgData = organizations?.find(
       (org) => org.name === selectedOrg
     )
@@ -109,6 +111,7 @@ export const Success = ({
             username: user.username,
             email: user.primaryEmailAddress.emailAddress,
             organizationId: selectedOrgData.id,
+            status: 'INACTIVE',
           },
         },
       })
