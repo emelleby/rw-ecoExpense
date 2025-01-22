@@ -1,10 +1,7 @@
-type AppshellLayoutProps = {
-  children?: React.ReactNode
-}
-
 import { UserButton } from '@clerk/clerk-react'
 import { Moon, Sun } from 'lucide-react'
 
+import { Link, routes } from '@redwoodjs/router'
 import { Toaster } from '@redwoodjs/web/toast'
 
 import { Button } from '@/components/ui/button'
@@ -27,8 +24,13 @@ export function ThemeToggle() {
     </Button>
   )
 }
+type AppshellLayoutProps = {
+  title: string
+  titleTo?: keyof typeof routes
+  children?: React.ReactNode
+}
 
-const AppshellLayout = ({ children }: AppshellLayoutProps) => {
+const AppshellLayout = ({ title, titleTo, children }: AppshellLayoutProps) => {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -37,6 +39,17 @@ const AppshellLayout = ({ children }: AppshellLayoutProps) => {
           <div className="flex items-center">
             <SidebarTrigger />
           </div>
+
+          <h1 className="rw-heading rw-heading-primary">
+            {titleTo ? (
+              <Link to={routes[titleTo]()} className="rw-link underline">
+                {title}
+              </Link>
+            ) : (
+              title
+            )}
+          </h1>
+
           <div className="flex items-center">
             <ThemeToggle />
             <UserButton />
