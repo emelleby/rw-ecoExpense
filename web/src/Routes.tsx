@@ -37,7 +37,7 @@ const Routes = () => {
       <PrivateSet whileLoadingPage={LoaderSpinner} unauthenticated="login">
         <Route path="/onboarding" page={OnboardingPage} name="onboarding" />
         <PrivateSet unauthenticated="login" roles={['admin', 'member']}>
-          <Set wrap={ScaffoldLayout} title="Projects" titleTo="projects" buttonLabel="New Project" buttonTo="newProject"></Set>
+          {/* <Set wrap={ScaffoldLayout} title="Projects" titleTo="projects" buttonLabel="New Project" buttonTo="newProject"></Set> */}
 
           <Set wrap={AppshellLayout} title="Trips" titleTo="trips" buttonLabel="New Trip" buttonTo="newTrip">
             <Route path="/trips/new" page={TripNewTripPage} name="newTrip" />
