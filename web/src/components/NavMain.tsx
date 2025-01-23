@@ -57,7 +57,7 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>Admin</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -116,19 +116,15 @@ export function NavMain({
                 {loading ? (
                   <div>Loading...</div>
                 ) : (
-                  tripItems.map((item) => {
-                    return (
-                      <>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton asChild>
-                            <Link to={routes.trip({ id: item.id })}>
-                              <span>{item.title}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      </>
-                    )
-                  })
+                  tripItems.map((item) => (
+                    <SidebarMenuSubItem key={item.id}>
+                      <SidebarMenuSubButton asChild>
+                        <Link to={routes.trip({ id: item.id })}>
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  ))
                 )}
               </SidebarMenuSub>
             </CollapsibleContent>

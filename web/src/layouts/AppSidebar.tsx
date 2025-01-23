@@ -8,10 +8,10 @@ import {
   BookOpen,
   Bot,
   Command,
-  // Frame,
+  Frame,
   GalleryVerticalEnd,
   Map,
-  //PieChart,
+  PieChart,
   Settings2,
   SquareTerminal,
   FolderOpenDot,
@@ -24,7 +24,7 @@ import { useLocation } from '@redwoodjs/router'
 
 import { useAuth } from 'src/auth'
 import { NavMain } from 'src/components/NavMain'
-//import { NavProjects } from 'src/components/NavProjects'
+import { NavProjects } from 'src/components/NavProjects'
 import { TeamSwitcher } from 'src/components/TeamSwitcher'
 import {
   Sidebar,
@@ -38,19 +38,14 @@ import {
   SidebarRail,
   useSidebar,
 } from 'src/components/ui/Sidebar'
+import UserSidebarGroupCell from 'src/components/UserSidebarGroup/UserSidebarGroupCell/UserSidebarGroupCell'
 
-// This is sample data.
 // Menu items.
 const items = [
   {
     title: 'Home',
     url: 'homey',
     icon: Home,
-  },
-  {
-    title: 'Test',
-    url: 'test',
-    icon: FlaskRound,
   },
   {
     title: 'Add Expense',
@@ -62,29 +57,8 @@ const items = [
     url: 'expenses',
     icon: BookOpen,
   },
-  {
-    title: 'Trips',
-    url: 'trips',
-    icon: Map,
-  },
-  {
-    title: 'Projects',
-    url: 'projects',
-    icon: FolderOpenDot,
-  },
-  {
-    title: 'Users',
-    url: 'users',
-    onlyAdmin: true,
-    icon: User2Icon,
-  },
 ]
 const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
   teams: [
     {
       name: 'Acme Inc',
@@ -103,10 +77,10 @@ const data = {
     },
   ],
   navMain: [
-    {
-      title: 'Building Your Application',
-      url: 'home',
-    },
+    // {
+    //   title: 'Building Your Application',
+    //   url: 'home',
+    // },
     {
       title: 'Homepage',
       url: '#',
@@ -117,66 +91,25 @@ const data = {
           title: 'Test',
           url: 'test',
         },
-        {
-          title: 'Expenses',
-          url: 'expenses',
-        },
-        {
-          title: 'New Trip',
-          url: 'newTrip',
-        },
+        // {
+        //   title: 'Expenses',
+        //   url: 'expenses',
+        // },
+        // {
+        //   title: 'New Trip',
+        //   url: 'newTrip',
+        // },
       ],
     },
+
     {
-      title: 'Models',
-      url: '#',
-      icon: Bot,
-      items: [
-        {
-          title: 'Genesis',
-          url: '#',
-        },
-        {
-          title: 'Explorer',
-          url: '#',
-        },
-        {
-          title: 'Quantum',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Documentation',
-      url: '#',
-      icon: BookOpen,
-      items: [
-        {
-          title: 'Introduction',
-          url: '#',
-        },
-        {
-          title: 'Get Started',
-          url: '#',
-        },
-        {
-          title: 'Tutorials',
-          url: '#',
-        },
-        {
-          title: 'Changelog',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Settings',
-      url: '#',
+      title: 'Settings2',
+      url: 'trips',
       icon: Settings2,
       items: [
         {
           title: 'General',
-          url: '#',
+          url: 'trips',
         },
         {
           title: 'Team',
@@ -193,20 +126,49 @@ const data = {
       ],
     },
   ],
+  projects: [
+    {
+      name: 'Home',
+      url: 'http://localhost:8910/home',
+      icon: Frame,
+    },
+    {
+      name: 'Sales & Marketing',
+      url: '#',
+      icon: PieChart,
+    },
+    {
+      name: 'Travel',
+      url: '#',
+      icon: Map,
+    },
+  ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setOpenMobile } = useSidebar()
   const { pathname } = useLocation()
-  const { hasRole } = useAuth()
+  const { hasRole, userMetadata } = useAuth()
+  const user = {
+    name: userMetadata.firstName
+      ? userMetadata.firstName
+      : userMetadata.username,
+    email: 'm@example.com',
+    avatar: '/avatars/shadcn.jpg',
+  }
 
   const handleLinkClick = () => {
     setOpenMobile(false)
   }
+
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+      <SidebarHeader className="gap-0">
+        {/* <TeamSwitcher teams={data.teams} /> */}
+        <h1 className="mt-2 px-2 text-lg font-semibold">
+          Welcome, {user.name}
+        </h1>
+        <p className="mb-4 px-2 text-sm text-muted-foreground">{user.email}</p>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -229,6 +191,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               )
           )}
         </SidebarMenu>
+        <UserSidebarGroupCell />
         <NavMain items={data.navMain} />
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>

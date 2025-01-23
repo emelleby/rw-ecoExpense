@@ -17,7 +17,7 @@ const ScaffoldLayout = ({
   children,
 }: LayoutProps) => {
   return (
-    <div className="rw-scaffold">
+    <div className="rw-scaffold min-h-screen">
       <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
       <header className="rw-header">
         <Link to={routes.homey()}>Home</Link>

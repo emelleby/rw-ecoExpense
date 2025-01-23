@@ -22,7 +22,7 @@ export const schema = gql`
   type Query {
     trips: [Trip!]! @requireAuth
     trip(id: Int!): Trip @requireAuth
-    tripsByUser: [Trip!]! @requireAuth
+    tripsByUser(take: Int): [Trip!]! @requireAuth
     topTripsByUser: [Trip!]! @requireAuth
   }
 
