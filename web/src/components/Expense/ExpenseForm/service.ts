@@ -102,32 +102,11 @@ export const calculateEmissions = async (
   }
 }
 
-const TRAVEL_API_URL =
-  'https://travelimpactmodel.googleapis.com/v1/flights:computeFlightEmissions'
-const TRAVEL_API_KEY = import.meta.env.VITE_GOOGLE_TRAVEL_API_KEY
-
-if (!TRAVEL_API_KEY) {
-  console.error('Missing VITE_GOOGLE_TRAVEL_API_KEY environment variable')
-}
-
 interface DateComponents {
   year: number
   month: number
   day: number
 }
-
-interface FlightRequest {
-  origin: string
-  destination: string
-  operatingCarrierCode: string
-  flightNumber: number
-  departureDate: DateComponents
-}
-
-interface TravelAPIRequest {
-  flights: FlightRequest[]
-}
-
 interface FlightDetails {
   origin: string
   destination: string
@@ -146,103 +125,4 @@ interface EmissionsPerClass {
 export interface FlightEmissionResult {
   flight: FlightDetails
   emissionsGramsPerPax: EmissionsPerClass
-}
-
-interface ModelVersion {
-  major: number
-  minor: number
-  patch: number
-  dated: string
-}
-
-interface TravelAPIResponse {
-  flightEmissions: FlightEmissionResult[]
-  emissionsGramsPerPax: EmissionsPerClass
-  modelVersion: ModelVersion
-}
-
-const formatedDate = (
-  flightData: Array<{
-    origin: string
-    destination: string
-    operatingCarrierCode: string
-    flightNumber: string
-    departureDate: Date
-  }>
-) => {
-  const data = flightData.map((flight) => {
-    const date = new Date(flight.departureDate)
-
-    return {
-      origin: flight.origin.toUpperCase(),
-      destination: flight.destination.toUpperCase(),
-      operatingCarrierCode: flight.operatingCarrierCode.toUpperCase(),
-      flightNumber: parseInt(flight.flightNumber, 10),
-      departureDate: {
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate(),
-      },
-    }
-  })
-
-  return data
-}
-
-export const submitFutureFlight = async (
-  flightData: Array<{
-    origin: string
-    destination: string
-    operatingCarrierCode: string
-    flightNumber: string
-    departureDate: Date
-  }>
-): Promise<FlightEmissionResult[]> => {
-  const TRAVEL_API_KEY = 'AIzaSyA2V3FOVoNzJxDQdZ_IxbQdrTRx_AFOoiM'
-
-  //console.log('API Key:', TRAVEL_API_KEY)
-
-  if (!TRAVEL_API_KEY) {
-    throw new Error(
-      'Google Travel API key is not configured. Please set VITE_GOOGLE_TRAVEL_API_KEY in your environment variables.'
-    )
-  }
-
-  try {
-    // Convert date string to components
-
-    const formatedData = formatedDate(flightData)
-
-    const requestData: TravelAPIRequest = {
-      flights: [...formatedData],
-    }
-
-    const response = await axios.post<TravelAPIResponse>(
-      `${TRAVEL_API_URL}?key=${TRAVEL_API_KEY}`,
-      requestData,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    )
-    // Check if the API response contains flight emissions data
-    // Need to fix this if there are more than one flight sent to api.
-    if (response.data.flightEmissions.length === 0) {
-      throw new Error(
-        'No flight emissions data returned from the API. Please check your inputs.'
-      )
-    }
-
-    return response.data.flightEmissions
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage =
-        error.response?.data?.error?.message ||
-        'Failed to get flight emissions data'
-      console.error('API Error:', error.response?.data)
-      throw new Error(errorMessage)
-    }
-    throw error
-  }
 }

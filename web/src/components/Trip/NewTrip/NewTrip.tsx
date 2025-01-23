@@ -11,6 +11,7 @@ import { toast } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
 import TripForm from 'src/components/Trip/TripForm'
+import useLoader from 'src/hooks/useLoader'
 
 const CREATE_TRIP_MUTATION: TypedDocumentNode<
   CreateTripMutation,
@@ -27,6 +28,8 @@ const NewTrip = () => {
   const { currentUser } = useAuth()
   const userId = Number(currentUser.dbUserId)
 
+  const { showLoader, hideLoader } = useLoader()
+
   const [createTrip, { loading, error }] = useMutation(CREATE_TRIP_MUTATION, {
     onCompleted: () => {
       toast.success('Trip created')
@@ -37,8 +40,9 @@ const NewTrip = () => {
     },
   })
 
-  const onSave = (input: CreateTripInput) => {
-    createTrip({
+  const onSave = async (input: CreateTripInput) => {
+    showLoader()
+    await createTrip({
       variables: {
         input: {
           ...input,
@@ -46,6 +50,7 @@ const NewTrip = () => {
         },
       },
     })
+    hideLoader()
   }
 
   return (

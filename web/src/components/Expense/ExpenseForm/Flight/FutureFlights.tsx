@@ -16,6 +16,7 @@ import {
   TextField,
   useForm,
 } from '@redwoodjs/forms'
+import { useMutation } from '@redwoodjs/web'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
 import {
@@ -42,7 +43,6 @@ import {
   FlightEmissionResult,
   // calculateEmissions,
   getCurrencyConversionRate,
-  submitFutureFlight,
 } from '../service'
 import UploadReciepts from '../UploadReciepts'
 
@@ -61,9 +61,43 @@ interface ExpenseFormProps {
   error: RWGqlError
 }
 
+const SUBMIT_FLIGHTS_MUTATION = gql`
+  mutation SubmitFlightsMutation($input: [Flights]!) {
+    submitFutureFlights(input: $input) {
+      flight {
+        origin
+        destination
+        operatingCarrierCode
+        flightNumber
+        departureDate {
+          year
+          month
+          day
+        }
+      }
+      emissionsGramsPerPax {
+        economy
+        business
+        first
+        premiumEconomy
+      }
+    }
+  }
+`
+
 export const FutureFlights: FC<ExpenseFormProps> = (
   props: ExpenseFormProps
 ) => {
+  const [submitFlights] = useMutation(SUBMIT_FLIGHTS_MUTATION, {
+    onCompleted: () => {
+      //toast.success('Flight emissions calculated successfully')
+    },
+    onError: (error) => {
+      console.log(error)
+      // toast.error(error.message)
+    },
+  })
+
   const date = new Date()
 
   const formMethods = useForm()
@@ -116,7 +150,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
   }
 
   const getEmission = async (data) => {
-    const { to, from, flightClass, airline, flightNumber } = data
+    const { to, from, airline, flightNumber } = data
 
     //const date = selectedDate.toISOString().split('T')[0]
 
@@ -126,22 +160,24 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       operatingCarrierCode: airline,
       flightNumber: flightNumber,
       departureDate: selectedDate,
-      class: flightClass,
     }
 
     const dataToSend = [...flights, payload]
 
-    const result = await submitFutureFlight(dataToSend)
+    //console.log(dataToSend)
 
-    if (result) {
-      //console.log(result)
+    const result = await submitFlights({
+      variables: {
+        input: [...dataToSend],
+      },
+    })
 
-      // const emission = emissionsGramsPerPax[flightClass] / 1000
-
+    if (result.data.submitFutureFlights) {
+      const emission = getEmissionInKgs(result.data.submitFutureFlights)
       return {
         scope1Co2Emissions: 0,
         scope2Co2Emissions: 0,
-        scope3Co2Emissions: getEmissionInKgs(result),
+        scope3Co2Emissions: emission,
       }
     }
     return {

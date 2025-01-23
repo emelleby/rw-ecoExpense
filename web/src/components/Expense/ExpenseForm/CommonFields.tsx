@@ -91,8 +91,8 @@ export const CommonFields: React.FC<CommonFieldsProps> = ({
 
           <Controller
             name="projectId"
-            defaultValue={projectId || projects[0].id}
-            rules={{ required: true }}
+            defaultValue={projectId}
+            rules={{ required: false }}
             render={({ field }) => (
               <Select
                 onValueChange={(value) => field.onChange(value)}

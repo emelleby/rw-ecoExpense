@@ -56,6 +56,7 @@ export const schema = gql`
     deleteTrip(id: Int!): Trip! @skipAuth
     updateReimbursementStatus(
       reimbursementStatus: ReimbursementStatus!
+      id: Int!
     ): Boolean! @requireAuth
   }
 `

@@ -377,7 +377,7 @@ export const sectors = [
 
 export const FLIGHT_CLASSES = [
   { name: 'Economy', value: 'economy' },
-  { name: 'Premium Economy', value: 'premium_economy' },
+  { name: 'Premium Economy', value: 'premiumEconomy' },
   { name: 'Business', value: 'business' },
   { name: 'First', value: 'first' },
 ]

@@ -10016,6 +10016,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@whatwg-node/disposablestack@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "@whatwg-node/disposablestack@npm:0.0.5"
+  dependencies:
+    tslib: "npm:^2.6.3"
+  checksum: 10c0/dfa949223f348a51acdeca2e3f08393ec8816a2ac2cee754a129e9b2ee4ada3afc1b3dcfbec7bdfe5abe14b30627ef0cef89d01a00062a031c82d555c43ab7f9
+  languageName: node
+  linkType: hard
+
 "@whatwg-node/events@npm:^0.0.3":
   version: 0.0.3
   resolution: "@whatwg-node/events@npm:0.0.3"
@@ -10059,6 +10068,16 @@ __metadata:
     "@whatwg-node/node-fetch": "npm:^0.7.1"
     urlpattern-polyfill: "npm:^10.0.0"
   checksum: 10c0/8db24a980181683676a503d63ff22e7ac9ce70bb842f3a1a83d260ffd0682cc0fdcab24d825cb742364bf075fedaa404d08508703ecf7302e3332612bdb35d61
+  languageName: node
+  linkType: hard
+
+"@whatwg-node/fetch@npm:^0.10.3":
+  version: 0.10.3
+  resolution: "@whatwg-node/fetch@npm:0.10.3"
+  dependencies:
+    "@whatwg-node/node-fetch": "npm:^0.7.7"
+    urlpattern-polyfill: "npm:^10.0.0"
+  checksum: 10c0/9ddffea0d97cd465c6d531a3af8c68d702591670367976daeeff4a94737cf9022b56e4070fcd4bdf9a5e05aad558518f4fdd9e6bdf60b2b285818ddf1934c7a9
   languageName: node
   linkType: hard
 
@@ -10144,6 +10163,17 @@ __metadata:
     fast-querystring: "npm:^1.1.1"
     tslib: "npm:^2.6.3"
   checksum: 10c0/82e438f2fdbe97e13815e0f6653e54d8b1c7d68f96b6957e47cbd10a7fa51474487380c2bc2447d94eb643d1fa77a78a0e71ebb43698333d5b91f0db74402e1f
+  languageName: node
+  linkType: hard
+
+"@whatwg-node/node-fetch@npm:^0.7.7":
+  version: 0.7.7
+  resolution: "@whatwg-node/node-fetch@npm:0.7.7"
+  dependencies:
+    "@whatwg-node/disposablestack": "npm:^0.0.5"
+    busboy: "npm:^1.6.0"
+    tslib: "npm:^2.6.3"
+  checksum: 10c0/f61c45f256363f1c98ddcbcfc9265c8a98a64d09461a19ce32bcf76ab38619c7d7ee52ee7abfe80e49ddc7d6336e85ee481552294146ae934fca453feb970d23
   languageName: node
   linkType: hard
 
@@ -10575,6 +10605,7 @@ __metadata:
     "@redwoodjs/auth-clerk-api": "npm:8.4.1"
     "@redwoodjs/graphql-server": "npm:8.4.1"
     "@types/uuid": "npm:^10.0.0"
+    "@whatwg-node/fetch": "npm:^0.10.3"
     filestack-js: "npm:^3.36.4"
     uuid: "npm:^11.0.3"
   languageName: unknown

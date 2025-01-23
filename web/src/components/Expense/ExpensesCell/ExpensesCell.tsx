@@ -8,6 +8,7 @@ import type {
 } from '@redwoodjs/web'
 
 import Expenses from 'src/components/Expense/Expenses'
+import Spinner from 'src/components/ui/Spinner'
 
 export const QUERY: TypedDocumentNode<FindExpenses, FindExpensesVariables> =
   gql`
@@ -34,11 +35,21 @@ export const QUERY: TypedDocumentNode<FindExpenses, FindExpensesVariables> =
         scope3Co2Emissions
         kwh
         scope3CategoryId
+        receipt {
+          url
+        }
+        category {
+          name
+        }
       }
     }
   `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = () => (
+  <div className="flex h-screen items-center justify-center">
+    <Spinner />
+  </div>
+)
 
 export const Empty = () => {
   return (

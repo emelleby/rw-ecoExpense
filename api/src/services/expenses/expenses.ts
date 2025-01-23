@@ -9,7 +9,12 @@ import { logger } from 'src/lib/logger'
 // import { context } from '@redwoodjs/graphql-server'
 
 export const expenses: QueryResolvers['expenses'] = () => {
+  const currentUser = context.currentUser
+
   return db.expense.findMany({
+    where: {
+      userId: currentUser.dbUserId,
+    },
     include: {
       receipt: true,
     },

@@ -3,6 +3,7 @@ import type { UpdateReimbursementStatusInput } from 'types/graphql'
 import { TypedDocumentNode, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { QUERY } from 'src/components/Trip/TripCell/TripCell'
 import { Button } from 'src/components/ui/button'
 import {
   Table,
@@ -14,8 +15,9 @@ import {
   TableRow,
 } from 'src/components/ui/Table'
 
+import ImageDialog from '../../Trip/Trip/ImageDialog'
+
 import { ExpenseActions } from './ExpenseActions'
-import ImageDialog from './ImageDialog'
 
 export type ExpenseCategory =
   | 'Accommodation'
@@ -37,17 +39,27 @@ interface Expense {
 
 interface ExpenseChartProps {
   data: Expense[]
+  showReimburseButton: boolean
+  tripId: number
 }
 
 const Update_Reimbursement_Status: TypedDocumentNode<UpdateReimbursementStatusInput> = gql`
   mutation UpdateReimbursementStatus(
     $reimbursementStatus: ReimbursementStatus!
+    $id: Int!
   ) {
-    updateReimbursementStatus(reimbursementStatus: $reimbursementStatus)
+    updateReimbursementStatus(
+      reimbursementStatus: $reimbursementStatus
+      id: $id
+    )
   }
 `
 
-export function ExpenseTable({ data }: ExpenseChartProps) {
+export function ExpenseTable({
+  data,
+  showReimburseButton = true,
+  tripId,
+}: ExpenseChartProps) {
   const [updateReimbursementStatus] = useMutation(Update_Reimbursement_Status, {
     onCompleted: () => {
       toast.success('Trip updated')
@@ -56,12 +68,15 @@ export function ExpenseTable({ data }: ExpenseChartProps) {
     onError: (error) => {
       toast.error(error.message)
     },
+
+    refetchQueries: [{ query: QUERY }],
+    awaitRefetchQueries: true,
   })
 
   const handleReimburse = async () => {
     try {
       const data = await updateReimbursementStatus({
-        variables: { reimbursementStatus: 'PENDING' },
+        variables: { reimbursementStatus: 'PENDING', id: tripId },
       })
 
       console.log(data)
@@ -88,7 +103,7 @@ export function ExpenseTable({ data }: ExpenseChartProps) {
           {data.map((expense) => (
             <TableRow key={`${expense.id}_${expense.date}`}>
               <TableCell>
-                <ExpenseActions />
+                <ExpenseActions id={Number(expense.id)} />
               </TableCell>
               <TableCell>
                 {new Date(expense.date).toLocaleDateString()}
@@ -110,19 +125,21 @@ export function ExpenseTable({ data }: ExpenseChartProps) {
             </TableRow>
           ))}
         </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={1000} className="text-center">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => handleReimburse()}
-              >
-                Reimburse
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableFooter>
+        {showReimburseButton && (
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={1000} className="text-center">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => handleReimburse()}
+                >
+                  Reimburse
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        )}
       </Table>
     </div>
   )

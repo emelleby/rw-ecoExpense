@@ -72,15 +72,14 @@ export const updateTrip: MutationResolvers['updateTrip'] = ({ id, input }) => {
 // NOT_REQUESTED, PENDING, REIMBURSED
 
 export const updateReimbursementStatus: MutationResolvers['updateReimbursementStatus'] =
-  async ({ reimbursementStatus }) => {
-    const currentUser = context.currentUser
+  async ({ reimbursementStatus, id }) => {
     try {
       await db.trip.updateMany({
         data: {
           reimbursementStatus: reimbursementStatus,
         },
         where: {
-          userId: currentUser.dbUserId,
+          id: id,
         },
       })
       return true

@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import type {
   CreateExpenseMutation,
   CreateExpenseInput,
@@ -8,7 +10,7 @@ import type {
   FindProjectsbyUserVariables,
 } from 'types/graphql'
 
-import { navigate, routes } from '@redwoodjs/router'
+import { Link, navigate, routes } from '@redwoodjs/router'
 import { useMutation, useQuery } from '@redwoodjs/web'
 import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
@@ -71,6 +73,8 @@ const Loading = () => (
 const NewExpense = () => {
   const { data: categoryData } = useQuery(CATEGORIES_QUERY)
 
+  const [trips, setTrips] = useState([])
+
   const { showLoader, hideLoader, Loader } = useLoader()
 
   const { data: tripsData, loading: tripsLoading } = useQuery(QUERY)
@@ -117,8 +121,29 @@ const NewExpense = () => {
   //   })
   // }
 
+  useEffect(() => {
+    if (tripsData?.tripsByUser) {
+      const data = tripsData.tripsByUser.filter(
+        (trip) => trip.reimbursementStatus === 'NOT_REQUESTED'
+      )
+
+      setTrips(data)
+    }
+  }, [])
+
   if (tripsLoading || projectsLoading) {
     return <Loading />
+  }
+
+  if (trips.length === 0) {
+    return (
+      <div className="rw-text-center">
+        No open trip has found you need to create trip or open one{' '}
+        <Link to={routes.trips()} className="rw-link">
+          Go to Trips
+        </Link>
+      </div>
+    )
   }
 
   return (
@@ -129,7 +154,7 @@ const NewExpense = () => {
       <div className="rw-segment-main">
         <ExpenseForm
           trips={tripsData?.tripsByUser}
-          projects={projectsData?.projects}
+          projects={projectsData?.projects || []}
           categories={categoryData?.expenseCategories}
           onSave={onSave}
           loading={loading}

@@ -9,7 +9,8 @@ import {
   TabsTrigger,
 } from 'src/components/ui/Tabs'
 
-import { ExpenseDetails } from './ExpenseDetails'
+import { ExpenseDetails } from '../../Expense/Expenses/ExpenseDetails'
+
 import { ExpenseChart as PieChart } from './PieChart'
 import { RecentExpenses } from './RecentExpenses'
 
@@ -84,7 +85,11 @@ const Trip = ({ trip }: Props) => {
       </Tabs>
 
       <div className="flex justify-center">
-        <ExpenseDetails data={expenses} />
+        <ExpenseDetails
+          data={expenses}
+          tripId={trip?.id}
+          reimbursementStatus={trip?.reimbursementStatus ?? ''}
+        />
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 import { Badge } from 'src/components/ui/Badge'
+import { formatEnum } from 'src/lib/formatters'
 
 import { ExpenseTable } from './ExpenseTable'
 
@@ -22,9 +23,18 @@ interface Expense {
 
 interface ExpenseDetailsProps {
   data: Expense[]
+  reimbursementStatus: string
+  tripId: number
 }
 
-export function ExpenseDetails({ data }: ExpenseDetailsProps) {
+export function ExpenseDetails({
+  data,
+  reimbursementStatus,
+  tripId,
+}: ExpenseDetailsProps) {
+  const showReimburseButton =
+    reimbursementStatus === 'NOT_REQUESTED' && data.length > 0
+
   return (
     <div className="mx-auto w-full space-y-6 p-2">
       <div className="flex items-center justify-between">
@@ -33,10 +43,14 @@ export function ExpenseDetails({ data }: ExpenseDetailsProps) {
             A list of all expenses for the trip
           </p>
         </div>
-        <Badge variant="destructive">NOT REIMBURSED</Badge>
+        <Badge variant="destructive">{formatEnum(reimbursementStatus)}</Badge>
       </div>
 
-      <ExpenseTable data={data} />
+      <ExpenseTable
+        data={data}
+        showReimburseButton={showReimburseButton}
+        tripId={tripId}
+      />
     </div>
   )
 }
