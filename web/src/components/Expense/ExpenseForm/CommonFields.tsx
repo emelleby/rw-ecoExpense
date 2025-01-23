@@ -91,11 +91,11 @@ export const CommonFields: React.FC<CommonFieldsProps> = ({
 
           <Controller
             name="projectId"
-            defaultValue={projectId}
+            defaultValue={Number(projectId) || null}
             rules={{ required: false }}
             render={({ field }) => (
               <Select
-                onValueChange={(value) => field.onChange(value)}
+                onValueChange={(value) => field.onChange(Number(value))}
                 value={field.value?.toString()}
               >
                 <SelectTrigger>

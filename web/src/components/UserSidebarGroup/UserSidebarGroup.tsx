@@ -1,4 +1,6 @@
 'use client'
+import { Fragment } from 'react'
+
 // import type { TripsByUser, FindProjectsbyUser } from 'types/graphql'
 import { MapPin, FolderOpenDot, ChevronRight } from 'lucide-react'
 
@@ -106,7 +108,7 @@ const UserSidebarGroup = ({
                   {item.items?.map((subItem) => {
                     console.log('subItem=', subItem)
                     return (
-                      <>
+                      <Fragment key={subItem.title}>
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
                             {subItem.url === '#' ? (
@@ -120,7 +122,7 @@ const UserSidebarGroup = ({
                             )}
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
-                      </>
+                      </Fragment>
                     )
                   })}
                 </SidebarMenuSub>

@@ -27,6 +27,20 @@ interface ExpenseDetailsProps {
   tripId: number
 }
 
+// Add this helper function above your component
+const getBadgeVariant = (status: string) => {
+  switch (status) {
+    case 'REIMBURSED':
+      return 'success'
+    case 'PENDING':
+      return 'warning'
+    case 'NOT_REQUESTED':
+      return 'destructive'
+    default:
+      return 'default'
+  }
+}
+
 export function ExpenseDetails({
   data,
   reimbursementStatus,
@@ -43,7 +57,10 @@ export function ExpenseDetails({
             A list of all expenses for the trip
           </p>
         </div>
-        <Badge variant="destructive">{formatEnum(reimbursementStatus)}</Badge>
+
+        <Badge variant={getBadgeVariant(reimbursementStatus)}>
+          {formatEnum(reimbursementStatus)}
+        </Badge>
       </div>
 
       <ExpenseTable

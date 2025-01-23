@@ -4,7 +4,7 @@ import {
   Airport,
   EmissionsRequest,
   EmissionsResponse,
-} from 'src/components/types/expense/airport'
+} from 'types/expense/airport'
 import airportsData from 'src/static/airports.json'
 
 interface AirportsData {

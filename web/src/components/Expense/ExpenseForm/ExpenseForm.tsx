@@ -8,8 +8,8 @@ import cn from 'src/lib/utils/cn'
 
 import { Accommodation } from './Accommodation'
 import { CarDistanceBased } from './CarDistanceBased'
-import { FeulExpense } from './FeulExpenses'
 import { Flight } from './Flight'
+import { FuelExpense } from './FuelExpenses'
 import { Groceries } from './Groceries'
 import { Miscellaneous } from './Miscellaneous'
 
@@ -47,7 +47,7 @@ const Fields = ({ type, ...props }: { type: string } & ExpenseFormProps) => {
     case '2':
       return <CarDistanceBased {...props} />
     case '3':
-      return <FeulExpense {...props} />
+      return <FuelExpense {...props} />
     case '4':
       return <Flight {...props} />
     case '6':
@@ -62,7 +62,7 @@ const Fields = ({ type, ...props }: { type: string } & ExpenseFormProps) => {
 const ExpenseForm = (props: ExpenseFormProps) => {
   //const { unregister } = formMethods
 
-  const [catagory, setCatagory] = useState(
+  const [catagory, setCategory] = useState(
     props.expense?.categoryId?.toString() || '1'
   )
 
@@ -71,7 +71,7 @@ const ExpenseForm = (props: ExpenseFormProps) => {
       <Select
         name="categoryId"
         onValueChange={(value) => {
-          setCatagory(value.toString())
+          setCategory(value.toString())
           //field.onChange(value)
         }}
         value={props.expense?.categoryId.toString()}

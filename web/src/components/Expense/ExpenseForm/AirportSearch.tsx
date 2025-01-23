@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 
-import { Airport } from 'src/components/types/expense/airport'
+import { Airport } from 'types/expense/airport'
 
 import { searchAirports } from './service'
 

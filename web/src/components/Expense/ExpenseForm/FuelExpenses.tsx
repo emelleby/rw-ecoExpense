@@ -38,7 +38,7 @@ interface ExpenseFormProps {
   error: RWGqlError
 }
 
-export const FeulExpense: FC<ExpenseFormProps> = ({
+export const FuelExpense: FC<ExpenseFormProps> = ({
   expense,
   trips,
   projects,

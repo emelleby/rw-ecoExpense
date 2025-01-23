@@ -129,8 +129,8 @@ export const Accommodation: FC<ExpenseFormProps> = (
 
     const dataWithReceipt = {
       date,
-      projectId,
-      tripId,
+      projectId: Number(projectId),
+      tripId: Number(tripId),
       amount,
       currency,
       nokAmount,
@@ -323,7 +323,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
             defaultValue={''}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: false }}
+            // validation={{ valueAsNumber: false }}
           />
           <FieldError name="merchant" className="rw-field-error" />
         </div>
@@ -452,7 +452,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
             defaultValue={
               props.expense?.nokAmount ? Number(props.expense.nokAmount) : 0
             }
-            className="rw-input disabled:bg-slate-100"
+            className="rw-input text-black disabled:bg-slate-300"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
           />

@@ -49,6 +49,7 @@ const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
     tripsByUser {
       id
       name
+      reimbursementStatus
     }
   }
 `
@@ -71,15 +72,32 @@ const Loading = () => (
 )
 
 const NewExpense = () => {
-  const { data: categoryData } = useQuery(CATEGORIES_QUERY)
-
-  const [trips, setTrips] = useState([])
-
   const { showLoader, hideLoader, Loader } = useLoader()
 
-  const { data: tripsData, loading: tripsLoading } = useQuery(QUERY)
-  const { data: projectsData, loading: projectsLoading } =
-    useQuery(PROJECTQUERY)
+  const {
+    data: categoryData,
+    loading: categoryLoading,
+    error: categoryError,
+  } = useQuery(CATEGORIES_QUERY)
+
+  const {
+    data: tripsData,
+    loading: tripsLoading,
+    error: tripsError,
+  } = useQuery(QUERY, {
+    onCompleted: (data) => {
+      console.log('Trips data loaded:', data)
+    },
+    notifyOnNetworkStatusChange: true,
+  })
+
+  const {
+    data: projectsData,
+    loading: projectsLoading,
+    error: projectsError,
+  } = useQuery(PROJECTQUERY)
+
+  console.log('Data: ', tripsData)
 
   const [createExpense, { loading, error }] = useMutation(
     CREATE_EXPENSE_MUTATION,
@@ -121,19 +139,17 @@ const NewExpense = () => {
   //   })
   // }
 
-  useEffect(() => {
-    if (tripsData?.tripsByUser) {
-      const data = tripsData.tripsByUser.filter(
-        (trip) => trip.reimbursementStatus === 'NOT_REQUESTED'
-      )
-
-      setTrips(data)
-    }
-  }, [])
-
-  if (tripsLoading || projectsLoading) {
+  // Handle loading states
+  if (categoryLoading || tripsLoading || projectsLoading) {
     return <Loading />
   }
+
+  // Handle errors
+  if (categoryError || tripsError || projectsError) {
+    return <div>Error loading data</div>
+  }
+
+  const trips = tripsData?.tripsByUser || []
 
   if (trips.length === 0) {
     return (
@@ -153,7 +169,7 @@ const NewExpense = () => {
       </header>
       <div className="rw-segment-main">
         <ExpenseForm
-          trips={tripsData?.tripsByUser}
+          trips={trips}
           projects={projectsData?.projects || []}
           categories={categoryData?.expenseCategories}
           onSave={onSave}

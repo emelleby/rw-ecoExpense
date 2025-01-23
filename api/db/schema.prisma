@@ -10,6 +10,10 @@ datasource db {
   url      = env("DATABASE_URL")
   // uncomment next line if you use Prisma <5.10
   // directUrl = env("DATABASE_URL_UNPOOLED")
+
+  // Increase connection pool settings
+  // connection_limit = 20
+  // pool_timeout = 20
 }
 
 generator client {
