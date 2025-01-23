@@ -17,12 +17,16 @@ export const project: QueryResolvers['project'] = ({ id }) => {
 }
 
 // Added to only fetch projects for the current user
-export const projectsByUser: QueryResolvers['projectsByUser'] = () => {
+export const projectsByUser: QueryResolvers['projectsByUser'] = ({ take }) => {
   const currentUser = context.currentUser
 
   return db.project.findMany({
     where: {
       userId: currentUser.dbUserId,
+    },
+    take: take || undefined,
+    orderBy: {
+      id: 'desc',
     },
   })
 }

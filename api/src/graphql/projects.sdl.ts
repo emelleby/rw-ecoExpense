@@ -11,7 +11,7 @@ export const schema = gql`
   type Query {
     projects: [Project!]! @requireAuth
     project(id: Int!): Project @requireAuth
-    projectsByUser: [Project!]! @requireAuth
+    projectsByUser(take: Int): [Project!]! @requireAuth
   }
 
   input CreateProjectInput {

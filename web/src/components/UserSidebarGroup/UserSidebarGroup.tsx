@@ -1,6 +1,6 @@
 'use client'
 // import type { TripsByUser, FindProjectsbyUser } from 'types/graphql'
-import { MapPin, FolderOpen, ChevronRight } from 'lucide-react'
+import { MapPin, FolderOpenDot, ChevronRight } from 'lucide-react'
 
 import { Link, routes } from '@redwoodjs/router'
 import { useLocation } from '@redwoodjs/router'
@@ -65,7 +65,7 @@ const UserSidebarGroup = ({
     },
     {
       title: 'Projects',
-      icon: FolderOpen,
+      icon: FolderOpenDot,
       isActive: false,
       url: 'projects',
       items: projectsByUser.map((project) => ({
@@ -96,17 +96,17 @@ const UserSidebarGroup = ({
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to={routes[item.url]()}>
+                        <span>All</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
                   {item.items?.map((subItem) => {
                     console.log('subItem=', subItem)
                     return (
                       <>
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <Link to={routes[item.url]()}>
-                              <span>All</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
                             {subItem.url === '#' ? (
