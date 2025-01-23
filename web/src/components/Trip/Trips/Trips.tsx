@@ -2,6 +2,7 @@ import type {
   DeleteTripMutation,
   DeleteTripMutationVariables,
   TripsByUser,
+  UpdateReimbursementStatusInput,
 } from 'types/graphql'
 
 import { Link, routes } from '@redwoodjs/router'
@@ -33,6 +34,18 @@ const DELETE_TRIP_MUTATION: TypedDocumentNode<
   }
 `
 
+const Update_Reimbursement_Status: TypedDocumentNode<UpdateReimbursementStatusInput> = gql`
+  mutation UpdateReimbursementStatus(
+    $reimbursementStatus: ReimbursementStatus!
+    $id: Int!
+  ) {
+    updateReimbursementStatus(
+      reimbursementStatus: $reimbursementStatus
+      id: $id
+    )
+  }
+`
+
 const TripsList = ({ tripsByUser }: TripsByUser) => {
   const [deleteTrip] = useMutation(DELETE_TRIP_MUTATION, {
     onCompleted: () => {
@@ -51,6 +64,30 @@ const TripsList = ({ tripsByUser }: TripsByUser) => {
   const onDeleteClick = (id: DeleteTripMutationVariables['id']) => {
     if (confirm('Are you sure you want to delete trip ' + id + '?')) {
       deleteTrip({ variables: { id } })
+    }
+  }
+
+  const [updateReimbursementStatus] = useMutation(Update_Reimbursement_Status, {
+    onCompleted: () => {
+      toast.success('Trip updated')
+      //navigate(routes.trips())
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+    refetchQueries: [{ query: QUERY }],
+    awaitRefetchQueries: true,
+  })
+
+  const handleOpenTrip = async (id: number) => {
+    try {
+      const data = await updateReimbursementStatus({
+        variables: { reimbursementStatus: 'NOT_REQUESTED', id },
+      })
+
+      console.log(data)
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -109,6 +146,15 @@ const TripsList = ({ tripsByUser }: TripsByUser) => {
                       onClick={() => onDeleteClick(trip.id)}
                     >
                       Delete
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={trip.reimbursementStatus !== 'PENDING'}
+                      onClick={() => handleOpenTrip(trip.id)}
+                    >
+                      Open
                     </Button>
                   </div>
                 </TableCell>

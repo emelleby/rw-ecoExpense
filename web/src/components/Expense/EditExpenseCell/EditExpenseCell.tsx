@@ -1,5 +1,9 @@
 import type {
   EditExpenseById,
+  FindProjectsbyUser,
+  FindProjectsbyUserVariables,
+  TripsByUser,
+  TripsByUserVariables,
   UpdateExpenseInput,
   UpdateExpenseMutationVariables,
 } from 'types/graphql'
@@ -10,10 +14,11 @@ import type {
   CellFailureProps,
   TypedDocumentNode,
 } from '@redwoodjs/web'
-import { useMutation } from '@redwoodjs/web'
+import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import ExpenseForm from 'src/components/Expense/ExpenseForm'
+import Spinner from 'src/components/ui/Spinner'
 
 export const QUERY: TypedDocumentNode<EditExpenseById> = gql`
   query EditExpenseById($id: Int!) {
@@ -70,7 +75,32 @@ const UPDATE_EXPENSE_MUTATION: TypedDocumentNode<
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+const TRIPS_QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
+  query TripsByUserForEditExpenseCell {
+    tripsByUser {
+      id
+      name
+    }
+  }
+`
+
+const PROJECTQUERY: TypedDocumentNode<
+  FindProjectsbyUser,
+  FindProjectsbyUserVariables
+> = gql`
+  query FindProjectsbyUserEditExpenseCell {
+    projects {
+      id
+      name
+    }
+  }
+`
+
+export const Loading = () => (
+  <div className="flex h-screen items-center justify-center">
+    <Spinner />
+  </div>
+)
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>
@@ -80,9 +110,8 @@ export const Success = ({
   expense,
   expenseCategories,
 }: CellSuccessProps<EditExpenseById>) => {
-  const [updateExpense, { loading, error }] = useMutation(
-    UPDATE_EXPENSE_MUTATION,
-    {
+  const [updateExpense, { loading: updateLoading, error: updateError }] =
+    useMutation(UPDATE_EXPENSE_MUTATION, {
       onCompleted: () => {
         toast.success('Expense updated')
         navigate(routes.expenses())
@@ -90,8 +119,26 @@ export const Success = ({
       onError: (error) => {
         toast.error(error.message)
       },
-    }
-  )
+    })
+
+  const {
+    data: tripsData,
+    loading: tripsLoading,
+    error: tripsError,
+  } = useQuery(TRIPS_QUERY)
+  const {
+    data: projectsData,
+    loading: projectsLoading,
+    error: projectsError,
+  } = useQuery(PROJECTQUERY)
+
+  if (tripsLoading || projectsLoading) {
+    return <Loading />
+  }
+
+  if (tripsError || projectsError) {
+    return <Failure error={tripsError || projectsError} />
+  }
 
   const onSave = (
     input: UpdateExpenseInput,
@@ -109,11 +156,13 @@ export const Success = ({
       </header>
       <div className="rw-segment-main">
         <ExpenseForm
+          trips={tripsData?.tripsByUser}
+          projects={projectsData?.projects}
           expense={expense}
           categories={expenseCategories}
           onSave={onSave}
-          error={error}
-          loading={loading}
+          error={updateError}
+          loading={updateLoading}
         />
       </div>
     </div>

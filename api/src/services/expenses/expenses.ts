@@ -9,7 +9,12 @@ import { logger } from 'src/lib/logger'
 // import { context } from '@redwoodjs/graphql-server'
 
 export const expenses: QueryResolvers['expenses'] = () => {
+  const currentUser = context.currentUser
+
   return db.expense.findMany({
+    where: {
+      userId: currentUser.dbUserId,
+    },
     include: {
       receipt: true,
     },
@@ -100,12 +105,15 @@ export const updateExpense: MutationResolvers['updateExpense'] = ({
 //   })
 // }
 
-export const deleteExpense: MutationResolvers['deleteExpense'] = ({ id }) => {
+export const deleteExpense: MutationResolvers['deleteExpense'] = async ({
+  id,
+}) => {
+  await db.receipt.deleteMany({
+    where: { expenseId: id },
+  })
+
   return db.expense.delete({
     where: { id },
-    include: {
-      receipt: true,
-    },
   })
 }
 

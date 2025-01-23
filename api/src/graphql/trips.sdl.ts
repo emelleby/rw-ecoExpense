@@ -46,9 +46,17 @@ export const schema = gql`
     transactionId: String
   }
 
+  input UpdateReimbursementStatusInput {
+    reimbursementStatus: ReimbursementStatus!
+  }
+
   type Mutation {
     createTrip(input: CreateTripInput!): Trip! @skipAuth
     updateTrip(id: Int!, input: UpdateTripInput!): Trip! @skipAuth
     deleteTrip(id: Int!): Trip! @skipAuth
+    updateReimbursementStatus(
+      reimbursementStatus: ReimbursementStatus!
+      id: Int!
+    ): Boolean! @requireAuth
   }
 `

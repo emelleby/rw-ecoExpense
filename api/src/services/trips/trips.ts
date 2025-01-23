@@ -10,11 +10,12 @@ export const trips: QueryResolvers['trips'] = () => {
   return db.trip.findMany()
 }
 
-export const trip: QueryResolvers['trip'] = ({ id }) => {
+export const trip: QueryResolvers['trip'] = async ({ id }) => {
   const currentUser = context.currentUser
-  return db.trip.findUnique({
+  const trip = await db.trip.findUnique({
     where: { id, userId: currentUser.dbUserId },
   })
+  return trip
 }
 
 export const topTripsByUser: QueryResolvers['topTripsByUser'] = () => {
@@ -70,6 +71,26 @@ export const updateTrip: MutationResolvers['updateTrip'] = ({ id, input }) => {
     where: { id },
   })
 }
+
+// a function to update reimbursementStatus of all trips of a specific user input will be reimbursementStatus only which can be
+// NOT_REQUESTED, PENDING, REIMBURSED
+
+export const updateReimbursementStatus: MutationResolvers['updateReimbursementStatus'] =
+  async ({ reimbursementStatus, id }) => {
+    try {
+      await db.trip.updateMany({
+        data: {
+          reimbursementStatus: reimbursementStatus,
+        },
+        where: {
+          id: id,
+        },
+      })
+      return true
+    } catch (error) {
+      return false
+    }
+  }
 
 export const deleteTrip: MutationResolvers['deleteTrip'] = ({ id }) => {
   return db.trip.delete({

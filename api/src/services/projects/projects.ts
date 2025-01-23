@@ -7,7 +7,12 @@ import type {
 import { db } from 'src/lib/db'
 
 export const projects: QueryResolvers['projects'] = () => {
-  return db.project.findMany()
+  const currentUser = context.currentUser
+  return db.project.findMany({
+    where: {
+      userId: currentUser.dbUserId,
+    },
+  })
 }
 
 export const project: QueryResolvers['project'] = ({ id }) => {
