@@ -13,7 +13,7 @@ import { toast } from '@redwoodjs/web/toast'
 import { QUERY } from 'src/components/Trip/TripsCell'
 import { formatEnum, timeTag, truncate } from 'src/lib/formatters'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import {
   Table,
   TableBody,

@@ -6,7 +6,7 @@ import { Check, ChevronDown } from 'lucide-react'
 
 import { cn } from 'src/utils/cn'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import {
   Command,
   CommandEmpty,
