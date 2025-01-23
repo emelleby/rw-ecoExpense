@@ -38,9 +38,8 @@ import {
   SidebarRail,
   useSidebar,
 } from 'src/components/ui/Sidebar'
-import UserSidebarGroupCell from 'src/components/UserSidebarGroupCell/UserSidebarGroupCell'
+import UserSidebarGroupCell from 'src/components/UserSidebarGroup/UserSidebarGroupCell/UserSidebarGroupCell'
 
-// This is sample data.
 // Menu items.
 const items = [
   {
@@ -58,29 +57,8 @@ const items = [
     url: 'expenses',
     icon: BookOpen,
   },
-  {
-    title: 'Trips',
-    url: 'trips',
-    icon: Map,
-  },
-  {
-    title: 'Projects',
-    url: 'projects',
-    icon: FolderOpenDot,
-  },
-  {
-    title: 'Users',
-    url: 'users',
-    onlyAdmin: true,
-    icon: User2Icon,
-  },
 ]
 const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
   teams: [
     {
       name: 'Acme Inc',
@@ -170,15 +148,27 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setOpenMobile } = useSidebar()
   const { pathname } = useLocation()
-  const { hasRole } = useAuth()
+  const { hasRole, userMetadata } = useAuth()
+  const user = {
+    name: userMetadata.firstName
+      ? userMetadata.firstName
+      : userMetadata.username,
+    email: 'm@example.com',
+    avatar: '/avatars/shadcn.jpg',
+  }
 
   const handleLinkClick = () => {
     setOpenMobile(false)
   }
+
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+      <SidebarHeader className="gap-0">
+        {/* <TeamSwitcher teams={data.teams} /> */}
+        <h1 className="mt-2 px-2 text-lg font-semibold">
+          Welcome, {user.name}
+        </h1>
+        <p className="mb-4 px-2 text-sm text-muted-foreground">{user.email}</p>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -204,7 +194,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <UserSidebarGroupCell />
         <NavMain items={data.navMain} />
         {/* <NavProjects projects={data.projects} /> */}
-        <UserSidebarGroupCell />
       </SidebarContent>
       <SidebarFooter>
         {/* <UserButton /> */}

@@ -16,11 +16,11 @@ export const QUERY: TypedDocumentNode<
   UserSidebarGroupQueryVariables
 > = gql`
   query UserSidebarGroupQuery {
-    projectsByUser {
+    projectsByUser(take: 5) {
       id
       name
     }
-    tripsByUser {
+    tripsByUser(take: 3) {
       id
       name
     }
@@ -45,11 +45,5 @@ export const Success = ({
       tripsByUser={tripsByUser}
       projectsByUser={projectsByUser}
     />
-    // <div>
-    //   {tripsByUser?.map((trip) => <div key={trip.id}>{trip.name}</div>)}
-    //   {projectsByUser?.map((project) => (
-    //     <div key={project.id}>{project.name}</div>
-    //   ))}
-    // </div>
   )
 }
