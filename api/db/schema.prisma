@@ -59,7 +59,8 @@ model User {
   organization   Organization @relation(fields: [organizationId], references: [id])
   expenses       Expense[]
   trips          Trip[]
-  projects       Project[]
+
+  createdProjects Project[] @relation("CreatedBy")
 
   @@index([username], name: "idx_user_username")
 }
@@ -79,26 +80,28 @@ model Trip {
   description         String?             @db.Text
   startDate           DateTime
   endDate             DateTime
+  createdAt           DateTime            @default(now())
   userId              Int
   user                User                @relation(fields: [userId], references: [id])
   expenses            Expense[]
   approvedDate        DateTime?
   reimbursementStatus ReimbursementStatus @default(NOT_REQUESTED)
   transactionId       String?             @db.VarChar(100)
-  projectId           Int
-  Project             Project             @relation(fields: [projectId], references: [id])
+  projectId           Int?
+  Project             Project?            @relation(fields: [projectId], references: [id])
 }
 
 model Project {
   id             Int           @id @default(autoincrement())
   name           String        @db.VarChar(100)
   description    String?       @db.Text
-  userId         Int
   organizationId Int? // Add this field
-  user           User          @relation(fields: [userId], references: [id])
   organization   Organization? @relation(fields: [organizationId], references: [id]) // Add this relation
+  createdById    Int?
+  createdBy      User?         @relation("CreatedBy", fields: [createdById], references: [id])
   expenses       Expense[]
   trips          Trip[]
+  createdAt      DateTime      @default(now())
 }
 
 model ExpenseCategory {

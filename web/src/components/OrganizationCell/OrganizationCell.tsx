@@ -62,6 +62,7 @@ const CREATE_USER = gql`
       username
       email
       organizationId
+      status
     }
   }
 `

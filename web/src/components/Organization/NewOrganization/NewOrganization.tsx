@@ -37,6 +37,7 @@ const CREATE_USER = gql`
       username
       email
       organizationId
+      status
     }
   }
 `
@@ -58,6 +59,7 @@ const NewOrganization = () => {
               username: user.username,
               email: user.primaryEmailAddress.emailAddress,
               organizationId: data.createOrganization.id,
+              status: 'INACTIVE',
             },
           },
         })

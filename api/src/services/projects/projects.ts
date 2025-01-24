@@ -21,13 +21,14 @@ export const project: QueryResolvers['project'] = ({ id }) => {
   })
 }
 
-// Added to only fetch projects for the current user
+// Added to only fetch projects for the current user and order by id in descending order
+// #TODO: get projects created by the current user
 export const projectsByUser: QueryResolvers['projectsByUser'] = ({ take }) => {
   const currentUser = context.currentUser
 
   return db.project.findMany({
     where: {
-      userId: currentUser.dbUserId,
+      createdById: currentUser.dbUserId,
     },
     take: take || undefined,
     orderBy: {
