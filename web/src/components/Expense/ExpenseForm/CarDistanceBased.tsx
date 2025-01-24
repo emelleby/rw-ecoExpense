@@ -14,7 +14,7 @@ import {
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import {
   Select,
   SelectContent,
@@ -122,8 +122,8 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
 
     const dataWithReceipt = {
       date,
-      projectId,
-      tripId,
+      projectId: Number(projectId),
+      tripId: Number(tripId),
       amount: nokAmount,
       currency: 'NOK',
       nokAmount,

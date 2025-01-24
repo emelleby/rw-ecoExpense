@@ -41,6 +41,7 @@ model Organization {
   name        String     @unique @db.VarChar(100)
   description String?    @db.Text
   createdAt   DateTime   @default(now())
+  projects    Project[]
   users       User[]
   suppliers   Supplier[]
 }
@@ -84,15 +85,20 @@ model Trip {
   approvedDate        DateTime?
   reimbursementStatus ReimbursementStatus @default(NOT_REQUESTED)
   transactionId       String?             @db.VarChar(100)
+  projectId           Int
+  Project             Project             @relation(fields: [projectId], references: [id])
 }
 
 model Project {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(100)
-  description String?   @db.Text
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id])
-  expenses    Expense[]
+  id             Int           @id @default(autoincrement())
+  name           String        @db.VarChar(100)
+  description    String?       @db.Text
+  userId         Int
+  organizationId Int? // Add this field
+  user           User          @relation(fields: [userId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id]) // Add this relation
+  expenses       Expense[]
+  trips          Trip[]
 }
 
 model ExpenseCategory {
