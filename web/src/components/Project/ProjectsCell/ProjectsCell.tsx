@@ -21,6 +21,15 @@ export const QUERY: TypedDocumentNode<FindProjects, FindProjectsVariables> =
         description
         active
         organizationId
+        expenses {
+          id
+          nokAmount
+        }
+
+        trips {
+          id
+        }
+
         createdBy {
           username
         }

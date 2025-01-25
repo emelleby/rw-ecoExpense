@@ -8,12 +8,9 @@ import {
   FieldError,
   Label,
   TextField,
-  CheckboxField,
-  NumberField,
   Submit,
 } from '@redwoodjs/forms'
 
-import { Checkbox } from '@/components/ui/Checkbox'
 import { Switch } from '@/components/ui/Switch'
 
 type FormProject = NonNullable<EditProjectById['project']>
@@ -83,14 +80,9 @@ const ProjectForm = (props: ProjectFormProps) => {
           Active
         </Label>
 
-        {/* <Checkbox
-          name="active"
-          defaultChecked={props.project?.active}
-          className=""
-        /> */}
         <Controller
           name="active"
-          defaultValue={props.project?.active}
+          defaultValue={props.project?.active ?? true}
           render={({ field: { onChange, value } }) => (
             <Switch
               checked={value} // Use checked instead of defaultValue
@@ -99,49 +91,6 @@ const ProjectForm = (props: ProjectFormProps) => {
             />
           )}
         />
-        {/* <Label
-          name="active"
-          className="rw-label ml-3"
-          errorClassName="rw-label rw-label-error"
-        >
-          Trailer
-        </Label> */}
-
-        {/* <Label
-          name="organizationId"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Organization id
-        </Label>
-
-        <NumberField
-          name="organizationId"
-          defaultValue={props.project?.organizationId}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          emptyAs={'undefined'}
-        />
-
-        <FieldError name="organizationId" className="rw-field-error" />
-
-        <Label
-          name="createdById"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Created by id
-        </Label>
-
-        <NumberField
-          name="createdById"
-          defaultValue={props.project?.createdById}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          emptyAs={'undefined'}
-        />
-
-        <FieldError name="createdById" className="rw-field-error" /> */}
 
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">

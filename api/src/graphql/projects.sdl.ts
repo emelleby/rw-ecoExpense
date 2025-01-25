@@ -22,16 +22,14 @@ export const schema = gql`
     name: String!
     description: String
     active: Boolean!
-    organizationId: Int
-    createdById: Int
+    # organizationId: Int
+    # createdById: Int
   }
 
   input UpdateProjectInput {
     name: String!
     description: String
     active: Boolean!
-    organizationId: Int
-    createdById: Int
   }
 
   type Mutation {

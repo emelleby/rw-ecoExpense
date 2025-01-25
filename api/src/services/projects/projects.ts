@@ -37,8 +37,18 @@ export const project: QueryResolvers['project'] = ({ id }) => {
 export const createProject: MutationResolvers['createProject'] = ({
   input,
 }) => {
+  const currentUser = context.currentUser
+
   return db.project.create({
-    data: input,
+    data: {
+      ...input,
+      organizationId: currentUser.organizationId,
+      createdById: currentUser.dbUserId,
+    },
+    // include: {
+    //   createdBy: true,
+    //   organization: true,
+    // },
   })
 }
 
