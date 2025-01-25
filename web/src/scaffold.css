@@ -27,7 +27,7 @@
   @apply mx-4 pb-4;
 }
 .rw-segment {
-  @apply w-full overflow-hidden rounded-lg border border-gray-200;
+  @apply w-full overflow-hidden rounded-lg border border-slate-500;
   scrollbar-color: theme('colors.zinc.400') transparent;
 }
 .rw-segment::-webkit-scrollbar {
@@ -46,16 +46,16 @@
   @apply p-4;
 }
 .rw-link {
-  @apply text-blue-400 underline;
+  @apply text-sky-400 underline;
 }
 .rw-link:hover {
-  @apply text-blue-500;
+  @apply text-sky-500;
 }
 .rw-forgot-link {
   @apply mt-1 text-right text-xs text-gray-400 underline;
 }
 .rw-forgot-link:hover {
-  @apply text-blue-500;
+  @apply text-sky-500;
 }
 .rw-heading {
   @apply font-semibold;
@@ -110,10 +110,10 @@
   @apply bg-sky-800;
 }
 .rw-button.rw-button-red {
-  @apply bg-rose-600 text-white;
+  @apply bg-destructive text-slate-100;
 }
 .rw-button.rw-button-red:hover {
-  @apply bg-rose-700 text-white;
+  @apply bg-destructive/80 text-slate-100;
 }
 .rw-button-icon {
   @apply mr-1 text-xl leading-5 h-6;
@@ -169,21 +169,21 @@
   min-width: 48rem;
 }
 .rw-table {
-  @apply w-full text-sm;
+  @apply w-full text-sm ;
 }
 .rw-table th,
 .rw-table td {
   @apply p-3;
 }
 .rw-table td {
-  @apply bg-white text-gray-900;
+  @apply  bg-secondary/50 text-foreground;
 }
 .rw-table tr:nth-child(odd) td,
 .rw-table tr:nth-child(odd) th {
-  @apply bg-gray-50;
+  @apply bg-transparent text-foreground;
 }
 .rw-table thead tr {
-  @apply bg-gray-200 text-gray-600;
+  @apply bg-secondary text-foreground;
   position: sticky;
   top: 0;
 }
@@ -205,7 +205,7 @@
   }
 }
 .rw-table tbody tr {
-  @apply border-t border-gray-200;
+  @apply border-t border-secondary;
 }
 .rw-table input {
   @apply ml-0;

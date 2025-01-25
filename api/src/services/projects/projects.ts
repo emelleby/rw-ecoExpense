@@ -6,11 +6,24 @@ import type {
 
 import { db } from 'src/lib/db'
 
-export const projects: QueryResolvers['projects'] = () => {
+export const projects: QueryResolvers['projects'] = ({
+  take,
+}: {
+  take?: number
+}) => {
   const currentUser = context.currentUser
+  console.log('Current user:', currentUser)
+  console.log('Organization ID:', currentUser.organizationId)
   return db.project.findMany({
     where: {
-      userId: currentUser.dbUserId,
+      organizationId: currentUser.organizationId,
+    },
+    include: {
+      createdBy: true,
+    },
+    take: take || undefined,
+    orderBy: {
+      id: 'desc',
     },
   })
 }
@@ -18,22 +31,6 @@ export const projects: QueryResolvers['projects'] = () => {
 export const project: QueryResolvers['project'] = ({ id }) => {
   return db.project.findUnique({
     where: { id },
-  })
-}
-
-// Added to only fetch projects for the current user and order by id in descending order
-// #TODO: get projects created by the current user
-export const projectsByUser: QueryResolvers['projectsByUser'] = ({ take }) => {
-  const currentUser = context.currentUser
-
-  return db.project.findMany({
-    where: {
-      createdById: currentUser.dbUserId,
-    },
-    take: take || undefined,
-    orderBy: {
-      id: 'desc',
-    },
   })
 }
 
@@ -62,10 +59,16 @@ export const deleteProject: MutationResolvers['deleteProject'] = ({ id }) => {
 }
 
 export const Project: ProjectRelationResolvers = {
-  user: (_obj, { root }) => {
-    return db.project.findUnique({ where: { id: root?.id } }).user()
+  organization: (_obj, { root }) => {
+    return db.project.findUnique({ where: { id: root?.id } }).organization()
+  },
+  createdBy: (_obj, { root }) => {
+    return db.project.findUnique({ where: { id: root?.id } }).createdBy()
   },
   expenses: (_obj, { root }) => {
     return db.project.findUnique({ where: { id: root?.id } }).expenses()
+  },
+  trips: (_obj, { root }) => {
+    return db.project.findUnique({ where: { id: root?.id } }).trips()
   },
 }

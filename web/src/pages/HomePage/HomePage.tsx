@@ -1,4 +1,5 @@
 // import { Link, routes } from '@redwoodjs/router'
+
 import { Link, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 
@@ -10,6 +11,8 @@ import {
   CardContent,
   CardFooter,
 } from 'src/components/ui/Card'
+
+import HomeCell from '@/components/HomeCell/HomeCell'
 
 const features = [
   {
@@ -48,43 +51,12 @@ const HomePage = () => {
   return (
     <>
       <Metadata title="Home" description="Home page" />
-
-      <Metadata title="Home" description="Home page" />
-
       <div className="container mx-auto px-4 py-8">
         <h1 className="mb-6 text-center text-2xl font-bold">
           Welcome to Expense Tracker
         </h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, index) => (
-            <Card
-              key={index}
-              className="flex flex-col transition hover:shadow-lg"
-            >
-              <CardHeader>
-                <CardTitle>{feature.title}</CardTitle>
-              </CardHeader>
-
-              <CardContent>
-                <p className="mb-4">{feature.description}</p>
-              </CardContent>
-              <CardFooter className="mt-auto">
-                {routes[feature.url] ? (
-                  <Link to={routes[feature.url]()}>
-                    <Button>{feature.buttonText}</Button>
-                  </Link>
-                ) : (
-                  <p>Invalid route</p>
-                )}
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        <HomeCell />
       </div>
-      {/*
-          My default route is named `home`, link to me with:
-          `<Link to={routes.home()}>Home</Link>`
-      */}
     </>
   )
 }

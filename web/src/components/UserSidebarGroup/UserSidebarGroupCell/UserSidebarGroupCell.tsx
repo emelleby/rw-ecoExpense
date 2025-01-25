@@ -16,7 +16,7 @@ export const QUERY: TypedDocumentNode<
   UserSidebarGroupQueryVariables
 > = gql`
   query UserSidebarGroupQuery {
-    projectsByUser(take: 5) {
+    projects(take: 5) {
       id
       name
     }
@@ -36,14 +36,11 @@ export const Failure = ({ error }: CellFailureProps) => (
 )
 
 export const Success = ({
-  projectsByUser,
+  projects,
   tripsByUser,
 }: CellSuccessProps<UserSidebarGroupQuery>) => {
-  console.log(projectsByUser)
+  console.log(projects)
   return (
-    <UserSidebarGroup
-      tripsByUser={tripsByUser}
-      projectsByUser={projectsByUser}
-    />
+    <UserSidebarGroup tripsByUser={tripsByUser} projectsByUser={projects} />
   )
 }

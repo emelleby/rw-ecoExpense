@@ -7,12 +7,9 @@ import {
   FieldError,
   Label,
   TextField,
-  CheckboxField,
   NumberField,
   Submit,
 } from '@redwoodjs/forms'
-
-import { Checkbox } from '@/components/ui/Checkbox'
 
 type FormProject = NonNullable<EditProjectById['project']>
 
@@ -72,56 +69,6 @@ const ProjectForm = (props: ProjectFormProps) => {
         />
 
         <FieldError name="description" className="rw-field-error" />
-
-        <Label
-          name="active"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Active
-        </Label>
-
-        <Checkbox
-          name="active"
-          defaultChecked={props.project?.active}
-          className=""
-        />
-
-        <Label
-          name="organizationId"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Organization id
-        </Label>
-
-        <NumberField
-          name="organizationId"
-          defaultValue={props.project?.organizationId}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          emptyAs={'undefined'}
-        />
-
-        <FieldError name="organizationId" className="rw-field-error" />
-
-        <Label
-          name="createdById"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Created by id
-        </Label>
-
-        <NumberField
-          name="createdById"
-          defaultValue={props.project?.createdById}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          emptyAs={'undefined'}
-        />
-
-        <FieldError name="createdById" className="rw-field-error" />
 
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">

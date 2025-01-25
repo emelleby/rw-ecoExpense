@@ -6,3 +6,9 @@ type Mutation {
     updateUserRole(id: String!, role: String!, organizationId: Int!): User!
       @skipAuth
   }
+
+Project SDL:
+type Query {
+ectsByUser(take: Int): [Project!]! @requireAuth
+  }
+

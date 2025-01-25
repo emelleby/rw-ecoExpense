@@ -95,6 +95,7 @@ model Project {
   id             Int           @id @default(autoincrement())
   name           String        @db.VarChar(100)
   description    String?       @db.Text
+  active         Boolean       @default(true)
   organizationId Int? // Add this field
   organization   Organization? @relation(fields: [organizationId], references: [id]) // Add this relation
   createdById    Int?

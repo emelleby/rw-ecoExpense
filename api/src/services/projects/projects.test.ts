@@ -28,13 +28,12 @@ describe('projects', () => {
     expect(result).toEqual(scenario.project.one)
   })
 
-  scenario('creates a project', async (scenario: StandardScenario) => {
+  scenario('creates a project', async () => {
     const result = await createProject({
-      input: { name: 'String', userId: scenario.project.two.userId },
+      input: { name: 'String' },
     })
 
     expect(result.name).toEqual('String')
-    expect(result.userId).toEqual(scenario.project.two.userId)
   })
 
   scenario('updates a project', async (scenario: StandardScenario) => {

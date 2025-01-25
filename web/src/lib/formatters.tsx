@@ -3,6 +3,8 @@ import React from 'react'
 import { format } from 'date-fns'
 import humanize from 'humanize-string'
 
+import { Checkbox } from '@/components/ui/Checkbox'
+
 const MAX_STRING_LENGTH = 150
 
 export const formatEnum = (values: string | string[] | null | undefined) => {
@@ -58,6 +60,9 @@ export const timeTag = (datetime: string) => {
   return format(new Date(datetime), 'PPP')
 }
 
-export const checkboxInputTag = (checked: boolean) => {
+export const checkboxInputTag2 = (checked: boolean) => {
   return <input type="checkbox" checked={checked} disabled />
+}
+export const checkboxInputTag = (checked: boolean) => {
+  return <Checkbox type="checkbox" checked={checked} disabled />
 }

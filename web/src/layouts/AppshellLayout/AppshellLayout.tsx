@@ -56,7 +56,7 @@ const AppshellLayout = ({ title, titleTo, children }: AppshellLayoutProps) => {
             <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
           </div>
         </header>
-        <main className="container max-w-6xl flex-1">{children}</main>
+        <main className="container my-2 max-w-6xl flex-1">{children}</main>
       </div>
     </SidebarProvider>
   )

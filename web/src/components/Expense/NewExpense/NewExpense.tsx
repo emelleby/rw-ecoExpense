@@ -25,23 +25,6 @@ const CATEGORIES_QUERY = gql`
     }
   }
 `
-const CREATE_EXPENSE_MUTATION: TypedDocumentNode<
-  CreateExpenseMutation,
-  CreateExpenseMutationVariables
-> = gql`
-  mutation CreateExpenseMutation($input: CreateExpenseInput!) {
-    createExpense(input: $input) {
-      id
-      receipt {
-        id
-        url
-        fileName
-        fileType
-      }
-    }
-  }
-`
-
 const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
   query TripsByUserForNewExpense {
     tripsByUser {
@@ -60,6 +43,23 @@ const PROJECTQUERY: TypedDocumentNode<
     projects {
       id
       name
+    }
+  }
+`
+
+const CREATE_EXPENSE_MUTATION: TypedDocumentNode<
+  CreateExpenseMutation,
+  CreateExpenseMutationVariables
+> = gql`
+  mutation CreateExpenseMutation($input: CreateExpenseInput!) {
+    createExpense(input: $input) {
+      id
+      receipt {
+        id
+        url
+        fileName
+        fileType
+      }
     }
   }
 `
@@ -117,44 +117,36 @@ const NewExpense = () => {
     hideLoader()
   }
 
-  // const onSave = async (input: CreateExpenseInput) => {
-  //   const { receipt, ...expenseData } = input
-
-  //   // Ensure the receipt fields are handled properly
-  //   const createExpenseInput: CreateExpenseInput = {
-  //     ...expenseData,
-  //     receipt: receipt
-  //       ? {
-  //           url: receipt.url,
-  //           fileName: receipt.fileName,
-  //           fileType: receipt.fileType,
-  //         }
-  //       : undefined, // Omit receipt if not provided
-  //   }
-
-  //   await createExpense({
-  //     variables: { input: createExpenseInput },
-  //   })
-  // }
-
   // Handle loading states
   if (categoryLoading || tripsLoading || projectsLoading) {
     return <Loading />
   }
 
-  // Handle errors
-  if (categoryError || tripsError || projectsError) {
-    return <div>Error loading data</div>
+  // Handle errors -  || tripsError || projectsError
+  if (categoryError) {
+    return <div>Error loading category data</div>
   }
 
   const trips = tripsData?.tripsByUser || []
+  const projects = projectsData?.projects || []
 
   if (trips.length === 0) {
     return (
       <div className="rw-text-center">
-        No open trip has found you need to create trip or open one{' '}
-        <Link to={routes.trips()} className="rw-link">
-          Go to Trips
+        Please create a trip / group first!{' '}
+        <Link to={routes.newTrip()} className="rw-link">
+          Create Trip
+        </Link>
+      </div>
+    )
+  }
+
+  if (projects.length === 0) {
+    return (
+      <div className="rw-text-center">
+        Please create a project first!{' '}
+        <Link to={routes.projects()} className="rw-link">
+          Go to Projects
         </Link>
       </div>
     )

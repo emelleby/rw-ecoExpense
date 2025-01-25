@@ -12,21 +12,11 @@ export const QUERY: TypedDocumentNode<
   FindProjectById,
   FindProjectByIdVariables
 > = gql`
-  query FindProjectById($id: Int!) {
+  query FindProjectByIdOld($id: Int!) {
     project: project(id: $id) {
       id
       name
       description
-      active
-      organizationId
-      createdBy {
-        id
-        email
-        username
-        firstName
-        lastName
-      }
-      createdAt
     }
   }
 `
