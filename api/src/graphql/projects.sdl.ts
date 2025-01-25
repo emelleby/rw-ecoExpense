@@ -27,9 +27,9 @@ export const schema = gql`
   }
 
   input UpdateProjectInput {
-    name: String
+    name: String!
     description: String
-    active: Boolean
+    active: Boolean!
     organizationId: Int
     createdById: Int
   }

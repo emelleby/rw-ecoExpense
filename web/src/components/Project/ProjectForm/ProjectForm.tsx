@@ -2,6 +2,7 @@ import type { EditProjectById, UpdateProjectInput } from 'types/graphql'
 
 import type { RWGqlError } from '@redwoodjs/forms'
 import {
+  Controller,
   Form,
   FormError,
   FieldError,
@@ -13,6 +14,7 @@ import {
 } from '@redwoodjs/forms'
 
 import { Checkbox } from '@/components/ui/Checkbox'
+import { Switch } from '@/components/ui/Switch'
 
 type FormProject = NonNullable<EditProjectById['project']>
 
@@ -81,13 +83,31 @@ const ProjectForm = (props: ProjectFormProps) => {
           Active
         </Label>
 
-        <Checkbox
+        {/* <Checkbox
           name="active"
           defaultChecked={props.project?.active}
           className=""
+        /> */}
+        <Controller
+          name="active"
+          defaultValue={props.project?.active}
+          render={({ field: { onChange, value } }) => (
+            <Switch
+              checked={value} // Use checked instead of defaultValue
+              onCheckedChange={onChange}
+              className="mt-2"
+            />
+          )}
         />
+        {/* <Label
+          name="active"
+          className="rw-label ml-3"
+          errorClassName="rw-label rw-label-error"
+        >
+          Trailer
+        </Label> */}
 
-        <Label
+        {/* <Label
           name="organizationId"
           className="rw-label"
           errorClassName="rw-label rw-label-error"
@@ -121,7 +141,7 @@ const ProjectForm = (props: ProjectFormProps) => {
           emptyAs={'undefined'}
         />
 
-        <FieldError name="createdById" className="rw-field-error" />
+        <FieldError name="createdById" className="rw-field-error" /> */}
 
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">

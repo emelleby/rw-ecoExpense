@@ -70,6 +70,9 @@ export const Success = ({ project }: CellSuccessProps<EditProjectById>) => {
     input: UpdateProjectInput,
     id: EditProjectById['project']['id']
   ) => {
+    console.log('Form input:', input) // Debug form input
+    console.log('Project ID:', id)
+
     updateProject({ variables: { id, input } })
   }
 

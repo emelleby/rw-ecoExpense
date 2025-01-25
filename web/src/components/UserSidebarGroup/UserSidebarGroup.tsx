@@ -5,7 +5,6 @@ import { Fragment } from 'react'
 import { MapPin, FolderOpenDot, ChevronRight } from 'lucide-react'
 
 import { Link, routes } from '@redwoodjs/router'
-import { useLocation } from '@redwoodjs/router'
 
 import {
   Collapsible,
@@ -77,7 +76,7 @@ const UserSidebarGroup = ({
       })),
     },
   ]
-  console.log(items)
+  // console.log(items)
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -106,7 +105,7 @@ const UserSidebarGroup = ({
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                   {item.items?.map((subItem) => {
-                    console.log('subItem=', subItem)
+                    // console.log('subItem=', subItem)
                     return (
                       <Fragment key={subItem.title}>
                         <SidebarMenuSubItem key={subItem.title}>

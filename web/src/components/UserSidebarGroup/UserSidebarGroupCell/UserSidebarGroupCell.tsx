@@ -39,7 +39,7 @@ export const Success = ({
   projects,
   tripsByUser,
 }: CellSuccessProps<UserSidebarGroupQuery>) => {
-  console.log(projects)
+  // console.log(projects)
   return (
     <UserSidebarGroup tripsByUser={tripsByUser} projectsByUser={projects} />
   )
