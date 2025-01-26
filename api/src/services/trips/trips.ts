@@ -118,9 +118,9 @@ export const deleteTrip: MutationResolvers['deleteTrip'] = ({ id }) => {
 
 export const Trip: TripRelationResolvers = {
   user: (_obj, { root }) => {
-    return db.trip.findUnique({ where: { id: root?.id } }).user()
+    return db.trip.findUnique({ where: { id: root?.id } }).User()
   },
   expenses: (_obj, { root }) => {
-    return db.trip.findUnique({ where: { id: root?.id } }).expenses()
+    return db.trip.findUnique({ where: { id: root?.id } }).Expense()
   },
 }

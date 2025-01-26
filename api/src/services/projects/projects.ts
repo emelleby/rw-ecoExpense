@@ -73,15 +73,15 @@ export const deleteProject: MutationResolvers['deleteProject'] = ({ id }) => {
 
 export const Project: ProjectRelationResolvers = {
   organization: (_obj, { root }) => {
-    return db.project.findUnique({ where: { id: root?.id } }).organization()
+    return db.project.findUnique({ where: { id: root?.id } }).Organization()
   },
   createdBy: (_obj, { root }) => {
     return db.project.findUnique({ where: { id: root?.id } }).createdBy()
   },
   expenses: (_obj, { root }) => {
-    return db.project.findUnique({ where: { id: root?.id } }).expenses()
+    return db.project.findUnique({ where: { id: root?.id } }).Expense()
   },
   trips: (_obj, { root }) => {
-    return db.project.findUnique({ where: { id: root?.id } }).trips()
+    return db.project.findUnique({ where: { id: root?.id } }).Trip()
   },
 }

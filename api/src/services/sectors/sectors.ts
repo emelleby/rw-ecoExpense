@@ -40,6 +40,6 @@ export const deleteSector: MutationResolvers['deleteSector'] = ({ id }) => {
 
 export const Sector: SectorRelationResolvers = {
   expenses: (_obj, { root }) => {
-    return db.sector.findUnique({ where: { id: root?.id } }).expenses()
+    return db.sector.findUnique({ where: { id: root?.id } }).Expense()
   },
 }

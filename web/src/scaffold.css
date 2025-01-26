@@ -142,6 +142,14 @@
 .rw-check-radio-items {
   @apply flex justify-items-center gap-2 mt-1;
 }
+.rw-input option {
+  @apply bg-secondary text-primary backdrop-brightness-200 border-gray-500;
+  @apply cursor-pointer;
+  @apply py-4 px-4;
+}
+.rw-input option:checked {
+  @apply bg-sky-600 text-white;
+}
 .rw-check-radio-item-none {
   @apply text-gray-600;
 }

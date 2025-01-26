@@ -41,9 +41,9 @@ model Organization {
   name        String     @unique @db.VarChar(100)
   description String?    @db.Text
   createdAt   DateTime   @default(now())
-  projects    Project[]
-  users       User[]
-  suppliers   Supplier[]
+  Project     Project[]
+  User        User[]
+  Supplier    Supplier[]
 }
 
 model User {
@@ -56,9 +56,9 @@ model User {
   bankAccount    String?      @db.VarChar(50)
   status         USER_STATUS  @default(INACTIVE)
   organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  expenses       Expense[]
-  trips          Trip[]
+  Organization   Organization @relation(fields: [organizationId], references: [id])
+  Expense        Expense[]
+  Trip           Trip[]
 
   createdProjects Project[] @relation("CreatedBy")
 
@@ -71,7 +71,7 @@ model Supplier {
   contact        String?      @db.VarChar(100)
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id])
-  expenses       Expense[]
+  Expense        Expense[]
 }
 
 model Trip {
@@ -82,13 +82,13 @@ model Trip {
   endDate             DateTime
   createdAt           DateTime            @default(now())
   userId              Int
-  user                User                @relation(fields: [userId], references: [id])
-  expenses            Expense[]
+  User                User                @relation(fields: [userId], references: [id])
+  Expense             Expense[]
   approvedDate        DateTime?
   reimbursementStatus ReimbursementStatus @default(NOT_REQUESTED)
   transactionId       String?             @db.VarChar(100)
   projectId           Int?
-  project             Project?            @relation(fields: [projectId], references: [id])
+  Project             Project?            @relation(fields: [projectId], references: [id])
 }
 
 model Project {
@@ -97,19 +97,19 @@ model Project {
   description    String?       @db.Text
   active         Boolean       @default(true)
   organizationId Int? // Add this field
-  organization   Organization? @relation(fields: [organizationId], references: [id]) // Add this relation
+  Organization   Organization? @relation(fields: [organizationId], references: [id]) // Add this relation
   createdById    Int?
   createdBy      User?         @relation("CreatedBy", fields: [createdById], references: [id])
-  expenses       Expense[]
-  trips          Trip[]
+  Expense        Expense[]
+  Trip           Trip[]
   createdAt      DateTime      @default(now())
 }
 
 model ExpenseCategory {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique @db.VarChar(50)
-  norName  String    @unique @db.VarChar(50)
-  expenses Expense[]
+  id      Int       @id @default(autoincrement())
+  name    String    @unique @db.VarChar(50)
+  norName String    @unique @db.VarChar(50)
+  Expense Expense[]
 }
 
 model Sector {
@@ -117,7 +117,7 @@ model Sector {
   name     String    @unique @db.VarChar(50)
   factor   Decimal
   currency String    @db.VarChar(3)
-  expenses Expense[]
+  Expense  Expense[]
 }
 
 model Expense {
@@ -136,19 +136,19 @@ model Expense {
   sectorId           Int?
   Sector             Sector?         @relation(fields: [sectorId], references: [id])
   supplierId         Int?
-  supplier           Supplier?       @relation(fields: [supplierId], references: [id])
+  Supplier           Supplier?       @relation(fields: [supplierId], references: [id])
   tripId             Int
-  trip               Trip            @relation(fields: [tripId], references: [id])
+  Trip               Trip            @relation(fields: [tripId], references: [id])
   projectId          Int?
-  project            Project?        @relation(fields: [projectId], references: [id])
+  Project            Project?        @relation(fields: [projectId], references: [id])
   userId             Int
-  user               User            @relation(fields: [userId], references: [id])
+  User               User            @relation(fields: [userId], references: [id])
   scope1Co2Emissions Float           @default(0.0)
   scope2Co2Emissions Float           @default(0.0)
   scope3Co2Emissions Float           @default(0.0)
   kwh                Float?          @default(0.0)
   scope3CategoryId   Int             @default(6)
-  receipt            Receipt?
+  Receipt            Receipt?
 }
 
 model Receipt {
@@ -157,7 +157,7 @@ model Receipt {
   fileName  String
   fileType  String
   expenseId Int      @unique // for one-to-one relation
-  expense   Expense  @relation(fields: [expenseId], references: [id])
+  Expense   Expense  @relation(fields: [expenseId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

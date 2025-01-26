@@ -45,6 +45,6 @@ export const Supplier: SupplierRelationResolvers = {
     return db.supplier.findUnique({ where: { id: root?.id } }).organization()
   },
   expenses: (_obj, { root }) => {
-    return db.supplier.findUnique({ where: { id: root?.id } }).expenses()
+    return db.supplier.findUnique({ where: { id: root?.id } }).Expense()
   },
 }
