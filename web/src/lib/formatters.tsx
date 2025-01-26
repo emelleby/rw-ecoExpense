@@ -66,3 +66,12 @@ export const checkboxInputTag2 = (checked: boolean) => {
 export const checkboxInputTag = (checked: boolean) => {
   return <Checkbox type="checkbox" checked={checked} disabled />
 }
+
+export const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('nb-NO', {
+    // style: 'currency',
+    // currency: 'NOK',
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+  }).format(amount)
+}
