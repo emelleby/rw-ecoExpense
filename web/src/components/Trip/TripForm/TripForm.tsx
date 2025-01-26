@@ -4,6 +4,7 @@ import type { EditTripById, UpdateTripInput } from 'types/graphql'
 import type { RWGqlError } from '@redwoodjs/forms'
 import {
   Controller,
+  SelectField,
   Form,
   FormError,
   FieldError,
@@ -54,6 +55,7 @@ interface TripFormProps {
 
 const TripForm = (props: TripFormProps) => {
   console.log('TripForm data:', props)
+
   const onSubmit = (data: FormTrip) => {
     props.onSave(data, props?.trip?.id)
   }
@@ -147,57 +149,87 @@ const TripForm = (props: TripFormProps) => {
             {props.p}
           </Label>
 
-          <Controller
+          <SelectField
             name="projectId"
-            render={({ field }) => (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className={cn(
-                      'w-full justify-between',
-                      !field.value && 'text-muted-foreground'
-                    )}
-                  >
-                    {field.value
-                      ? props.projects?.find(
-                          (project) => project.id === field.value
-                        )?.name
-                      : 'Select project...'}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0">
-                  <Command>
-                    <CommandInput placeholder="Search project..." />
-                    <CommandEmpty>No project found.</CommandEmpty>
-                    <CommandGroup>
-                      {props.projects?.map((project) => (
-                        <CommandItem
-                          key={project.id}
-                          value={project.name}
-                          onSelect={() => {
-                            field.onChange(project.id)
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              field.value === project.id
-                                ? 'opacity-100'
-                                : 'opacity-0'
-                            )}
-                          />
-                          {project.name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            )}
-          />
+            className="rw-input"
+            errorClassName="rw-input rw-input-error"
+            validation={{
+              required: true,
+              validate: {
+                matchesInitialValue: (value) => {
+                  return Number(value) !== 0 || 'Please select a project'
+                },
+              },
+            }}
+            defaultValue={props.trip?.projectId || 0}
+          >
+            <option value={0}>Select a project...</option>
+            {props.projects?.map((project) => (
+              <option key={project.id} value={Number(project.id)}>
+                {project.name}
+              </option>
+            ))}
+          </SelectField>
+
+          {/* <Controller
+            name="projectId"
+            defaultValue={props.trip?.name || null}
+            render={({ field }) => {
+              console.log('Controller field:', field)
+              console.log('Projects in render:', props.projects)
+              return (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        'w-full justify-between',
+                        !field.value && 'text-muted-foreground'
+                      )}
+                    >
+                      {field.value
+                        ? props.projects?.find(
+                            (project) => project.id === field.value
+                          )?.name
+                        : 'Select project...'}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Search project..." />
+                      <CommandEmpty>No project found.</CommandEmpty>
+                      <CommandGroup>
+                        {props.projects &&
+                          props.projects?.map((project) => (
+                            <CommandItem
+                              key={project.id}
+                              value={String(project.id)}
+                              onSelect={() => {
+                                console.log('Selected project ID:', project.id)
+                                field.onChange(project.id)
+                                console.log('New field value:', field.value)
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  'mr-2 h-4 w-4',
+                                  field.value === project.id
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
+                                )}
+                              />
+                              {project.name}
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              )
+            }}
+          /> */}
           <FieldError name="projectId" className="rw-field-error" />
         </div>
 

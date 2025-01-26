@@ -24,9 +24,25 @@ const CREATE_TRIP_MUTATION: TypedDocumentNode<
   mutation CreateTripMutation($input: CreateTripInput!) {
     createTrip(input: $input) {
       id
+      projectId
     }
   }
 `
+
+// const CREATE_TRIP_MUTATION = gql`
+//   mutation CreateTripMutation($input: CreateTripInput!) {
+//     createTrip(input: {
+//       name: String!
+//       description: String
+//       startDate: DateTime!
+//       endDate: DateTime!
+//       projectId: Int!
+//       userId: Int!
+//     }) {
+//       id
+//     }
+//   }
+// `
 
 export const QUERY = gql`
   query projectsNewTrip {
@@ -91,6 +107,7 @@ const NewTrip = ({ p }) => {
         input: {
           ...input,
           userId: userId,
+          projectId: Number(input.projectId),
         },
       },
     })
@@ -111,22 +128,25 @@ const NewTrip = ({ p }) => {
         )}
       </div>
 
-      {projectsData && (
-        <div className="rw-segment">
-          <header className="rw-segment-header">
-            <h2 className="rw-heading rw-heading-secondary">New Trip</h2>
-          </header>
-          <div className="rw-segment-main">
-            <TripForm
-              projects={projectsData.projects}
-              onSave={onSave}
-              loading={loading}
-              error={error}
-              p={p}
-            />
+      {
+        // It is important to wait for the data to be loaded before rendering the TripForm component
+        projectsData && (
+          <div className="rw-segment">
+            <header className="rw-segment-header">
+              <h2 className="rw-heading rw-heading-secondary">New Trip</h2>
+            </header>
+            <div className="rw-segment-main">
+              <TripForm
+                projects={projectsData.projects}
+                onSave={onSave}
+                loading={loading}
+                error={error}
+                p={p}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
     </div>
   )
 }
