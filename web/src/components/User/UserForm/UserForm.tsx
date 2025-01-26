@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react'
 import type { EditUserById, UpdateUserInput } from 'types/graphql'
 
 import type { RWGqlError } from '@redwoodjs/forms'
@@ -7,6 +8,8 @@ import {
   FieldError,
   Label,
   TextField,
+  NumberField,
+  EmailField,
   RadioField,
   Submit,
 } from '@redwoodjs/forms'
@@ -35,7 +38,7 @@ const UserForm = (props: UserFormProps) => {
           listClassName="rw-form-error-list"
         />
 
-        <Label
+        {/* <Label
           name="clerkId"
           className="rw-label"
           errorClassName="rw-label rw-label-error"
@@ -47,11 +50,11 @@ const UserForm = (props: UserFormProps) => {
           name="clerkId"
           defaultValue={props.user?.clerkId}
           className="rw-input"
-          disabled
+          // disabled
           errorClassName="rw-input rw-input-error"
         />
 
-        <FieldError name="clerkId" className="rw-field-error" />
+        <FieldError name="clerkId" className="rw-field-error" /> */}
 
         <Label
           name="username"
@@ -64,9 +67,10 @@ const UserForm = (props: UserFormProps) => {
         <TextField
           name="username"
           defaultValue={props.user?.username}
-          className="rw-input"
+          className="rw-input rw-input-disabled"
+          disabled
           errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
+          // validation={{ required: true }}
         />
 
         <FieldError name="username" className="rw-field-error" />
@@ -84,7 +88,13 @@ const UserForm = (props: UserFormProps) => {
           defaultValue={props.user?.email}
           className="rw-input"
           errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
+          validation={{
+            required: true,
+            pattern: {
+              value: /[^@]+@[^\.]+\..+/,
+              message: 'Please enter a valid email address',
+            },
+          }}
         />
 
         <FieldError name="email" className="rw-field-error" />
@@ -174,7 +184,7 @@ const UserForm = (props: UserFormProps) => {
 
         <FieldError name="status" className="rw-field-error" />
 
-        <Label
+        {/* <Label
           name="organizationId"
           className="rw-label"
           errorClassName="rw-label rw-label-error"
@@ -182,20 +192,27 @@ const UserForm = (props: UserFormProps) => {
           Organization id
         </Label>
 
-        <TextField
+        <NumberField
           name="organizationId"
           defaultValue={props.user?.organizationId}
           className="rw-input"
           errorClassName="rw-input rw-input-error"
-          disabled
+          // disabled
           //validation={{ required: true }}
-        />
+        /> */}
 
         <FieldError name="organizationId" className="rw-field-error" />
 
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">
-            Save
+            {props.loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Saving...</span>
+              </div>
+            ) : (
+              'Save'
+            )}
           </Submit>
         </div>
       </Form>

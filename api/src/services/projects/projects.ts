@@ -14,7 +14,7 @@ export const projects: QueryResolvers['projects'] = ({
   const currentUser = context.currentUser
   console.log('Current user:', currentUser)
   console.log('Organization ID:', currentUser.organizationId)
-  return db.project.findMany({
+  const result = db.project.findMany({
     where: {
       organizationId: currentUser.organizationId,
     },
@@ -26,6 +26,9 @@ export const projects: QueryResolvers['projects'] = ({
       id: 'desc',
     },
   })
+
+  console.log('Service - Query result:', result)
+  return result
 }
 
 export const project: QueryResolvers['project'] = ({ id }) => {

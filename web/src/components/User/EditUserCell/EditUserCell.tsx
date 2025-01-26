@@ -63,7 +63,7 @@ export const Failure = ({ error }: CellFailureProps) => (
 )
 
 export const Success = ({ user }: CellSuccessProps<EditUserById>) => {
-  const { showLoader, hideLoader, Loader } = useLoader()
+  // const { showLoader, hideLoader, Loader } = useLoader()
 
   const [updateUser, { loading, error }] = useMutation(UPDATE_USER_MUTATION, {
     onCompleted: () => {
@@ -79,9 +79,9 @@ export const Success = ({ user }: CellSuccessProps<EditUserById>) => {
     input: UpdateUserInput,
     id: EditUserById['user']['id']
   ) => {
-    showLoader()
+    // showLoader()
     await updateUser({ variables: { id, input } })
-    hideLoader()
+    // hideLoader()
   }
 
   return (
@@ -94,7 +94,7 @@ export const Success = ({ user }: CellSuccessProps<EditUserById>) => {
       <div className="rw-segment-main">
         <UserForm user={user} onSave={onSave} error={error} loading={loading} />
       </div>
-      {Loader()}
+      {/* {Loader()} */}
     </div>
   )
 }

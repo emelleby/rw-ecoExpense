@@ -1,11 +1,14 @@
+import { useEffect } from 'react'
+
 import type {
   CreateTripMutation,
   CreateTripInput,
   CreateTripMutationVariables,
 } from 'types/graphql'
+import type { FindProjects, FindProjectsVariables } from 'types/graphql'
 
 import { navigate, routes } from '@redwoodjs/router'
-import { useMutation } from '@redwoodjs/web'
+import { useMutation, useQuery } from '@redwoodjs/web'
 import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
@@ -24,10 +27,61 @@ const CREATE_TRIP_MUTATION: TypedDocumentNode<
   }
 `
 
-const NewTrip = () => {
+interface NewTripProps {
+  projects: {
+    id: number
+    name: string
+    description?: string
+    active: boolean
+  }[]
+  p: string
+}
+
+// export const QUERY = gql`
+//   query projectsNewTrip {
+//     projects {
+//       id
+//       name
+//       description
+//       active
+//       organizationId
+//     }
+//   }
+// `
+
+// console.log('QUERY structure:', QUERY)
+
+const NewTrip = ({ projects, p }: NewTripProps) => {
   const { currentUser } = useAuth()
   const userId = Number(currentUser.dbUserId)
+  console.log('Current user newTrip:', currentUser)
+  console.log('P newTrip:', p)
+  console.log('Projects newTrip:', projects)
 
+  // const {
+  //   data: projectsData,
+  //   loading: queryLoading,
+  //   error: queryError,
+  // } = useQuery<FindProjects, FindProjectsVariables>(QUERY, {
+  //   onCompleted: (data) => console.log('Query completed:', data),
+  //   onError: (error) => console.log('Query error:', error),
+  // })
+
+  // setTimeout(() => {
+  //   console.log('Query state after 2 seconds:', {
+  //     isLoading: queryLoading,
+  //     hasData: !!projectsData,
+  //     hasError: !!queryError,
+  //   })
+  // }, 2000)
+
+  // useEffect(() => {
+  //   console.log('Query triggered')
+  //   console.log('Loading:', queryLoading)
+  //   console.log('Error:', queryError)
+  // }, [queryLoading, queryError])
+
+  // console.log('Query state:', { projectsData, queryLoading, queryError })
   const { showLoader, hideLoader } = useLoader()
 
   const [createTrip, { loading, error }] = useMutation(CREATE_TRIP_MUTATION, {
@@ -39,6 +93,8 @@ const NewTrip = () => {
       toast.error(error.message)
     },
   })
+
+  console.log('Query state:', { projects, loading, error })
 
   const onSave = async (input: CreateTripInput) => {
     showLoader()
@@ -59,7 +115,13 @@ const NewTrip = () => {
         <h2 className="rw-heading rw-heading-secondary">New Trip</h2>
       </header>
       <div className="rw-segment-main">
-        <TripForm onSave={onSave} loading={loading} error={error} />
+        <TripForm
+          projects={projects}
+          onSave={onSave}
+          loading={loading}
+          error={error}
+          p={p}
+        />
       </div>
     </div>
   )

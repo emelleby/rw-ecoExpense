@@ -53,7 +53,7 @@ export function NavMain({
       id: trip.id,
     })) || []
 
-  console.log('Data=', data)
+  // console.log('Data=', data)
 
   return (
     <SidebarGroup>

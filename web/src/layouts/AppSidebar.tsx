@@ -82,7 +82,7 @@ const data = {
     //   url: 'home',
     // },
     {
-      title: 'Homepage',
+      title: 'Tools',
       url: '#',
       icon: SquareTerminal,
       isActive: true,
@@ -91,10 +91,10 @@ const data = {
           title: 'Test',
           url: 'test',
         },
-        // {
-        //   title: 'Expenses',
-        //   url: 'expenses',
-        // },
+        {
+          title: 'Users',
+          url: 'users',
+        },
         // {
         //   title: 'New Trip',
         //   url: 'newTrip',
@@ -192,7 +192,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           )}
         </SidebarMenu>
         <UserSidebarGroupCell />
-        <NavMain items={data.navMain} />
+        {hasRole('superuser') && <NavMain items={data.navMain} />}
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>

@@ -60,6 +60,8 @@ const CREATE_USER = gql`
     createUser(input: $input) {
       id
       username
+      firstName
+      lastName
       email
       organizationId
       status
@@ -88,7 +90,7 @@ export const Success = ({
 }: CellSuccessProps<FindOrganizationsQuery>) => {
   const [open, setOpen] = useState(false)
   const [selectedOrg, setSelectedOrg] = useState<string>('')
-  const { currentUser, userMetadata } = useAuth()
+  // const { currentUser, userMetadata } = useAuth()
   const { user } = useUser()
   const [updateUserRole] = useMutation(UPDATE_USER_ROLE)
   const [createUser] = useMutation(CREATE_USER)
@@ -110,6 +112,8 @@ export const Success = ({
             // We should probably change this to use the currentUser
             clerkId: user.id,
             username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
             email: user.primaryEmailAddress.emailAddress,
             organizationId: selectedOrgData.id,
             status: 'INACTIVE',

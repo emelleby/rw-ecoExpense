@@ -155,6 +155,9 @@
 .rw-input-error {
   @apply border-rose-600 text-rose-600;
 }
+.rw-input-disabled {
+  @apply bg-accent border-dotted border-2;
+}
 .rw-input-error:focus {
   @apply border-rose-600 outline-none;
   box-shadow: 0 0 5px #c53030;

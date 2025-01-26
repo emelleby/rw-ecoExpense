@@ -1,7 +1,8 @@
-import NewTrip from 'src/components/Trip/NewTrip'
+import NewtripCell from 'src/components/Trip/NewtripCell'
 
 const NewTripPage = () => {
-  return <NewTrip />
+  console.log('NewTripPage')
+  return <NewtripCell />
 }
 
 export default NewTripPage

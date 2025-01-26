@@ -1,7 +1,9 @@
+import { Check, ChevronsUpDown } from 'lucide-react'
 import type { EditTripById, UpdateTripInput } from 'types/graphql'
 
 import type { RWGqlError } from '@redwoodjs/forms'
 import {
+  Controller,
   Form,
   FormError,
   FieldError,
@@ -14,17 +16,44 @@ import {
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
 
+import { Button } from '@/components/ui/Button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '@/components/ui/Command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/Popover'
+import cn from '@/lib/utils/cn'
+
 type FormTrip = NonNullable<EditTripById['trip']>
+
+interface Project {
+  id: string
+  name: string
+}
 
 interface TripFormProps {
   trip?: EditTripById['trip']
   onSave: (data: UpdateTripInput, id?: FormTrip['id']) => void
   error: RWGqlError
   loading: boolean
+  p: string
+  projects: {
+    id: number
+    name: string
+    description?: string
+    active: boolean
+  }[]
 }
 
 const TripForm = (props: TripFormProps) => {
-  console.log('Trip data:', props.trip)
+  console.log('TripForm data:', props)
   const onSubmit = (data: FormTrip) => {
     props.onSave(data, props?.trip?.id)
   }
@@ -108,6 +137,69 @@ const TripForm = (props: TripFormProps) => {
         />
 
         <FieldError name="endDate" className="rw-field-error" />
+
+        <div>
+          <Label
+            name="projectId"
+            className="rw-label mb-2"
+            errorClassName="rw-label rw-label-error"
+          >
+            {props.p}
+          </Label>
+
+          <Controller
+            name="projectId"
+            render={({ field }) => (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className={cn(
+                      'w-full justify-between',
+                      !field.value && 'text-muted-foreground'
+                    )}
+                  >
+                    {field.value
+                      ? props.projects?.find(
+                          (project) => project.id === field.value
+                        )?.name
+                      : 'Select project...'}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[400px] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search project..." />
+                    <CommandEmpty>No project found.</CommandEmpty>
+                    <CommandGroup>
+                      {props.projects?.map((project) => (
+                        <CommandItem
+                          key={project.id}
+                          value={project.name}
+                          onSelect={() => {
+                            field.onChange(project.id)
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              field.value === project.id
+                                ? 'opacity-100'
+                                : 'opacity-0'
+                            )}
+                          />
+                          {project.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            )}
+          />
+          <FieldError name="projectId" className="rw-field-error" />
+        </div>
 
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">

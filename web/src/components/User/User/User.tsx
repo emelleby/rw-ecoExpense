@@ -12,6 +12,8 @@ import { toast } from '@redwoodjs/web/toast'
 import { Table, TableBody, TableCell, TableRow } from 'src/components/ui/Table'
 import { formatEnum } from 'src/lib/formatters'
 
+import { useAuth } from '@/auth'
+
 const DELETE_USER_MUTATION: TypedDocumentNode<
   DeleteUserMutation,
   DeleteUserMutationVariables
@@ -28,6 +30,7 @@ interface Props {
 }
 
 const User = ({ user }: Props) => {
+  const { hasRole, currentUser } = useAuth()
   const [deleteUser] = useMutation(DELETE_USER_MUTATION, {
     onCompleted: () => {
       toast.success('User deleted')
@@ -39,6 +42,10 @@ const User = ({ user }: Props) => {
   })
 
   const onDeleteClick = (id: DeleteUserMutationVariables['id']) => {
+    if (hasRole('admin')) {
+      toast.error('Cannot delete admin users')
+      return
+    }
     if (confirm('Are you sure you want to delete user ' + id + '?')) {
       deleteUser({ variables: { id } })
     }

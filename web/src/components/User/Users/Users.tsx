@@ -12,7 +12,7 @@ import { toast } from '@redwoodjs/web/toast'
 
 import { UserManagement } from 'src/components/Custom/UserManagement/UserManagement'
 import { QUERY } from 'src/components/User/UsersCell'
-import useLoader from 'src/hooks/useLoader'
+// import useLoader from 'src/hooks/useLoader'
 //import { formatEnum, truncate } from 'src/lib/formatters'
 
 // const DELETE_USER_MUTATION: TypedDocumentNode<
@@ -35,7 +35,7 @@ const UPDATE_USER_MUTATION: TypedDocumentNode<updateUserStatus> = gql`
 `
 
 const UsersList = ({ usersByOrganization: users }: FindUsersByOrganization) => {
-  const { Loader, showLoader, hideLoader } = useLoader()
+  // const { Loader, showLoader, hideLoader } = useLoader()
   // const [deleteUser] = useMutation(DELETE_USER_MUTATION, {
   //   onCompleted: () => {
   //     toast.success('User deleted')
@@ -71,10 +71,10 @@ const UsersList = ({ usersByOrganization: users }: FindUsersByOrganization) => {
 
   const updateUserStatusAction = async (id: number) => {
     if (confirm('Are you sure you want to update user status ?')) {
-      showLoader()
+      // showLoader()
       await updateUserStatus({ variables: { id } })
 
-      hideLoader()
+      // hideLoader()
     }
   }
 
@@ -89,7 +89,7 @@ const UsersList = ({ usersByOrganization: users }: FindUsersByOrganization) => {
         inactiveUsers={inactiveUsers}
         updateUserStatus={updateUserStatusAction}
       />
-      {Loader()}
+      {/* {Loader()} */}
     </div>
   )
 }
