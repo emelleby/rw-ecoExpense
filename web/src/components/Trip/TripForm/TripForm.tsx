@@ -43,7 +43,7 @@ interface TripFormProps {
   onSave: (data: UpdateTripInput, id?: FormTrip['id']) => void
   error: RWGqlError
   loading: boolean
-  p: string
+  p?: string
   projects: {
     id: number
     name: string

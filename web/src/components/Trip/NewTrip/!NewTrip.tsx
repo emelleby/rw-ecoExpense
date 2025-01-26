@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 
-// import { gql } from 'graphql-tag'
 import type {
   CreateTripMutation,
   CreateTripInput,
@@ -28,6 +27,16 @@ const CREATE_TRIP_MUTATION: TypedDocumentNode<
   }
 `
 
+// interface NewTripProps {
+//   projects: {
+//     id: number
+//     name: string
+//     description?: string
+//     active: boolean
+//   }[]
+//   p?: string
+// }
+
 export const QUERY = gql`
   query projectsNewTrip {
     projects {
@@ -39,22 +48,18 @@ export const QUERY = gql`
     }
   }
 `
+interface NewTripProps {
+  p?: string
+}
 
-const NewTrip = ({ p }) => {
+// console.log('QUERY structure:', QUERY)
+
+const NewTrip = ({ p }: NewTripProps) => {
   const { currentUser } = useAuth()
-  const userId = Number(currentUser?.dbUserId) // Ensure currentUser exists
-
+  const userId = Number(currentUser.dbUserId)
   console.log('Current user newTrip:', currentUser)
   console.log('P newTrip:', p)
-
-  // const {
-  //   data: projectsData,
-  //   loading: queryLoading,
-  //   error: queryError,
-  // } = useQuery(QUERY, {
-  //   onCompleted: (data) => console.log('Query completed:', data),
-  //   onError: (error) => console.error('Query error:', error.message),
-  // })
+  // console.log('Projects newTrip:', projects)
 
   const {
     data: projectsData,
@@ -69,8 +74,8 @@ const NewTrip = ({ p }) => {
     console.log('Query triggered')
     console.log('Loading:', queryLoading)
     console.log('Error:', queryError)
-    console.log('Data:', projectsData)
-  }, [queryLoading, queryError, projectsData])
+  }, [queryLoading, queryError])
+
   console.log('Query state:', { projectsData, queryLoading, queryError })
   const { showLoader, hideLoader } = useLoader()
 
@@ -99,34 +104,18 @@ const NewTrip = ({ p }) => {
 
   return (
     <div className="rw-segment">
-      <div>
-        {queryLoading && <p>Loading...</p>}
-        {queryError && <p>Error: {queryError.message}</p>}
-        {projectsData && (
-          <ul>
-            {projectsData.projects.map((project) => (
-              <li key={project.id}>{project.name}</li>
-            ))}
-          </ul>
-        )}
+      <header className="rw-segment-header">
+        <h2 className="rw-heading rw-heading-secondary">New Trip</h2>
+      </header>
+      <div className="rw-segment-main">
+        <TripForm
+          projects={projectsData.projects}
+          onSave={onSave}
+          loading={loading}
+          error={error}
+          p={p}
+        />
       </div>
-
-      {projectsData && (
-        <div className="rw-segment">
-          <header className="rw-segment-header">
-            <h2 className="rw-heading rw-heading-secondary">New Trip</h2>
-          </header>
-          <div className="rw-segment-main">
-            <TripForm
-              projects={projectsData.projects}
-              onSave={onSave}
-              loading={loading}
-              error={error}
-              p={p}
-            />
-          </div>
-        </div>
-      )}
     </div>
   )
 }
