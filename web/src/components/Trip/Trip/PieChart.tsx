@@ -1,4 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
+// import { Expense } from 'types/graphql'
 
 import {
   Card,
@@ -41,7 +42,7 @@ interface ExpenseChartProps {
 }
 
 export function ExpenseChart({ data, type }: ExpenseChartProps) {
-  console.log(data)
+  console.log('ExpenseChart: ', data)
 
   const chartData = Object.entries(
     data.reduce(

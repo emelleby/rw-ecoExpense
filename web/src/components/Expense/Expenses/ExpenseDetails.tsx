@@ -46,6 +46,7 @@ export function ExpenseDetails({
   reimbursementStatus,
   tripId,
 }: ExpenseDetailsProps) {
+  console.log('Expense Details Data:', data)
   const showReimburseButton =
     reimbursementStatus === 'NOT_REQUESTED' && data.length > 0
 

@@ -19,6 +19,8 @@ import ImageDialog from '../../Trip/Trip/ImageDialog'
 
 import { ExpenseActions } from './ExpenseActions'
 
+import { formatCurrency } from '@/lib/formatters'
+
 export type ExpenseCategory =
   | 'Accommodation'
   | 'Car distance-based'
@@ -60,6 +62,7 @@ export function ExpenseTable({
   showReimburseButton = true,
   tripId,
 }: ExpenseChartProps) {
+  console.log('Data in Table; ', data)
   const [updateReimbursementStatus] = useMutation(Update_Reimbursement_Status, {
     onCompleted: () => {
       toast.success('Trip updated')
@@ -111,7 +114,7 @@ export function ExpenseTable({
               <TableCell>{expense.category}</TableCell>
               <TableCell>{expense.description}</TableCell>
               <TableCell className="text-right">
-                {expense.amount.toFixed(2)} NOK
+                {formatCurrency(expense.amount)} NOK
               </TableCell>
               <TableCell className="text-right">
                 {expense.emissions} kg Co2e
