@@ -17,6 +17,7 @@ export const schema = gql`
     destination: String!
     operatingCarrierCode: String!
     flightNumber: Int!
+    class: String!
     departureDate: DateComponents!
   }
 

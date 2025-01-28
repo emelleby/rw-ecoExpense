@@ -15,6 +15,7 @@ import {
   Label,
   NumberField,
   RWGqlError,
+  SelectField,
   TextField,
   useForm,
 } from '@redwoodjs/forms'
@@ -58,6 +59,11 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
   const [exchangeRate, setExchangeRate] = useState(
     props.expense?.exchangeRate || 0
   )
+
+  const flightTypeOptions = [
+    { value: 'return', label: 'Return' },
+    { value: 'oneWay', label: 'One Way' },
+  ]
 
   const [selectedDate, setSelectedDate] = useState(date)
 
@@ -193,7 +199,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
             Flight Type
           </Label>
 
-          <Controller
+          {/* <Controller
             name="flightType"
             defaultValue={'return'}
             rules={{ required: true }}
@@ -221,7 +227,24 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
                 </SelectContent>
               </Select>
             )}
-          />
+          /> */}
+          <SelectField
+            name="flightType"
+            defaultValue={flightTypeOptions[0].value}
+            className="rw-input"
+            errorClassName="rw-input rw-input-error"
+            validation={{ required: true }}
+            // className={cn(
+            //   'rw-input w-full',
+            //   formMethods.formState.errors?.flightType && 'border-red-500'
+            // )}
+          >
+            {flightTypeOptions.map((option) => (
+              <option key={option.label} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </SelectField>
 
           <FieldError name="flightType" className="rw-field-error" />
         </div>
@@ -527,7 +550,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
             defaultValue={
               props.expense?.nokAmount ? Number(props.expense.nokAmount) : 0
             }
-            className="rw-input disabled:bg-slate-100"
+            className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
           />

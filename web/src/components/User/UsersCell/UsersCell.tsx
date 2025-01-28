@@ -28,6 +28,11 @@ export const QUERY: TypedDocumentNode<
       status
       organizationId
     }
+    organization(id: $organizationId) {
+      id
+      name
+      regnr
+    }
   }
 `
 
@@ -56,9 +61,15 @@ export const Failure = ({
 
 export const Success = ({
   usersByOrganization,
+  organization,
 }: CellSuccessProps<
   FindUsersByOrganization,
   FindUsersByOrganizationVariables
 >) => {
-  return <Users usersByOrganization={usersByOrganization} />
+  return (
+    <Users
+      usersByOrganization={usersByOrganization}
+      organization={organization}
+    />
+  )
 }

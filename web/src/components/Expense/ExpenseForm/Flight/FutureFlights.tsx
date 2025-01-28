@@ -69,6 +69,7 @@ const SUBMIT_FLIGHTS_MUTATION = gql`
         destination
         operatingCarrierCode
         flightNumber
+        class
         departureDate {
           year
           month

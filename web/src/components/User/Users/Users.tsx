@@ -10,6 +10,7 @@ import { useMutation } from '@redwoodjs/web'
 import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { useAuth } from 'src/auth'
 import { UserManagement } from 'src/components/Custom/UserManagement/UserManagement'
 import { QUERY } from 'src/components/User/UsersCell'
 // import useLoader from 'src/hooks/useLoader'
@@ -34,7 +35,11 @@ const UPDATE_USER_MUTATION: TypedDocumentNode<updateUserStatus> = gql`
   }
 `
 
-const UsersList = ({ usersByOrganization: users }: FindUsersByOrganization) => {
+const UsersList = ({
+  usersByOrganization: users,
+  organization,
+}: FindUsersByOrganization) => {
+  const { hasRole } = useAuth()
   // const { Loader, showLoader, hideLoader } = useLoader()
   // const [deleteUser] = useMutation(DELETE_USER_MUTATION, {
   //   onCompleted: () => {
@@ -84,6 +89,20 @@ const UsersList = ({ usersByOrganization: users }: FindUsersByOrganization) => {
 
   return (
     <div>
+      <div className="mb-6 space-y-2 border-b pb-4">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {organization.name}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Organization number: {organization.regnr}
+        </p>
+        {hasRole('superuser') && (
+          <p className="text-sm text-muted-foreground">
+            Organization Id: {organization.id}
+          </p>
+        )}
+      </div>
+
       <UserManagement
         activeUsers={activeUsers}
         inactiveUsers={inactiveUsers}

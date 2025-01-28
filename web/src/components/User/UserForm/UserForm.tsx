@@ -199,9 +199,9 @@ const UserForm = (props: UserFormProps) => {
           errorClassName="rw-input rw-input-error"
           // disabled
           //validation={{ required: true }}
-        /> */}
+        />
 
-        <FieldError name="organizationId" className="rw-field-error" />
+        <FieldError name="organizationId" className="rw-field-error" /> */}
 
         <div className="rw-button-group">
           <Submit disabled={props.loading} className="rw-button rw-button-blue">
