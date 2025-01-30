@@ -69,7 +69,7 @@ export default function AirportSelect({
           className="rw-input"
         />
         <div
-          className="absolute right-2 top-1/2 -translate-y-1/2 transform cursor-pointer"
+          className="absolute right-4 top-1/2 -translate-y-1/2 transform cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
         >
           <svg

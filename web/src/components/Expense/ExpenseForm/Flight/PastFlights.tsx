@@ -185,15 +185,15 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
     } else {
       formMethods.setValue('exchangeRate', 0)
     }
-  }, [selectedDate])
+  }, [selectedDate, formMethods, props.expense?.currency])
 
   return (
     <Form onSubmit={onSubmit} formMethods={formMethods}>
-      <div className=" grid grid-cols-2 gap-4">
+      <div className="grid gap-x-4 sm:grid-cols-2">
         <div>
           <Label
             name="flightType"
-            className="rw-label mb-2"
+            className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
             Flight Type
@@ -252,7 +252,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
         <div>
           <Label
             name="from"
-            className="rw-label mb-2"
+            className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
             From
@@ -279,11 +279,11 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid gap-x-4 sm:grid-cols-2">
         <div>
           <Label
             name="via"
-            className="rw-label mb-2"
+            className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
             Via
@@ -312,7 +312,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
         <div>
           <Label
             name="to"
-            className="rw-label mb-2"
+            className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
             Destination
@@ -339,11 +339,11 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid gap-x-4 sm:grid-cols-2">
         <div>
           <Label
             name="flightClass"
-            className="rw-label mb-2"
+            className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
             Flight Class
@@ -406,7 +406,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid gap-x-4 sm:grid-cols-2">
         <div>
           <Label
             name="merchant"
@@ -448,7 +448,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid gap-x-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Label
             name="amount"
@@ -462,7 +462,10 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
             defaultValue={props?.expense?.amount || 0}
             className="rw-input"
             onChange={(e) => {
-              const value = Number(e.target.value.replace(/[^0-9.]/g, ''))
+              const rawValue = e.target.value
+                .replace(/,/g, '.')
+                .replace(/[^0-9.]/g, '')
+              const value = Number(rawValue)
               if (value > 0) {
                 const nokAmount = (value * exchangeRate).toFixed(2)
                 formMethods.setValue('nokAmount', parseFloat(nokAmount))

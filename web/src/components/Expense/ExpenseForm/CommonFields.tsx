@@ -27,7 +27,7 @@ export const CommonFields: React.FC<CommonFieldsProps> = ({
 }) => {
   return (
     <>
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-x-4">
         <Label
           name="description"
           className="rw-label"

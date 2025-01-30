@@ -47,12 +47,12 @@ export function Combobox({
           role="combobox"
           disabled={!isActive}
           aria-expanded={open}
-          className="w-full justify-between font-normal"
+          className="w-full justify-between border border-border bg-transparent px-3 font-normal backdrop-brightness-200"
         >
           {value
             ? Data.find((d) => d.value === value)?.label
             : `Select ${defaultText}...`}
-          <ChevronDown className="ml-4 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronDown className="ml-4 h-4 w-4 shrink-0 opacity-60" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
