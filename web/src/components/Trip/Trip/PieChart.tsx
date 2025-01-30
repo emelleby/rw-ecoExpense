@@ -72,7 +72,7 @@ export function ExpenseChart({ data, type }: ExpenseChartProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
-        <div className="relative h-[300px] w-[300px]">
+        <div className="relative h-60 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
