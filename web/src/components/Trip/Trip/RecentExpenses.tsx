@@ -1,3 +1,5 @@
+import { routes, navigate } from '@redwoodjs/router'
+
 import { Button } from 'src/components/ui/Button'
 import {
   Card,
@@ -43,7 +45,7 @@ export function RecentExpenses({ expenses, displayType }: RecentExpensesProps) {
         {sortedExpenses.map((expense) => (
           <Card
             key={`${expense.id}_${expense.date}`}
-            className="flex items-center justify-between bg-accent p-4"
+            className="flex justify-between bg-accent p-4"
           >
             <div className="space-y-2">
               <p className="font-medium">{expense.category}</p>
@@ -75,7 +77,7 @@ export function RecentExpenses({ expenses, displayType }: RecentExpensesProps) {
                 variant="link"
                 className="text-sky-600"
                 onClick={() => {
-                  /* handle click */
+                  navigate(routes.expense({ id: Number(expense.id) }))
                 }}
               >
                 View Expense

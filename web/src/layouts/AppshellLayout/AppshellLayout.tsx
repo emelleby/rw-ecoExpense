@@ -37,9 +37,14 @@ const AppshellLayout = ({ title, titleTo, children }: AppshellLayoutProps) => {
       <div className="flex min-h-screen w-full flex-col">
         <header className="flex h-14 items-center justify-between border-b pr-4">
           <div className="flex items-center">
-            <SidebarTrigger />
+            <SidebarTrigger
+              aria-label="Toggle Sidebar"
+              title="Meny"
+              buttonText="Menu"
+            />
           </div>
 
+          {/* titleTo is passed from Routes */}
           <h1 className="rw-heading rw-heading-primary">
             {titleTo ? (
               <Link to={routes[titleTo]()} className="rw-link underline">

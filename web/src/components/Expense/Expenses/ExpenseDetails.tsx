@@ -59,7 +59,10 @@ export function ExpenseDetails({
           </p>
         </div>
 
-        <Badge variant={getBadgeVariant(reimbursementStatus)}>
+        <Badge
+          variant={getBadgeVariant(reimbursementStatus)}
+          className="ml-3 text-nowrap"
+        >
           {formatEnum(reimbursementStatus)}
         </Badge>
       </div>
