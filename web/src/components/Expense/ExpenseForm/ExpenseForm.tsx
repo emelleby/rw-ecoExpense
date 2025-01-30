@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import type { EditExpenseById, CreateExpenseInput } from 'types/graphql'
 
-import { type RWGqlError } from '@redwoodjs/forms'
+import { Controller, RWGqlError } from '@redwoodjs/forms'
 
 import cn from 'src/lib/utils/cn'
 
@@ -13,6 +13,7 @@ import { FuelExpense } from './FuelExpenses'
 import { Groceries } from './Groceries'
 import { Miscellaneous } from './Miscellaneous'
 
+import { Label } from '@/components/ui/Label'
 import {
   Select,
   SelectContent,
@@ -67,7 +68,18 @@ const ExpenseForm = (props: ExpenseFormProps) => {
   )
 
   return (
-    <div className="rw-form-wrapper space-y-1 pt-5">
+    <div className="rw-form-wrapper pt-5">
+      <Label htmlFor="categoryId" className="text-base font-semibold">
+        Expense Type
+      </Label>
+
+      {/* <Label
+        name="expenseType"
+        className="rw-label"
+        errorClassName="rw-label rw-label-error"
+      >
+        Expense Type
+      </Label> */}
       <Select
         name="categoryId"
         onValueChange={(value) => {
