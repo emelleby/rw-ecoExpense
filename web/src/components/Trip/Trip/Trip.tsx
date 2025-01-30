@@ -53,12 +53,12 @@ const Trip = ({ trip }: Props) => {
   }, [trip])
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-2 sm:p-4 lg:p-8">
-      <h1 className="text-3xl font-bold">Report for {trip.name}</h1>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <h1 className="p-2 text-3xl font-bold">Report for {trip.name}</h1>
       {/* <div>{DateRangeDisplay()}</div> */}
 
       <Tabs defaultValue="expenses">
-        <TabsList className="h-11 w-full px-3 py-2">
+        <TabsList className="h-11 w-full px-3 py-3">
           <TabsTrigger value="expenses" className="w-full text-base">
             Expenses
           </TabsTrigger>
@@ -67,16 +67,16 @@ const Trip = ({ trip }: Props) => {
           </TabsTrigger>
         </TabsList>
 
-        <div className="mt-8">
+        <div className="mt-6">
           <TabsContent value="expenses">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <PieChart data={expenses} type="amount" />
               <RecentExpenses expenses={expenses} displayType="amount" />
             </div>
           </TabsContent>
 
           <TabsContent value="emissions">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <PieChart data={expenses} type="emissions" />
               <RecentExpenses expenses={expenses} displayType="emissions" />
             </div>

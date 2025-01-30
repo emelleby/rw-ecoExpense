@@ -51,8 +51,8 @@ export function ExpenseDetails({
     reimbursementStatus === 'NOT_REQUESTED' && data.length > 0
 
   return (
-    <div className="mx-auto w-full space-y-6 p-2">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto w-full space-y-4">
+      <div className="flex items-center justify-between px-2">
         <div>
           <p className="text-muted-foreground">
             A list of all expenses for the trip

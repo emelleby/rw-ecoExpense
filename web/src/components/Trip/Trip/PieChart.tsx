@@ -79,8 +79,8 @@ export function ExpenseChart({ data, type }: ExpenseChartProps) {
                 data={chartData}
                 cx="50%"
                 cy="50%"
-                innerRadius={100}
-                outerRadius={120}
+                innerRadius={90}
+                outerRadius={110}
                 paddingAngle={4}
                 dataKey="value"
               >
@@ -104,7 +104,7 @@ export function ExpenseChart({ data, type }: ExpenseChartProps) {
             </div>
           </div>
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
+        <div className="mt-4 flex flex-wrap justify-center gap-4">
           {chartData.map(({ category }) => (
             <div key={category} className="flex items-center gap-2">
               <div
