@@ -28,15 +28,11 @@ const features = [
     buttonText: 'View Expenses',
     url: 'expenses',
   },
-  {
-    title: 'Manage Suppliers',
-    description: 'Add or view suppliers for your expenses.',
-    buttonText: 'Manage Suppliers',
-    url: 'test',
-  },
+
   {
     title: 'Manage Trips',
-    description: 'Create or view trips to associate with expenses.',
+    description:
+      'Create or view trips to associate with expenses. Trips will belong to projects.',
     buttonText: 'Manage Trips',
     url: 'trips',
   },
