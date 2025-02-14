@@ -1,19 +1,34 @@
-import type { StorybookConfig } from 'storybook-framework-redwoodjs-vite'
-
-import { getPaths, importStatementPath } from '@redwoodjs/project-config'
-
-const redwoodProjectPaths = getPaths()
+import type { StorybookConfig } from '@storybook/react-vite'
 
 const config: StorybookConfig = {
-  framework: 'storybook-framework-redwoodjs-vite',
-
-  stories: [
-    `${importStatementPath(
-      redwoodProjectPaths.web.src
-    )}/**/*.stories.@(js|jsx|ts|tsx|mdx)`,
+  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
+  addons: [
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    '@storybook/addon-onboarding',
+    '@storybook/addon-interactions',
   ],
-
-  addons: ['@storybook/addon-essentials'],
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
+  docs: {
+    autodocs: 'tag',
+  },
+  async viteFinal(config) {
+    // Add any custom config here
+    return {
+      ...config,
+      resolve: {
+        ...config.resolve,
+        alias: {
+          ...config.resolve?.alias,
+          '@': '/src',
+          src: '/src',
+        },
+      },
+    }
+  },
 }
 
 export default config

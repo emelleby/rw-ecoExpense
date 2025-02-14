@@ -10,26 +10,28 @@ const meta: Meta = {
 
 export default meta
 
-export const loading: StoryObj<typeof Loading> = {
+type Story = StoryObj
+
+export const success: Story = {
   render: () => {
-    return Loading ? <Loading /> : <></>
+    return <Success dashboard={standard().dashboard} />
   },
 }
 
-export const empty: StoryObj<typeof Empty> = {
+export const loading: Story = {
+  render: Loading,
+}
+
+export const empty: Story = {
+  render: Empty,
+}
+
+export const failure: Story = {
   render: () => {
-    return Empty ? <Empty /> : <></>
-  },
-}
-
-export const failure: StoryObj<typeof Failure> = {
-  render: (args) => {
-    return Failure ? <Failure error={new Error('Oh no')} {...args} /> : <></>
-  },
-}
-
-export const success: StoryObj<typeof Success> = {
-  render: (args) => {
-    return Success ? <Success {...standard()} {...args} /> : <></>
+    return (
+      <Failure
+        error={new Error('Something went wrong loading the dashboard')}
+      />
+    )
   },
 }
