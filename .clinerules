@@ -1,4 +1,6 @@
 # RedwoodJS Project Context
+The application is focused on helping organizations track both financial expenses and environmental impact, with features for managing projects, expenses, trips, and flight-related emissions.
+
 
 ## Technologies & Versions
 - **RedwoodJS** v8.5.0
