@@ -65,6 +65,23 @@ The application is focused on helping organizations track both financial expense
 - Redwood config uses `clerkAuthDecoder` in `api/src/functions/auth.ts` or similar.
 - The `User` model may include `clerkId` for references.
 - Roles come from Clerk’s session or metadata, verified in Redwood’s `getCurrentUser` or services.
+Key features of Clerk implementation:
+1. Use useAuth() hook to access:
+- isAuthenticated: Check if user is logged in
+- hasRole: Check user roles
+- currentUser: Access user data
+- signUp: Initiate signup
+- loading: Check auth state
+2. Protect routes using:
+- <PrivateSet>: For authenticated routes
+- roles prop: For role-based access
+- unauthenticated: Redirect path for unauthorized users
+3. Backend protection using:
+- @requireAuth directive in GraphQL SDL
+- requireAuth() function in services
+- Role checking with hasRole()
+4. User roles are stored in Clerk's metadata and accessible via currentUser.roles
+This setup provides a complete authentication and authorization system integrated with Clerk's services.
 
 ### 5. shadcn/ui
 - Components installed via rw-shad or shadcn CLI.
