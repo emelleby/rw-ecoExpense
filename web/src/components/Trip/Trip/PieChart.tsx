@@ -1,4 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
+// import { Expense } from 'types/graphql'
 
 import {
   Card,
@@ -6,6 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from 'src/components/ui/Card'
+
+import { formatCurrency } from '@/lib/formatters'
 
 const COLORS = {
   Accommodation: 'hsl(var(--chart-2))',
@@ -39,7 +42,7 @@ interface ExpenseChartProps {
 }
 
 export function ExpenseChart({ data, type }: ExpenseChartProps) {
-  console.log(data)
+  console.log('ExpenseChart: ', data)
 
   const chartData = Object.entries(
     data.reduce(
@@ -62,22 +65,22 @@ export function ExpenseChart({ data, type }: ExpenseChartProps) {
       <CardHeader>
         <CardTitle>
           {type === 'amount' ? 'Expenses' : 'Emissions'}
-          <span className="block text-sm font-normal text-muted-foreground">
+          <span className="mt-2 block text-sm font-normal text-muted-foreground">
             {new Date().toLocaleDateString()} -{' '}
             {new Date().toLocaleDateString()}
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
-        <div className="relative h-[300px] w-[300px]">
+        <div className="relative h-60 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={chartData}
                 cx="50%"
                 cy="50%"
-                innerRadius={100}
-                outerRadius={120}
+                innerRadius={90}
+                outerRadius={110}
                 paddingAngle={4}
                 dataKey="value"
               >
@@ -92,14 +95,16 @@ export function ExpenseChart({ data, type }: ExpenseChartProps) {
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-3xl font-bold">{Math.round(total)}</div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-3xl font-bold">
+                {formatCurrency(Math.round(total))}
+              </div>
+              <div className="text-base font-bold text-muted-foreground">
                 {type === 'amount' ? 'NOK' : 'Kg CO2e'}
               </div>
             </div>
           </div>
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
+        <div className="mt-4 flex flex-wrap justify-center gap-4">
           {chartData.map(({ category }) => (
             <div key={category} className="flex items-center gap-2">
               <div

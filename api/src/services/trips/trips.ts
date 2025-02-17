@@ -42,28 +42,46 @@ export const tripsByUser: QueryResolvers['tripsByUser'] = ({ take }) => {
   })
 }
 
+export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
+  return db.trip.create({
+    data: input,
+  })
+}
+
+// This is a custom way of doing it from AI. The above is RW generated.
 // export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
 //   return db.trip.create({
-//     data: input,
+//     data: {
+//       name: input.name,
+//       description: input.description,
+//       startDate: input.startDate,
+//       endDate: input.endDate,
+//       Project: {
+//         connect: {
+//           id: input.projectId,
+//         },
+//       },
+//       user: {
+//         connect: {
+//           id: input.userId,
+//         },
+//       },
+//     },
 //   })
 // }
 
-// This is a custom way of doing it from AI. The above is RW generated.
-export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
-  return db.trip.create({
-    data: {
-      name: input.name,
-      description: input.description,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      user: {
-        connect: {
-          id: input.userId,
-        },
-      },
-    },
-  })
-}
+// export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
+//   return db.trip.create({
+//     data: {
+//       name: input.name,
+//       description: input.description,
+//       startDate: input.startDate,
+//       endDate: input.endDate,
+//       projectId: input.projectId,  // Direct assignment instead of connect
+//       userId: input.userId,        // Direct assignment instead of connect
+//     },
+//   })
+// }
 
 export const updateTrip: MutationResolvers['updateTrip'] = ({ id, input }) => {
   return db.trip.update({
@@ -100,9 +118,9 @@ export const deleteTrip: MutationResolvers['deleteTrip'] = ({ id }) => {
 
 export const Trip: TripRelationResolvers = {
   user: (_obj, { root }) => {
-    return db.trip.findUnique({ where: { id: root?.id } }).user()
+    return db.trip.findUnique({ where: { id: root?.id } }).User()
   },
   expenses: (_obj, { root }) => {
-    return db.trip.findUnique({ where: { id: root?.id } }).expenses()
+    return db.trip.findUnique({ where: { id: root?.id } }).Expense()
   },
 }

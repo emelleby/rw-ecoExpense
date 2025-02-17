@@ -6,13 +6,29 @@ import type {
 
 import { db } from 'src/lib/db'
 
-export const projects: QueryResolvers['projects'] = () => {
+export const projects: QueryResolvers['projects'] = ({
+  take,
+}: {
+  take?: number
+}) => {
   const currentUser = context.currentUser
-  return db.project.findMany({
+  console.log('Current user:', currentUser)
+  console.log('Organization ID:', currentUser.organizationId)
+  const result = db.project.findMany({
     where: {
-      userId: currentUser.dbUserId,
+      organizationId: currentUser.organizationId,
+    },
+    include: {
+      createdBy: true,
+    },
+    take: take || undefined,
+    orderBy: {
+      id: 'desc',
     },
   })
+
+  console.log('Service - Query result:', result)
+  return result
 }
 
 export const project: QueryResolvers['project'] = ({ id }) => {
@@ -21,26 +37,21 @@ export const project: QueryResolvers['project'] = ({ id }) => {
   })
 }
 
-// Added to only fetch projects for the current user
-export const projectsByUser: QueryResolvers['projectsByUser'] = ({ take }) => {
-  const currentUser = context.currentUser
-
-  return db.project.findMany({
-    where: {
-      userId: currentUser.dbUserId,
-    },
-    take: take || undefined,
-    orderBy: {
-      id: 'desc',
-    },
-  })
-}
-
 export const createProject: MutationResolvers['createProject'] = ({
   input,
 }) => {
+  const currentUser = context.currentUser
+
   return db.project.create({
-    data: input,
+    data: {
+      ...input,
+      organizationId: currentUser.organizationId,
+      createdById: currentUser.dbUserId,
+    },
+    // include: {
+    //   createdBy: true,
+    //   organization: true,
+    // },
   })
 }
 
@@ -61,10 +72,16 @@ export const deleteProject: MutationResolvers['deleteProject'] = ({ id }) => {
 }
 
 export const Project: ProjectRelationResolvers = {
-  user: (_obj, { root }) => {
-    return db.project.findUnique({ where: { id: root?.id } }).user()
+  organization: (_obj, { root }) => {
+    return db.project.findUnique({ where: { id: root?.id } }).Organization()
+  },
+  createdBy: (_obj, { root }) => {
+    return db.project.findUnique({ where: { id: root?.id } }).createdBy()
   },
   expenses: (_obj, { root }) => {
-    return db.project.findUnique({ where: { id: root?.id } }).expenses()
+    return db.project.findUnique({ where: { id: root?.id } }).Expense()
+  },
+  trips: (_obj, { root }) => {
+    return db.project.findUnique({ where: { id: root?.id } }).Trip()
   },
 }

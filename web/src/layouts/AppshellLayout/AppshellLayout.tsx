@@ -4,7 +4,7 @@ import { Moon, Sun } from 'lucide-react'
 import { Link, routes } from '@redwoodjs/router'
 import { Toaster } from '@redwoodjs/web/toast'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/Sidebar'
 import { useTheme } from '@/hooks/useTheme'
 import { AppSidebar } from '@/layouts/AppSidebar'
@@ -37,9 +37,14 @@ const AppshellLayout = ({ title, titleTo, children }: AppshellLayoutProps) => {
       <div className="flex min-h-screen w-full flex-col">
         <header className="flex h-14 items-center justify-between border-b pr-4">
           <div className="flex items-center">
-            <SidebarTrigger />
+            <SidebarTrigger
+              aria-label="Toggle Sidebar"
+              title="Meny"
+              buttonText="Menu"
+            />
           </div>
 
+          {/* titleTo is passed from Routes */}
           <h1 className="rw-heading rw-heading-primary">
             {titleTo ? (
               <Link to={routes[titleTo]()} className="rw-link underline">
@@ -56,7 +61,7 @@ const AppshellLayout = ({ title, titleTo, children }: AppshellLayoutProps) => {
             <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
           </div>
         </header>
-        <main className="container max-w-6xl flex-1">{children}</main>
+        <main className="container my-2 max-w-6xl flex-1">{children}</main>
       </div>
     </SidebarProvider>
   )

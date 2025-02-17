@@ -77,15 +77,12 @@ export const deleteUser: MutationResolvers['deleteUser'] = ({ id }) => {
 
 export const User: UserRelationResolvers = {
   organization: (_obj, { root }) => {
-    return db.user.findUnique({ where: { id: root?.id } }).organization()
+    return db.user.findUnique({ where: { id: root?.id } }).Organization()
   },
   expenses: (_obj, { root }) => {
-    return db.user.findUnique({ where: { id: root?.id } }).expenses()
+    return db.user.findUnique({ where: { id: root?.id } }).Expense()
   },
   trips: (_obj, { root }) => {
-    return db.user.findUnique({ where: { id: root?.id } }).trips()
-  },
-  projects: (_obj, { root }) => {
-    return db.user.findUnique({ where: { id: root?.id } }).projects()
+    return db.user.findUnique({ where: { id: root?.id } }).Trip()
   },
 }

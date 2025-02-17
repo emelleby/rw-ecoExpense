@@ -6,6 +6,26 @@ import { standard } from './OrganizationCell.mock'
 const meta: Meta = {
   title: 'Cells/OrganizationCell',
   tags: ['autodocs'],
+  decorators: [
+    (Story) => {
+      mockCurrentUser({
+        id: 'user_2pkZyi796FvxrYZlUpFeddb3C0e',
+        dbUserId: 4,
+        organizationId: 8,
+        roles: ['admin', 'superuser'],
+        metadata: {
+          organizationId: 8,
+          roles: ['admin', 'superuser'],
+        },
+        username: 'testuser',
+        primaryEmailAddress: {
+          emailAddress: 'test@example.com',
+        },
+      })
+
+      return <Story />
+    },
+  ],
 }
 
 export default meta

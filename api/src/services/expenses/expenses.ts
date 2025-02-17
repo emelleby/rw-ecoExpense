@@ -16,7 +16,7 @@ export const expenses: QueryResolvers['expenses'] = () => {
       userId: currentUser.dbUserId,
     },
     include: {
-      receipt: true,
+      Receipt: true,
     },
   })
 }
@@ -25,7 +25,7 @@ export const expense: QueryResolvers['expense'] = ({ id }) => {
   return db.expense.findUnique({
     where: { id },
     include: {
-      receipt: true,
+      Receipt: true,
     },
   })
 }
@@ -67,7 +67,7 @@ export const updateExpense: MutationResolvers['updateExpense'] = ({
     where: { id },
     data: {
       ...expenseData,
-      receipt: receipt
+      Receipt: receipt
         ? {
             upsert: {
               create: receipt,
@@ -77,7 +77,7 @@ export const updateExpense: MutationResolvers['updateExpense'] = ({
         : undefined,
     },
     include: {
-      receipt: true,
+      Receipt: true,
     },
   })
 }
@@ -125,18 +125,18 @@ export const Expense: ExpenseRelationResolvers = {
     return db.expense.findUnique({ where: { id: root?.id } }).Sector()
   },
   supplier: (_obj, { root }) => {
-    return db.expense.findUnique({ where: { id: root?.id } }).supplier()
+    return db.expense.findUnique({ where: { id: root?.id } }).Supplier()
   },
   trip: (_obj, { root }) => {
-    return db.expense.findUnique({ where: { id: root?.id } }).trip()
+    return db.expense.findUnique({ where: { id: root?.id } }).Trip()
   },
   project: (_obj, { root }) => {
-    return db.expense.findUnique({ where: { id: root?.id } }).project()
+    return db.expense.findUnique({ where: { id: root?.id } }).Project()
   },
   user: (_obj, { root }) => {
-    return db.expense.findUnique({ where: { id: root?.id } }).user()
+    return db.expense.findUnique({ where: { id: root?.id } }).User()
   },
   receipt: (_obj, { root }) => {
-    return db.expense.findUnique({ where: { id: root?.id } }).receipt()
+    return db.expense.findUnique({ where: { id: root?.id } }).Receipt()
   },
 }

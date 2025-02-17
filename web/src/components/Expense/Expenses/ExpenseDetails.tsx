@@ -46,19 +46,23 @@ export function ExpenseDetails({
   reimbursementStatus,
   tripId,
 }: ExpenseDetailsProps) {
+  console.log('Expense Details Data:', data)
   const showReimburseButton =
     reimbursementStatus === 'NOT_REQUESTED' && data.length > 0
 
   return (
-    <div className="mx-auto w-full space-y-6 p-2">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto w-full space-y-4">
+      <div className="flex items-center justify-between px-2">
         <div>
           <p className="text-muted-foreground">
             A list of all expenses for the trip
           </p>
         </div>
 
-        <Badge variant={getBadgeVariant(reimbursementStatus)}>
+        <Badge
+          variant={getBadgeVariant(reimbursementStatus)}
+          className="ml-3 text-nowrap"
+        >
           {formatEnum(reimbursementStatus)}
         </Badge>
       </div>

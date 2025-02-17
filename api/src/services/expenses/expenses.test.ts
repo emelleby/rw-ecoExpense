@@ -36,7 +36,8 @@ describe('expenses', () => {
         currency: 'String',
         nokAmount: 7600771.620770918,
         tripId: scenario.expense.two.tripId,
-        userId: scenario.expense.two.userId,
+
+        // dbuserId: scenario.expense.two.userId,
       },
     })
 

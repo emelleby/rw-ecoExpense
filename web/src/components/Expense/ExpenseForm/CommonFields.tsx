@@ -27,7 +27,7 @@ export const CommonFields: React.FC<CommonFieldsProps> = ({
 }) => {
   return (
     <>
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-x-4">
         <Label
           name="description"
           className="rw-label"
@@ -45,7 +45,7 @@ export const CommonFields: React.FC<CommonFieldsProps> = ({
 
         <FieldError name="description" className="rw-field-error" />
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
         <div>
           <Label
             name="tripId"

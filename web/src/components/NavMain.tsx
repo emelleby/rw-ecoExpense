@@ -6,6 +6,8 @@ import { QuerytopTripsByUser } from 'types/graphql'
 import { Link, routes } from '@redwoodjs/router'
 import { TypedDocumentNode, useQuery } from '@redwoodjs/web'
 
+import { useAuth } from 'src/auth'
+
 const QUERY: TypedDocumentNode<QuerytopTripsByUser> = gql`
   query QuerytopTripsByUser {
     topTripsByUser {
@@ -37,6 +39,7 @@ export function NavMain({
   items: {
     title: string
     url: string
+    role?: string
     icon?: LucideIcon
     isActive?: boolean
     items?: {
@@ -46,6 +49,7 @@ export function NavMain({
   }[]
 }) {
   const { data, loading } = useQuery(QUERY)
+  const { hasRole } = useAuth()
 
   const tripItems =
     data?.topTripsByUser.map((trip) => ({
@@ -53,49 +57,51 @@ export function NavMain({
       id: trip.id,
     })) || []
 
-  console.log('Data=', data)
+  // console.log('Data=', data)
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Admin</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            asChild
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.items?.map((subItem) => {
-                    return (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          {subItem.url === '#' ? (
-                            <span>{subItem.title}</span>
-                          ) : (
-                            <Link to={routes[subItem.url]()}>
+        {items
+          .filter((item) => !item.role || hasRole(item.role))
+          .map((item) => (
+            <Collapsible
+              key={item.title}
+              asChild
+              defaultOpen={item.isActive}
+              className="group/collapsible"
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton tooltip={item.title}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {item.items?.map((subItem) => {
+                      return (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton asChild>
+                            {subItem.url === '#' ? (
                               <span>{subItem.title}</span>
-                            </Link>
-                          )}
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    )
-                  })}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
+                            ) : (
+                              <Link to={routes[subItem.url]()}>
+                                <span>{subItem.title}</span>
+                              </Link>
+                            )}
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      )
+                    })}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          ))}
 
         <Collapsible
           key={'Top Trips'}

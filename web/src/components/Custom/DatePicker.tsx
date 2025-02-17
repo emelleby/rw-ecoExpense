@@ -5,7 +5,7 @@ import { Calendar } from 'lucide-react'
 
 import { useController } from '@redwoodjs/forms'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import { Calendar as CalendarComponent } from '@/components/ui/Calendar'
 import {
   Popover,

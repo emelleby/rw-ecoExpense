@@ -19,3 +19,31 @@ export const updateUserRole: MutationResolvers['updateUserRole'] = async ({
   return user
 }
 
+
+// Added to only fetch projects for the current user and order by id in descending order
+// #TODO: get projects created by the current user
+export const projectsByUser: QueryResolvers['projectsByUser'] = ({ take }) => {
+  const currentUser = context.currentUser
+
+  return db.project.findMany({
+    where: {
+      createdById: currentUser.dbUserId,
+    },
+    take: take || undefined,
+    orderBy: {
+      id: 'desc',
+    },
+  })
+}
+
+export const projects: QueryResolvers['projects'] = () => {
+  const currentUser = context.currentUser
+  return db.project.findMany({
+    where: {
+      organizationId: currentUser.organizationId,
+    },
+    include: {
+      createdBy: true,
+    },
+  })
+}

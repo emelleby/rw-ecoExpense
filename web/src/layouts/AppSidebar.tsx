@@ -38,7 +38,7 @@ import {
   SidebarRail,
   useSidebar,
 } from 'src/components/ui/Sidebar'
-import UserSidebarGroupCell from 'src/components/UserSidebarGroup/UserSidebarGroupCell/UserSidebarGroupCell'
+import UserSidebarGroupCell from 'src/components/UserSidebarGroupCell/UserSidebarGroupCell'
 
 // Menu items.
 const items = [
@@ -82,19 +82,20 @@ const data = {
     //   url: 'home',
     // },
     {
-      title: 'Homepage',
+      title: 'Tools',
       url: '#',
       icon: SquareTerminal,
       isActive: true,
+      role: 'admin',
       items: [
         {
           title: 'Test',
           url: 'test',
         },
-        // {
-        //   title: 'Expenses',
-        //   url: 'expenses',
-        // },
+        {
+          title: 'Users',
+          url: 'users',
+        },
         // {
         //   title: 'New Trip',
         //   url: 'newTrip',
@@ -103,9 +104,10 @@ const data = {
     },
 
     {
-      title: 'Settings2',
+      title: 'Superuser',
       url: 'trips',
       icon: Settings2,
+      role: 'superuser',
       items: [
         {
           title: 'General',
@@ -146,15 +148,15 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { setOpenMobile } = useSidebar()
+  const { setOpenMobile, state } = useSidebar()
   const { pathname } = useLocation()
   const { hasRole, userMetadata } = useAuth()
+  // console.log('userMetadata', userMetadata)
   const user = {
     name: userMetadata.firstName
       ? userMetadata.firstName
       : userMetadata.username,
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
+    email: userMetadata.emailAddresses[0].emailAddress,
   }
 
   const handleLinkClick = () => {
@@ -165,10 +167,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="gap-0">
         {/* <TeamSwitcher teams={data.teams} /> */}
-        <h1 className="mt-2 px-2 text-lg font-semibold">
-          Welcome, {user.name}
-        </h1>
-        <p className="mb-4 px-2 text-sm text-muted-foreground">{user.email}</p>
+        {state === 'expanded' ? (
+          <>
+            <h1 className="mt-2 px-2 text-lg font-semibold">
+              Welcome, {user.name}
+            </h1>
+            <p className="mb-4 px-2 text-sm text-muted-foreground">
+              {user.email}
+            </p>
+          </>
+        ) : (
+          <div
+            className="flex h-16 items-center justify-center"
+            aria-label={`Welcome ${user.name}`}
+          >
+            <User2Icon size={32} />
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -192,7 +207,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           )}
         </SidebarMenu>
         <UserSidebarGroupCell />
-        <NavMain items={data.navMain} />
+        {hasRole('admin') && <NavMain items={data.navMain} />}
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>

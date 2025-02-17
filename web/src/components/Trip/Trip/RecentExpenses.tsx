@@ -1,9 +1,14 @@
+import { routes, navigate } from '@redwoodjs/router'
+
+import { Button } from 'src/components/ui/Button'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from 'src/components/ui/Card'
+
+import { formatCurrency } from '@/lib/formatters'
 
 export type ExpenseCategory =
   | 'Accommodation'
@@ -32,52 +37,53 @@ export function RecentExpenses({ expenses, displayType }: RecentExpensesProps) {
     .slice(0, 4)
 
   return (
-    <Card className="bg-muted">
+    <Card className="">
       <CardHeader>
         <CardTitle>Recent Expenses</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {sortedExpenses.map((expense) => (
-          <div
+          <Card
             key={`${expense.id}_${expense.date}`}
-            className="flex items-center justify-between rounded-lg border border-gray-100 bg-white p-4"
+            className="flex justify-between bg-accent p-4"
           >
-            <div className="space-y-1">
-              <p className="font-medium text-gray-900">{expense.category}</p>
-              <p className="text-sm text-gray-500">
+            <div className="space-y-2">
+              <p className="font-medium">{expense.category}</p>
+              <p className="text-sm ">
                 {new Date(expense.date).toLocaleDateString()}
               </p>
             </div>
             <div className="space-y-1 text-right">
-              <p className="text-lg font-bold text-gray-900">
+              <p className="text-lg font-bold ">
                 {displayType === 'amount' ? (
                   <>
-                    {expense.amount.toFixed(2)}
-                    <span className="text-base font-bold text-gray-500">
+                    {formatCurrency(expense.amount)}
+                    <span className="text-base font-medium text-muted-foreground">
                       {' '}
                       NOK
                     </span>
                   </>
                 ) : (
                   <>
-                    {expense.emissions.toFixed(2)}
-                    <span className="text-base font-bold text-gray-500">
+                    {expense.emissions.toFixed(1)}
+                    <span className="text-sm font-bold text-muted-foreground">
                       {' '}
                       Kg CO2e
                     </span>
                   </>
                 )}
               </p>
-              <button
-                className="expense-link"
+              <Button
+                variant="link"
+                className="text-sky-600"
                 onClick={() => {
-                  /* handle click */
+                  navigate(routes.expense({ id: Number(expense.id) }))
                 }}
               >
                 View Expense
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         ))}
       </CardContent>
     </Card>

@@ -63,7 +63,7 @@ export const Empty = () => {
 }
 
 export const Failure = ({ error }: CellFailureProps<FindExpenses>) => (
-  <div className="rw-cell-error">{error?.message}</div>
+  <div className="rw-cell-error">Failure: {error?.message}</div>
 )
 
 export const Success = ({

@@ -31,19 +31,20 @@ const UPDATE_USER_ROLE = gql`
   }
 `
 const CREATE_USER = gql`
-  mutation CreateUser($input: CreateUserInput!) {
+  mutation CreateUserAdmin($input: CreateUserInput!) {
     createUser(input: $input) {
       id
       username
       email
       organizationId
+      status
     }
   }
 `
 
 const NewOrganization = () => {
   const { user } = useUser()
-  const [createUser] = useMutation(CREATE_USER)
+  const [createUserAdmin] = useMutation(CREATE_USER)
   const [updateUserRole] = useMutation(UPDATE_USER_ROLE)
 
   const [createOrganization, { loading, error }] = useMutation(
@@ -51,13 +52,16 @@ const NewOrganization = () => {
     {
       onCompleted: async (data) => {
         // First create the user
-        await createUser({
+        await createUserAdmin({
           variables: {
             input: {
               clerkId: user.id,
               username: user.username,
+              firstName: user.firstName,
+              lastName: user.lastName,
               email: user.primaryEmailAddress.emailAddress,
               organizationId: data.createOrganization.id,
+              status: 'ACTIVE',
             },
           },
         })

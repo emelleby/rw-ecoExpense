@@ -1,10 +1,10 @@
 import axios from 'axios'
-
 import {
   Airport,
   EmissionsRequest,
   EmissionsResponse,
 } from 'types/expense/airport'
+
 import airportsData from 'src/static/airports.json'
 
 interface AirportsData {
@@ -56,8 +56,12 @@ export async function getCurrencyConversionRate(
         ? `https://api.frankfurter.dev/v1/latest?base=${base}&symbols=NOK`
         : `https://api.frankfurter.dev/v1/${selectedDate}?base=${base}&symbols=NOK`
 
+    if (base === 'NOK') {
+      return 1
+    }
     const response = await axios.get(apiUrl)
-    return response.data.rates.NOK || 0
+    console.log('API Response:', response.data)
+    return response.data.rates.NOK || 1
   } catch (error) {
     console.error('Error fetching conversion rate:', error)
     return 0

@@ -9,7 +9,6 @@ import { useMutation } from '@redwoodjs/web'
 import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import { useAuth } from 'src/auth'
 import ProjectForm from 'src/components/Project/ProjectForm'
 
 const CREATE_PROJECT_MUTATION: TypedDocumentNode<
@@ -24,9 +23,6 @@ const CREATE_PROJECT_MUTATION: TypedDocumentNode<
 `
 
 const NewProject = () => {
-  const { currentUser } = useAuth()
-  const userId = Number(currentUser.dbUserId)
-
   const [createProject, { loading, error }] = useMutation(
     CREATE_PROJECT_MUTATION,
     {
@@ -41,14 +37,7 @@ const NewProject = () => {
   )
 
   const onSave = (input: CreateProjectInput) => {
-    createProject({
-      variables: {
-        input: {
-          ...input,
-          userId: userId,
-        },
-      },
-    })
+    createProject({ variables: { input } })
   }
 
   return (
