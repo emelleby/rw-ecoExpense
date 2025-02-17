@@ -36,14 +36,14 @@ interface ExpenseFormProps {
   onSave: (data: CreateExpenseInput, id?: number) => void
   expense?: FormExpense
   trips: { id: number; name: string }[]
-  projects: { id: number; name: string }[]
+
   error: RWGqlError
 }
 
 export const CarDistanceBased: FC<ExpenseFormProps> = ({
   expense,
   trips,
-  projects,
+
   onSave,
 }) => {
   const formMethods = useForm()
@@ -104,7 +104,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       kilometers,
       fuelType,
       fuelConsumption,
-      projectId,
+
       tripId,
       nokAmount,
       description,
@@ -122,7 +122,6 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
 
     const dataWithReceipt = {
       date,
-      projectId: Number(projectId),
       tripId: Number(tripId),
       amount: nokAmount,
       currency: 'NOK',
@@ -394,7 +393,6 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       </div>
 
       <CommonFields
-        projects={projects}
         trips={trips}
         tripId={expense?.tripId}
         description={expense?.description}
