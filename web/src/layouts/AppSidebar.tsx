@@ -38,7 +38,7 @@ import {
   SidebarRail,
   useSidebar,
 } from 'src/components/ui/Sidebar'
-import UserSidebarGroupCell from 'src/components/UserSidebarGroup/UserSidebarGroupCell/UserSidebarGroupCell'
+import UserSidebarGroupCell from 'src/components/UserSidebarGroupCell/UserSidebarGroupCell'
 
 // Menu items.
 const items = [
