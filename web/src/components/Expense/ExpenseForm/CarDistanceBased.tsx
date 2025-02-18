@@ -134,7 +134,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       description,
       scope3CategoryId: 6,
       ...emission,
-      receipt, // Add the nested receipt object
+      ...(receipt && { Receipt: receipt }), // Add the nested receipt object
     }
 
     // format the data before sending it to the server
@@ -251,35 +251,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <Label
-            name="factor"
-            className="rw-label"
-            errorClassName="rw-label rw-label-error"
-          >
-            Factor
-          </Label>
-          <div className="relative flex items-center">
-            <TextField
-              name="factor"
-              defaultValue={3.5}
-              className="rw-input flex-1 pr-16"
-              errorClassName="flex-1 border-none bg-transparent text-sm text-red-600 focus:outline-none"
-              placeholder="0"
-              validation={{ valueAsNumber: true, min: 1 }}
-              onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9]/g, '')
-                e.target.value = value
-                formMethods.setValue('Factor', value ? parseInt(value) : '')
-              }}
-            />
-            <span className="absolute right-2 mt-1 text-sm text-gray-500">
-              Kr/Km
-            </span>
-          </div>
-          <FieldError name="factor" className="rw-field-error" />
-        </div>
+      <div className="grid grid-cols-2 gap-4">
         {/* DEBUG:  ADD Passangers in expnse backend */}
         <div>
           <Label
@@ -345,7 +317,35 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-2">
+        <div>
+          <Label
+            name="factor"
+            className="rw-label"
+            errorClassName="rw-label rw-label-error"
+          >
+            Factor
+          </Label>
+          <div className="relative flex items-center">
+            <TextField
+              name="factor"
+              defaultValue={3.5}
+              className="rw-input flex-1 pr-16"
+              errorClassName="flex-1 border-none bg-transparent text-sm text-red-600 focus:outline-none"
+              placeholder="0"
+              validation={{ valueAsNumber: true, min: 1 }}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '')
+                e.target.value = value
+                formMethods.setValue('Factor', value ? parseInt(value) : '')
+              }}
+            />
+            <span className="absolute right-2 mt-1 text-sm text-gray-500">
+              Kr/Km
+            </span>
+          </div>
+          <FieldError name="factor" className="rw-field-error" />
+        </div>
         <div>
           <Label
             name="nokAmount"
@@ -358,7 +358,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             name="nokAmount"
             disabled
             defaultValue={expense?.nokAmount || 0}
-            className="rw-input disabled:bg-slate-100"
+            className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{
               valueAsNumber: true,

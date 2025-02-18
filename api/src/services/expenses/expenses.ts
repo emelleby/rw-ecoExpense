@@ -49,7 +49,10 @@ export const createExpense: MutationResolvers['createExpense'] = async ({
 
   logger.debug({
     message: '===== Data being passed to db.expense.create =====',
-    data,
+    data: JSON.stringify(data, null, 2),
+    receipt,
+    expenseData,
+    input,
   })
 
   return db.expense.create({
