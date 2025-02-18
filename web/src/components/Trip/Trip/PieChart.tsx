@@ -11,20 +11,20 @@ import {
 import { formatCurrency } from '@/lib/formatters'
 
 const COLORS = {
-  Accommodation: 'hsl(var(--chart-2))',
-  'Car distance-based': 'hsl(var(--chart-1))',
-  'Fuel Expenses': 'hsl(var(--chart-3))',
-  Flights: 'hsl(var(--chart-4))',
-  Groceries: 'hsl(var(--chart-5))',
-  'Other Miscellaneous': 'hsl(var(--chart-5))',
-}
+  Accommodation: 'hsl(var(--chart-1))', // Blue
+  'Car - distance-based': 'hsl(var(--chart-2))', // Red
+  'Fuel Expenses': 'hsl(var(--chart-3))', // Green
+  Flights: 'hsl(var(--chart-4))', // Orange
+  Groceries: 'hsl(var(--chart-5))', // Purple
+  'Other miscellaneous': 'hsl(var(--chart-6))', // Teal
+} as const
 
 export type ExpenseCategory =
   | 'Accommodation'
-  | 'Car distance-based'
+  | 'Car - distance-based'
   | 'Fuel Expenses'
   | 'Flights'
-  | 'Other Miscellaneous'
+  | 'Other miscellaneous'
   | 'Groceries'
 
 interface Expense {
@@ -42,8 +42,6 @@ interface ExpenseChartProps {
 }
 
 export function ExpenseChart({ data, type }: ExpenseChartProps) {
-  console.log('ExpenseChart: ', data)
-
   const chartData = Object.entries(
     data.reduce(
       (acc, expense) => {

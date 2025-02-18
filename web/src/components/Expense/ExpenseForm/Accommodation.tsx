@@ -245,7 +245,7 @@ export const Accommodation = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
         <div>
           <Label
             name="numberOfPeople"
@@ -294,7 +294,7 @@ export const Accommodation = ({
           <FieldError name="nights" className="rw-field-error" />
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
         <div>
           <Label
             name="merchant"
@@ -336,7 +336,7 @@ export const Accommodation = ({
           <FieldError name="date" className="rw-field-error" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4">
         <div>
           <Label
             name="amount"
@@ -435,7 +435,7 @@ export const Accommodation = ({
             name="nokAmount"
             disabled
             defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
-            className="rw-input text-black disabled:bg-slate-300"
+            className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
           />

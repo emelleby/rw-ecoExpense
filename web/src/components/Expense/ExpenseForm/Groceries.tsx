@@ -64,14 +64,29 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
   const [selectedDate, setSelectedDate] = useState(date)
 
   const onCurrencyChange = async (value: string) => {
-    const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
-    setExchangeRate(exchangeRate)
-    formMethods.setValue('exchangeRate', exchangeRate)
-    const amount = formMethods.getValues('amount')
+    try {
+      const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
+      if (exchangeRate === 0) {
+        formMethods.setError('exchangeRate', {
+          type: 'manual',
+          message: 'Failed to fetch exchange rate. Please enter manually.',
+        })
+      } else {
+        formMethods.clearErrors('exchangeRate')
+        setExchangeRate(exchangeRate)
+        formMethods.setValue('exchangeRate', exchangeRate)
+        const amount = formMethods.getValues('amount')
 
-    if (amount) {
-      const nokAmount = (amount * exchangeRate).toFixed(2)
-      formMethods.setValue('nokAmount', parseInt(nokAmount))
+        if (amount) {
+          const nokAmount = (amount * exchangeRate).toFixed(2)
+          formMethods.setValue('nokAmount', parseFloat(nokAmount))
+        }
+      }
+    } catch (error) {
+      formMethods.setError('exchangeRate', {
+        type: 'manual',
+        message: 'Failed to fetch exchange rate. Please enter manually.',
+      })
     }
   }
 
@@ -289,6 +304,7 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
               const value = Number(e.target.value)
               setExchangeRate(value)
               formMethods.setValue('exchangeRate', value)
+              formMethods.clearErrors('exchangeRate')
 
               const amount = formMethods.getValues('amount')
               if (amount) {
@@ -300,7 +316,12 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
               }
             }}
             errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: true, required: true }}
+            validation={{
+              valueAsNumber: true,
+              required: true,
+              validate: (value) =>
+                value > 0 || 'Exchange rate must be greater than 0',
+            }}
           />
           <FieldError name="exchangeRate" className="rw-field-error" />
         </div>
