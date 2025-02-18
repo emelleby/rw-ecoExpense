@@ -40,11 +40,11 @@ export const createExpense: MutationResolvers['createExpense'] = async ({
   const data = {
     ...expenseData,
     userId: currentUser.dbUserId,
-    ...(receipt && {
-      receipt: {
-        create: receipt, // Use `create` for nested writes
-      },
-    }),
+    Receipt: receipt
+      ? {
+          create: receipt, // Use `create` for nested writes
+        }
+      : undefined,
   }
 
   logger.debug({
@@ -57,6 +57,9 @@ export const createExpense: MutationResolvers['createExpense'] = async ({
 
   return db.expense.create({
     data,
+    include: {
+      Receipt: true,
+    },
   })
 }
 

@@ -134,7 +134,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       description,
       scope3CategoryId: 6,
       ...emission,
-      ...(receipt && { Receipt: receipt }), // Add the nested receipt object
+      receipt, // Add the nested receipt object
     }
 
     // format the data before sending it to the server
@@ -156,7 +156,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           >
             Distance
           </Label>
-          <div className="relative mt-1 flex items-center">
+          <div className="relative flex items-center">
             <TextField
               name="kilometers"
               defaultValue={expense?.kilometers ? expense?.kilometers : 0}
@@ -172,7 +172,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
                 handleUpdateDistanceOrFactor()
               }}
             />
-            <span className="absolute right-2 mt-1 text-sm text-gray-500">
+            <span className="absolute right-2 mt-1 text-sm text-muted-foreground">
               Km
             </span>
           </div>
@@ -205,9 +205,9 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
                   <SelectValue placeholder="Select fuel type..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {FUEL_TYPE_LIST.map((feul, index) => (
-                    <SelectItem key={index + 100} value={feul.value}>
-                      {feul.label}
+                  {FUEL_TYPE_LIST.map((fuel, index) => (
+                    <SelectItem key={index + 100} value={fuel.value}>
+                      {fuel.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -326,23 +326,30 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           >
             Factor
           </Label>
-          <div className="relative flex items-center">
+          <div className="relative flex items-baseline justify-between">
             <TextField
               name="factor"
               defaultValue={3.5}
-              className="rw-input flex-1 pr-16"
+              className="rw-input flex-1"
               errorClassName="flex-1 border-none bg-transparent text-sm text-red-600 focus:outline-none"
               placeholder="0"
-              validation={{ valueAsNumber: true, min: 1 }}
+              validation={{ valueAsNumber: true, min: 0 }}
               onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9]/g, '')
-                e.target.value = value
-                formMethods.setValue('Factor', value ? parseInt(value) : '')
+                // Allow numbers, one decimal separator (either . or ,) and handle trailing decimal
+                const value = e.target.value.replace(',', '.')
+
+                // Allow a trailing decimal point
+                if (value.match(/^\d*\.?\d*$/)) {
+                  e.target.value = value
+                  // Only convert to float if it's a complete number (no trailing decimal)
+                  const numberValue = value.endsWith('.')
+                    ? value
+                    : parseFloat(value)
+                  formMethods.setValue('factor', numberValue || '')
+                }
               }}
             />
-            <span className="absolute right-2 mt-1 text-sm text-gray-500">
-              Kr/Km
-            </span>
+            <span className="px-2 text-sm text-muted-foreground">Kr/ Km</span>
           </div>
           <FieldError name="factor" className="rw-field-error" />
         </div>
@@ -371,25 +378,25 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           />
           <FieldError name="nokAmount" className="rw-field-error" />
         </div>
-        <div>
-          <Label
-            name="date"
-            className="rw-label"
-            errorClassName="rw-label rw-label-error"
-          >
-            Date
-          </Label>
+      </div>
+      <div className="grid grid-cols-1">
+        <Label
+          name="date"
+          className="rw-label"
+          errorClassName="rw-label rw-label-error"
+        >
+          Date
+        </Label>
 
-          <DatetimeLocalField
-            name="date"
-            defaultValue={new Date()}
-            className="rw-input-calendar"
-            errorClassName="rw-input rw-input-error"
-            validation={{ required: true }}
-          />
+        <DatetimeLocalField
+          name="date"
+          defaultValue={new Date()}
+          className="rw-input-calendar"
+          errorClassName="rw-input rw-input-error"
+          validation={{ required: true }}
+        />
 
-          <FieldError name="date" className="rw-field-error" />
-        </div>
+        <FieldError name="date" className="rw-field-error" />
       </div>
 
       <CommonFields

@@ -27,7 +27,7 @@
   @apply mx-4 pb-4;
 }
 .rw-segment {
-  @apply w-full overflow-hidden rounded-lg border border-slate-500;
+  @apply w-full overflow-hidden;
   scrollbar-color: theme('colors.zinc.400') transparent;
 }
 .rw-segment::-webkit-scrollbar {
@@ -43,19 +43,19 @@
   @apply bg-inherit px-4 py-3 ;
 }
 .rw-segment-main {
-  @apply p-4;
+  @apply p-0 sm:p-2 md:p-4;
 }
 .rw-link {
-  @apply text-sky-400 underline;
+  @apply text-sky-500 underline;
 }
 .rw-link:hover {
-  @apply text-sky-500;
+  @apply text-sky-600;
 }
 .rw-forgot-link {
-  @apply mt-1 text-right text-xs text-gray-400 underline;
+  @apply mt-1 text-right text-xs text-gray-500 underline;
 }
 .rw-forgot-link:hover {
-  @apply text-sky-500;
+  @apply text-sky-600;
 }
 .rw-heading {
   @apply font-semibold;
@@ -70,7 +70,7 @@
   @apply text-gray-600 no-underline;
 }
 .rw-heading .rw-link:hover {
-  @apply text-gray-900 underline;
+  @apply text-teal-500 underline;
 }
 .rw-cell-error {
   @apply text-sm font-semibold;
@@ -157,6 +157,15 @@
 .rw-input[type='radio'] {
   @apply ml-0 mr-1 mt-1 inline w-4;
 }
+.rw-input::-webkit-outer-spin-button,
+.rw-input::-webkit-inner-spin-button {
+  @apply appearance-none m-0;
+}
+/* For Firefox */
+.rw-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .rw-input:focus {
   @apply ring-sky-600 ring-2 ring-inset;
 }

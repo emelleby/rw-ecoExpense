@@ -143,7 +143,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
 
   return (
     <Form formMethods={formMethods} onSubmit={onSubmit}>
-      <div className=" grid grid-cols-2 gap-4">
+      <div className=" grid grid-cols-2 gap-3 sm:gap-4">
         <div>
           <Label
             name="fuelType"
@@ -188,11 +188,11 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           >
             Distance
           </Label>
-          <div className="relative mt-1 flex items-center">
+          <div className="relative flex items-center">
             <TextField
               name="kilometers"
               defaultValue={expense?.kilometers ? expense.kilometers : 0}
-              className="rw-input flex-1 pr-16"
+              className="rw-input flex-1"
               validation={{
                 valueAsNumber: true,
                 required: true,
@@ -204,7 +204,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
                 formMethods.setValue('kilometers', value ? parseInt(value) : '')
               }}
             />
-            <span className="absolute right-2 mt-1 text-sm text-gray-500">
+            <span className="absolute right-2 mt-1 text-sm text-muted-foreground">
               KM
             </span>
           </div>
@@ -311,7 +311,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
             name="nokAmount"
             disabled
             defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
-            className="rw-input disabled:bg-slate-100"
+            className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
           />
