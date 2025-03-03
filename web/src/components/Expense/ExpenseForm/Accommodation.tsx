@@ -23,7 +23,7 @@ import {
   SelectValue,
   SelectTrigger,
 } from 'src/components/ui/Select'
-import { cn } from 'src/utils/cn'
+// import { cn } from 'src/utils/cn'
 
 import { CommonFields } from './CommonFields'
 import {
@@ -470,7 +470,7 @@ export const Accommodation = ({
         description={expense?.description}
       />
 
-      <div className="mt-6 grid grid-cols-1 gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <UploadReciepts
           fileName={fileName}
           fileType={fileType}
@@ -480,9 +480,7 @@ export const Accommodation = ({
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-      </div>
 
-      <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Button type="submit" variant="default" className="w-full">
           Save
         </Button>

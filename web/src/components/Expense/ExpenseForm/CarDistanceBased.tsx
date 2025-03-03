@@ -405,7 +405,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         description={expense?.description}
       />
 
-      <div className="mt-6 grid grid-cols-1 gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <UploadReciepts
           fileName={fileName}
           fileType={fileType}
@@ -415,9 +415,6 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-      </div>
-
-      <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Button type="submit" variant="default" className="w-full">
           Save
         </Button>
