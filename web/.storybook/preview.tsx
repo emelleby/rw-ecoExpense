@@ -1,28 +1,33 @@
+// .storybook/preview.tsx
 import React from 'react'
 
-import type { Preview } from '@storybook/react'
+// import { AuthProvider } from 'web/src/auth.tsx' // your custom auth provider, configured for Clerk
 
-import { SidebarStoryWrapper } from '../src/components/ui/SidebarStoryWrapper'
-import '../src/index.css'
+// import { RedwoodProvider } from '@redwoodjs/web'
+// import { RedwoodApolloProvider } from '@redwoodjs/web/apollo'
 
-const preview: Preview = {
-  parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/,
-      },
-    },
-    layout: 'fullscreen',
-  },
-  decorators: [
-    (Story) => (
-      <SidebarStoryWrapper>
-        <Story />
-      </SidebarStoryWrapper>
-    ),
-  ],
-}
+// export const decorators = [
+//   (Story) => (
+//     <RedwoodProvider titleTemplate="%PageTitle | %AppTitle">
+//       <AuthProvider type="clerk">
+//         <RedwoodApolloProvider>
+//           <Story />
+//         </RedwoodApolloProvider>
+//       </AuthProvider>
+//     </RedwoodProvider>
+//   ),
+// ]
 
-export default preview
+import { ClerkProvider } from '@clerk/clerk-react'
+
+// Use your actual publishable key or a dummy key for Storybook.
+const publishableKey =
+  process.env.CLERK_PUBLISHABLE_KEY || 'your-publishable-key'
+
+export const decorators = [
+  (Story) => (
+    <ClerkProvider publishableKey={publishableKey}>
+      <Story />
+    </ClerkProvider>
+  ),
+]
