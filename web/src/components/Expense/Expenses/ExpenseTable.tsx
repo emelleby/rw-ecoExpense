@@ -117,7 +117,7 @@ export function ExpenseTable({
                 {formatCurrency(expense.amount)} NOK
               </TableCell>
               <TableCell className="text-right">
-                {expense.emissions} kg Co2e
+                {expense.emissions.toFixed(2)} kg Co2e
               </TableCell>
               <TableCell className="text-right">
                 <ImageDialog

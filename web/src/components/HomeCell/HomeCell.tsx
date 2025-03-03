@@ -13,6 +13,7 @@ import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Progress } from '@/components/ui/Progress'
+import { formatCurrency } from '@/lib/formatters'
 
 export const QUERY = gql`
   query DashboardQuery {
@@ -24,14 +25,15 @@ export const QUERY = gql`
           amount
           count
         }
-        recent {
-          id
-          type
-          project
-          trip
-          amount
-          status
-        }
+      }
+      trips {
+        id
+        name
+        description
+        project
+        reimbursementStatus
+        expenseCount
+        expenseAmount
       }
       carbonFootprint {
         total
@@ -117,7 +119,7 @@ interface MetricCardProps {
   value: string
   subValue?: string
   icon: LucideIcon
-  trend: number
+  percentageChange?: number
 }
 
 const MetricCard = ({
@@ -125,7 +127,7 @@ const MetricCard = ({
   value,
   subValue,
   icon: Icon,
-  trend,
+  percentageChange,
 }: MetricCardProps) => (
   <Card>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -134,12 +136,14 @@ const MetricCard = ({
     </CardHeader>
     <CardContent>
       <div className="text-2xl font-bold">{value}</div>
-      <p
-        className={`text-xs ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}
-      >
-        {trend > 0 ? '+' : ''}
-        {trend.toFixed(1)}% from last month
-      </p>
+      {percentageChange !== undefined && (
+        <p
+          className={`text-xs ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}
+        >
+          {percentageChange > 0 ? '+' : ''}
+          {percentageChange.toFixed(1)}% from last year to date
+        </p>
+      )}
       {subValue && (
         <div className="mt-2 text-sm text-muted-foreground">{subValue}</div>
       )}
@@ -147,53 +151,66 @@ const MetricCard = ({
   </Card>
 )
 
-interface RecentExpense {
+interface RecentTrip {
   id: number
-  type: string
+  name: string
+  description: string
   project?: string
-  trip?: string
-  amount: number
-  status: string
+  reimbursementStatus: string
+  expenseCount: number
+  expenseAmount: number
 }
 
-const RecentExpensesList = ({ expenses }: { expenses: RecentExpense[] }) => (
+const RecentTripsList = ({ trips }: { trips: RecentTrip[] }) => (
   <Card>
     <CardHeader>
-      <CardTitle>Recent Expenses</CardTitle>
+      <CardTitle>Recent Trips</CardTitle>
     </CardHeader>
     <CardContent>
       <div className="space-y-4">
-        {expenses.map((expense) => (
-          <div
-            key={expense.id}
-            className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
+        {trips.map((trip) => (
+          <Link
+            key={trip.id}
+            to={routes.trip({ id: trip.id })}
+            className="-mx-6 flex items-center justify-between border-b px-6 py-2 pb-4 transition-colors last:border-0 last:pb-0 hover:bg-muted/50"
           >
             <div>
-              <div className="font-medium">{expense.type}</div>
+              <div className="font-medium">{trip.name}</div>
               <div className="text-sm text-muted-foreground">
-                {expense.project || expense.trip}
+                {trip.description}
               </div>
+              {trip.project && (
+                <div className="text-sm text-muted-foreground">
+                  {trip.project}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="font-medium">${expense.amount.toFixed(2)}</div>
+              <div className="space-y-1 text-right">
+                <div className="text-sm text-muted-foreground">
+                  {trip.expenseCount}{' '}
+                  {trip.expenseCount === 1 ? 'expense' : 'expenses'}
+                </div>
+                <div className="font-medium">
+                  NOK {formatCurrency(trip.expenseAmount)}
+                </div>
                 <div
                   className={`text-sm ${
-                    expense.status === 'REIMBURSED'
+                    trip.reimbursementStatus === 'REIMBURSED'
                       ? 'text-green-500'
-                      : expense.status === 'PENDING'
+                      : trip.reimbursementStatus === 'PENDING'
                         ? 'text-orange-500'
                         : 'text-red-500'
                   }`}
                 >
-                  {expense.status
+                  {trip.reimbursementStatus
                     .split('_')
                     .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
                     .join(' ')}
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </CardContent>
@@ -245,8 +262,8 @@ interface DashboardData {
       amount: number
       count: number
     }
-    recent: RecentExpense[]
   }
+  trips: RecentTrip[]
   carbonFootprint: {
     total: number
     percentageChange: number
@@ -266,42 +283,42 @@ export const Success = ({
         <ActionCard
           icon={PlusCircle}
           title="New Expense"
-          description="Add a new expense report"
+          description="Add a new expense"
           href={routes.newExpense()}
         />
         <ActionCard
           icon={Plane}
           title="New Trip"
-          description="Create a new business trip"
+          description="Create a new business trip or group"
           href={routes.newTrip()}
         />
       </div>
 
       {/* Metric Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         <MetricCard
           title="Total Expenses"
-          value={`$${dashboard.expenses.total.toFixed(2)}`}
-          trend={dashboard.expenses.percentageChange}
+          value={`NOK ${formatCurrency(dashboard.expenses.total.toFixed(2))}`}
+          percentageChange={dashboard.expenses.percentageChange}
           icon={DollarSign}
+        />
+
+        <MetricCard
+          title="Carbon Footprint"
+          value={`${dashboard.carbonFootprint.total} kg Co2e`}
+          percentageChange={dashboard.carbonFootprint.percentageChange}
+          icon={Plane}
         />
         <MetricCard
           title="Pending Reimbursement"
-          value={`$${dashboard.expenses.pending.amount.toFixed(2)}`}
-          subValue={`${dashboard.expenses.pending.count} expenses pending`}
-          trend={0}
+          value={`NOK ${formatCurrency(dashboard.expenses.pending.amount.toFixed(2))}`}
+          subValue={`${dashboard.expenses.pending.count} trips pending`}
           icon={TrendingUp}
-        />
-        <MetricCard
-          title="Carbon Footprint"
-          value={`${dashboard.carbonFootprint.total} kg`}
-          trend={dashboard.carbonFootprint.percentageChange}
-          icon={Plane}
         />
       </div>
 
-      {/* Recent Expenses */}
-      <RecentExpensesList expenses={dashboard.expenses.recent} />
+      {/* Recent Trips */}
+      <RecentTripsList trips={dashboard.trips} />
 
       {/* Carbon Impact Chart */}
       <CarbonImpactChart categories={dashboard.carbonFootprint.byCategory} />

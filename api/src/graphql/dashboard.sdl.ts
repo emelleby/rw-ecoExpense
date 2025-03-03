@@ -15,9 +15,8 @@ export const schema = gql`
 
   type DashboardExpenses {
     total: Float!
-    percentageChange: Float!
+    percentageChange: Float
     pending: DashboardExpensePending!
-    recent: [DashboardRecentExpense!]!
   }
 
   type CarbonCategory {
@@ -28,12 +27,23 @@ export const schema = gql`
 
   type CarbonFootprint {
     total: Float!
-    percentageChange: Float!
+    percentageChange: Float
     byCategory: [CarbonCategory!]!
+  }
+
+  type RecentTrip {
+    id: Int!
+    name: String!
+    description: String!
+    project: String
+    reimbursementStatus: String!
+    expenseCount: Int!
+    expenseAmount: Float!
   }
 
   type DashboardData {
     expenses: DashboardExpenses!
+    trips: [RecentTrip!]!
     carbonFootprint: CarbonFootprint!
   }
 
