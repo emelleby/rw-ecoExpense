@@ -38,7 +38,7 @@ import {
   SidebarRail,
   useSidebar,
 } from 'src/components/ui/Sidebar'
-import UserSidebarGroupCell from 'src/components/UserSidebarGroupCell/UserSidebarGroupCell'
+import UserSidebarGroupCell from 'src/components/UserSidebarGroup/UserSidebarGroupCell'
 
 // Menu items.
 const items = [
@@ -89,10 +89,6 @@ const data = {
       role: 'admin',
       items: [
         {
-          title: 'Test',
-          url: 'test',
-        },
-        {
           title: 'Users',
           url: 'users',
         },
@@ -105,25 +101,21 @@ const data = {
 
     {
       title: 'Superuser',
-      url: 'trips',
+      url: '#',
       icon: Settings2,
       role: 'superuser',
       items: [
         {
-          title: 'General',
-          url: 'trips',
+          title: 'Test',
+          url: 'test',
         },
         {
-          title: 'Team',
-          url: '#',
+          title: 'Organizations',
+          url: 'organizations',
         },
         {
-          title: 'Billing',
-          url: '#',
-        },
-        {
-          title: 'Limits',
-          url: '#',
+          title: 'Sectors',
+          url: 'sectors',
         },
       ],
     },
@@ -213,25 +205,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         {/* <UserButton /> */}
         {/* <NavUser user={data.user} /> */}
-        {hasRole('superuser') && (
-          <div className="flex flex-col space-y-4">
-            <NavLink
-              to={routes.organizations()}
-              className="text-gray-400"
-              activeClassName="text-gray-900"
-            >
-              Manage Organizations
-            </NavLink>
-            <NavLink
-              to={routes.sectors()}
-              className="text-gray-400"
-              activeClassName="text-gray-900"
-            >
-              Manage Sectors
-            </NavLink>
-            {/* Add more NavLinks as needed */}
-          </div>
-        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

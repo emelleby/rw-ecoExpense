@@ -11,7 +11,7 @@ import {
 import { TypedDocumentNode, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import useLoader from 'src/hooks/useLoader'
 
 const DELETE_RECEIPT_MUTATION: TypedDocumentNode<

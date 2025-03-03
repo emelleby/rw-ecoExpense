@@ -35,7 +35,7 @@ export const schema = gql`
     userId: Int!
     description: String
     reimbursementStatus: ReimbursementStatus = NOT_REQUESTED
-    projectId: Int
+    projectId: Int! # Remove the optional type here
   }
 
   input UpdateTripInput {

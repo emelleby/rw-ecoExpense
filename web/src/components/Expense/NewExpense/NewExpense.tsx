@@ -4,8 +4,6 @@ import type {
   CreateExpenseMutationVariables,
   TripsByUser,
   TripsByUserVariables,
-  FindProjectsbyUser,
-  FindProjectsbyUserVariables,
 } from 'types/graphql'
 
 import { Link, navigate, routes } from '@redwoodjs/router'
@@ -31,18 +29,6 @@ const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
       id
       name
       reimbursementStatus
-    }
-  }
-`
-
-const PROJECTQUERY: TypedDocumentNode<
-  FindProjectsbyUser,
-  FindProjectsbyUserVariables
-> = gql`
-  query FindProjectsbyUserForNewExpense {
-    projects {
-      id
-      name
     }
   }
 `
@@ -89,12 +75,6 @@ const NewExpense = () => {
     notifyOnNetworkStatusChange: true,
   })
 
-  const {
-    data: projectsData,
-    loading: projectsLoading,
-    error: projectsError,
-  } = useQuery(PROJECTQUERY)
-
   console.log('Data: ', tripsData)
 
   const [createExpense, { loading, error }] = useMutation(
@@ -118,7 +98,7 @@ const NewExpense = () => {
   }
 
   // Handle loading states
-  if (categoryLoading || tripsLoading || projectsLoading) {
+  if (categoryLoading || tripsLoading) {
     return <Loading />
   }
 
@@ -127,27 +107,25 @@ const NewExpense = () => {
     return <div>Error loading category data</div>
   }
 
-  const trips = tripsData?.tripsByUser || []
-  const projects = projectsData?.projects || []
+  const trips =
+    tripsData?.tripsByUser.filter(
+      (trip) => trip.reimbursementStatus === 'NOT_REQUESTED'
+    ) || []
 
   if (trips.length === 0) {
     return (
       <div className="rw-text-center">
-        Please create a trip / group first!{' '}
-        <Link to={routes.newTrip()} className="rw-link">
-          Create Trip
-        </Link>
-      </div>
-    )
-  }
-
-  if (projects.length === 0) {
-    return (
-      <div className="rw-text-center">
-        Please create a project first!{' '}
-        <Link to={routes.projects()} className="rw-link">
-          Go to Projects
-        </Link>
+        <p>There are no open trips available.</p>
+        <p>
+          Please open a trip on the{' '}
+          <Link to={routes.trips()} className="rw-link">
+            Trips page
+          </Link>{' '}
+          or create a{' '}
+          <Link to={routes.newTrip()} className="rw-link">
+            new trip
+          </Link>
+        </p>
       </div>
     )
   }
@@ -160,7 +138,6 @@ const NewExpense = () => {
       <div className="rw-segment-main">
         <ExpenseForm
           trips={trips}
-          projects={projectsData?.projects || []}
           categories={categoryData?.expenseCategories}
           onSave={onSave}
           loading={loading}

@@ -13,7 +13,7 @@ import {
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
   Select,
@@ -30,18 +30,16 @@ import UploadReciepts from './UploadReciepts'
 
 type FormExpense = NonNullable<EditExpenseById['expense']>
 
-interface ExpenseFormProps {
+interface FuelExpenseProps {
   onSave: (data: CreateExpenseInput, id?: number) => void
   expense?: FormExpense
   trips: { id: number; name: string }[]
-  projects: { id: number; name: string }[]
-  error: RWGqlError
+  error?: RWGqlError
 }
 
-export const FuelExpense: FC<ExpenseFormProps> = ({
+export const FuelExpense: FC<FuelExpenseProps> = ({
   expense,
   trips,
-  projects,
   onSave,
 }) => {
   const formMethods = useForm()
@@ -66,73 +64,37 @@ export const FuelExpense: FC<ExpenseFormProps> = ({
 
     if (amount) {
       const nokAmount = (amount * exchangeRate).toFixed(2)
-      formMethods.setValue('nokAmount', parseInt(nokAmount))
+      formMethods.setValue('nokAmount', parseFloat(nokAmount))
     }
   }
 
-  const getEmission = async (data) => {
-    //const { nights, numberOfPeople, country } = data
-
-    console.log(data)
-
+  const getEmission = async (_data: {
+    fuelType: string
+    kilometers: number
+  }) => {
+    // Since we're not using the parameters yet, prefix with underscore
+    // to indicate it's intentionally unused
     return {
       scope1Co2Emissions: 0,
       scope2Co2Emissions: 0,
       scope3Co2Emissions: 0,
     }
-
-    // if (catagory === '4') {
-    //   const {
-    //     flightOrigin,
-    //     flightVia,
-    //     flightDestination,
-    //     flightClass,
-    //     flightType,
-    //     date,
-    //     passengers,
-    //   } = data
-
-    //   console.log(flightType)
-
-    //   const d = new Date(date)
-
-    //   const route = [flightOrigin]
-
-    //   if (flightVia != '') {
-    //     route.push(flightVia)
-    //   }
-
-    //   route.push(flightDestination)
-
-    //   const payload = {
-    //     route,
-    //     return: flightType === 'return',
-    //     class: flightClass,
-    //     departureDate: `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`,
-    //     ir_factor: false,
-    //     travelers: passengers,
-    //   }
-
-    //   console.log(payload)
-
-    //   const result = await calculateEmissions(payload)
-
-    //   return {
-    //     scope1Co2Emissions: 0,
-    //     scope2Co2Emissions: 0,
-    //     scope3Co2Emissions: result.total_emissions,
-    //   }
-    // }
   }
 
-  const onSubmit = async (data) => {
-    // Construct the receipt object
-    //console.log('Receipt data submitted:', { receiptUrl, fileName, fileType }
-
+  const onSubmit = async (data: {
+    date: Date
+    fuelType: string
+    tripId: number
+    amount: number
+    kilometers: number
+    currency: string
+    nokAmount: number
+    exchangeRate: number
+    description: string
+  }) => {
     const {
       date,
       fuelType,
-      projectId,
       tripId,
       amount,
       kilometers,
@@ -152,9 +114,8 @@ export const FuelExpense: FC<ExpenseFormProps> = ({
 
     const emission = await getEmission(data)
 
-    const dataWithReceipt = {
-      date,
-      projectId,
+    const dataWithReceipt: CreateExpenseInput = {
+      date: date.toISOString(), // Convert Date to ISO string
       tripId,
       amount,
       currency,
@@ -168,12 +129,13 @@ export const FuelExpense: FC<ExpenseFormProps> = ({
       description,
       scope3CategoryId: 6,
       ...emission,
-      receipt, // Add the nested receipt object
+      receipt, // Changed from 'receipt' to 'Receipt'
     }
 
     // format the data before sending it to the server
 
     //const formattedData = formatData(dataWithReceipt)
+
     onSave(dataWithReceipt, expense?.id)
 
     //console.log(dataWithReceipt)
@@ -181,7 +143,7 @@ export const FuelExpense: FC<ExpenseFormProps> = ({
 
   return (
     <Form formMethods={formMethods} onSubmit={onSubmit}>
-      <div className=" grid grid-cols-2 gap-4">
+      <div className=" grid grid-cols-2 gap-3 sm:gap-4">
         <div>
           <Label
             name="fuelType"
@@ -226,11 +188,11 @@ export const FuelExpense: FC<ExpenseFormProps> = ({
           >
             Distance
           </Label>
-          <div className="relative mt-1 flex items-center">
+          <div className="relative flex items-center">
             <TextField
               name="kilometers"
               defaultValue={expense?.kilometers ? expense.kilometers : 0}
-              className="rw-input flex-1 pr-16"
+              className="rw-input flex-1"
               validation={{
                 valueAsNumber: true,
                 required: true,
@@ -242,7 +204,7 @@ export const FuelExpense: FC<ExpenseFormProps> = ({
                 formMethods.setValue('kilometers', value ? parseInt(value) : '')
               }}
             />
-            <span className="absolute right-2 mt-1 text-sm text-gray-500">
+            <span className="absolute right-2 mt-1 text-sm text-muted-foreground">
               KM
             </span>
           </div>
@@ -349,7 +311,7 @@ export const FuelExpense: FC<ExpenseFormProps> = ({
             name="nokAmount"
             disabled
             defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
-            className="rw-input disabled:bg-slate-100"
+            className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
           />
@@ -400,13 +362,12 @@ export const FuelExpense: FC<ExpenseFormProps> = ({
       </div>
 
       <CommonFields
-        projects={projects}
         trips={trips}
         tripId={expense?.tripId}
         description={expense?.description}
       />
 
-      <div className="mt-6 grid grid-cols-1 gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <UploadReciepts
           fileName={fileName}
           fileType={fileType}
@@ -416,9 +377,6 @@ export const FuelExpense: FC<ExpenseFormProps> = ({
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-      </div>
-
-      <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Button type="submit" variant="default" className="w-full">
           Save
         </Button>
