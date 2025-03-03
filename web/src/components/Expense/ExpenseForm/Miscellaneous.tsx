@@ -14,12 +14,13 @@ import {
   Label,
   RWGqlError,
   TextField,
+  NumberField,
   useForm,
 } from '@redwoodjs/forms'
 import { TypedDocumentNode, useQuery } from '@redwoodjs/web'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
   Select,
@@ -87,14 +88,29 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
   const [selectedDate, setSelectedDate] = useState(date)
 
   const onCurrencyChange = async (value: string) => {
-    const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
-    setExchangeRate(exchangeRate)
-    formMethods.setValue('exchangeRate', exchangeRate)
-    const amount = formMethods.getValues('amount')
+    try {
+      const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
+      if (exchangeRate === 0) {
+        formMethods.setError('exchangeRate', {
+          type: 'manual',
+          message: 'Failed to fetch exchange rate. Please enter manually.',
+        })
+      } else {
+        formMethods.clearErrors('exchangeRate')
+        setExchangeRate(exchangeRate)
+        formMethods.setValue('exchangeRate', exchangeRate)
+        const amount = formMethods.getValues('amount')
 
-    if (amount) {
-      const nokAmount = (amount * exchangeRate).toFixed(2)
-      formMethods.setValue('nokAmount', parseInt(nokAmount))
+        if (amount) {
+          const nokAmount = (amount * exchangeRate).toFixed(2)
+          formMethods.setValue('nokAmount', parseInt(nokAmount))
+        }
+      }
+    } catch (error) {
+      formMethods.setError('exchangeRate', {
+        type: 'manual',
+        message: 'Failed to fetch exchange rate. Please enter manually.',
+      })
     }
   }
 
@@ -196,7 +212,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
     } else {
       formMethods.setValue('exchangeRate', 0)
     }
-  }, [selectedDate])
+  }, [selectedDate, formMethods, props.expense?.currency])
 
   if (loading) return <Loading />
 
@@ -243,7 +259,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="gap-x-7-4 grid grid-cols-1 lg:grid-cols-2">
         <div>
           <Label
             name="merchant"
@@ -285,7 +301,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
           <FieldError name="date" className="rw-field-error" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4">
         <div>
           <Label
             name="amount"
@@ -294,16 +310,16 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
           >
             Amount
           </Label>
-          <TextField
+          <NumberField
             name="amount"
-            defaultValue={props?.expense?.amount || 0}
+            placeholder="0"
+            defaultValue={props?.expense?.amount || undefined}
             className="rw-input"
+            step="1.00"
             onChange={(e) => {
-              const value = Number(e.target.value.replace(/[^0-9.]/g, ''))
-              if (value > 0) {
-                const nokAmount = (value * exchangeRate).toFixed(2)
-                formMethods.setValue('nokAmount', parseFloat(nokAmount))
-              }
+              const value = Number(e.target.value)
+              const nokAmount = (value * exchangeRate).toFixed(2)
+              formMethods.setValue('nokAmount', parseFloat(nokAmount))
             }}
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
@@ -386,7 +402,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
             defaultValue={
               props.expense?.nokAmount ? Number(props.expense.nokAmount) : 0
             }
-            className="rw-input disabled:bg-slate-100"
+            className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
           />

@@ -68,6 +68,8 @@ const CREATE_USER = gql`
     }
   }
 `
+// This is the Cell we use for the onboarding page
+// Perhaps rename it to OnboardingCell?
 export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => (

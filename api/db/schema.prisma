@@ -87,8 +87,8 @@ model Trip {
   approvedDate        DateTime?
   reimbursementStatus ReimbursementStatus @default(NOT_REQUESTED)
   transactionId       String?             @db.VarChar(100)
-  projectId           Int?
-  Project             Project?            @relation(fields: [projectId], references: [id])
+  projectId           Int // Remove the optional (?) marker
+  Project             Project             @relation(fields: [projectId], references: [id])
 }
 
 model Project {

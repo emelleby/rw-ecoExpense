@@ -68,6 +68,7 @@ const DatetimeLocalField = ({
       <input
         type="hidden"
         name={name}
+        data-testid="date-input"
         value={selectedDate?.toISOString() || ''}
         {...validation}
       />

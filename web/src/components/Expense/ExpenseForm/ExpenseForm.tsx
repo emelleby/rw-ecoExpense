@@ -36,7 +36,6 @@ interface ExpenseFormProps {
   error: RWGqlError
   loading: boolean
   trips: { id: number; name: string }[]
-  projects: { id: number; name: string }[]
   categories: {
     id: number
     name: string

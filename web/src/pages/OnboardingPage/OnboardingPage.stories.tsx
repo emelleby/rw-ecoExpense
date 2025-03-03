@@ -1,41 +1,46 @@
-import { ClerkProvider } from '@clerk/clerk-react'
 import type { Meta, StoryObj } from '@storybook/react'
-
-import { routes } from '@redwoodjs/router'
-import { mockCurrentUser } from '@redwoodjs/testing/web'
+import { mockUsers } from 'web/.storybook/mockData/users'
+import { StoryAuthProvider } from 'web/.storybook/providers/StoryAuthProvider'
 
 import OnboardingPage from './OnboardingPage'
 
 const meta: Meta<typeof OnboardingPage> = {
   component: OnboardingPage,
+  title: 'Pages/OnboardingPage',
   decorators: [
-    (Story) => {
-      mockCurrentUser({
-        id: 'user_2pkZyi796FvxrYZlUpFeddb3C0e',
-        dbUserId: 4,
-        organizationId: 8,
-        roles: ['admin', 'superuser'],
-        metadata: {
-          organizationId: 8,
-
-          roles: ['admin', 'superuser'],
-        },
-      })
-
-      // Mock the routes properly
-      routes.login = () => '/login'
-      routes.homey = () => '/homey'
-
-      return (
-        <ClerkProvider publishableKey="pk_test_cHJpbWUtYW5lbW9uZS01LmNsZXJrLmFjY291bnRzLmRldiQ">
-          <Story />
-        </ClerkProvider>
-      )
-    },
+    (Story) => (
+      <StoryAuthProvider mockUser={mockUsers.newUser}>
+        <Story />
+      </StoryAuthProvider>
+    ),
   ],
+  parameters: {
+    layout: 'fullscreen',
+  },
 }
 
 export default meta
 
 type Story = StoryObj<typeof OnboardingPage>
-export const Primary: Story = {}
+
+export const NewUser: Story = {}
+
+export const WithExistingRole: Story = {
+  decorators: [
+    (Story) => (
+      <StoryAuthProvider mockUser={mockUsers.member}>
+        <Story />
+      </StoryAuthProvider>
+    ),
+  ],
+}
+
+export const Loading: Story = {
+  decorators: [
+    (Story) => (
+      <StoryAuthProvider authenticated={false}>
+        <Story />
+      </StoryAuthProvider>
+    ),
+  ],
+}
