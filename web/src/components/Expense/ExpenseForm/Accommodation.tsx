@@ -85,7 +85,7 @@ export const Accommodation = ({
     } catch (error) {
       formMethods.setError('exchangeRate', {
         type: 'manual',
-        message: 'Failed to fetch exchange rate. Please enter manually.',
+        message: `Failed to fetch exchange rate: ${error.message}. Please enter manually.`,
       })
     }
   }
@@ -156,18 +156,17 @@ export const Accommodation = ({
 
   useEffect(() => {
     async function fetchExchangeRate() {
-      const newExchangeRate = await getCurrencyConversionRate(
-        expense?.currency,
-        selectedDate
-      )
-      formMethods.setValue('exchangeRate', newExchangeRate)
-      setExchangeRate(newExchangeRate)
+      const currency = formMethods.getValues('currency') || expense?.currency
+      if (currency) {
+        const newExchangeRate = await getCurrencyConversionRate(
+          currency,
+          selectedDate
+        )
+        formMethods.setValue('exchangeRate', newExchangeRate)
+        setExchangeRate(newExchangeRate)
+      }
     }
-    if (expense?.currency) {
-      fetchExchangeRate()
-    } else {
-      formMethods.setValue('exchangeRate', 0)
-    }
+    fetchExchangeRate()
   }, [selectedDate, expense?.currency, formMethods])
 
   return (
@@ -416,7 +415,7 @@ export const Accommodation = ({
             placeholder="0"
             defaultValue={expense?.exchangeRate || undefined}
             className="rw-input"
-            step="0.01"
+            step="0.0001"
             onChange={(e) => {
               const value = Number(e.target.value)
               setExchangeRate(value)
