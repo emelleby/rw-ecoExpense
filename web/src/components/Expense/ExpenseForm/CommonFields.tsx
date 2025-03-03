@@ -44,6 +44,7 @@ export const CommonFields: React.FC<CommonFieldsProps> = ({
       <div>
         <Label
           name="tripId"
+          htmlFor="tripId"
           className="rw-label mb-2"
           errorClassName="rw-label rw-label-error"
         >
@@ -52,13 +53,14 @@ export const CommonFields: React.FC<CommonFieldsProps> = ({
         <Controller
           name="tripId"
           defaultValue={tripId || trips[0].id}
+          data-testid="trip-select"
           rules={{ required: true }}
           render={({ field }) => (
             <Select
               onValueChange={(value) => field.onChange(value)}
               value={field.value?.toString()}
             >
-              <SelectTrigger>
+              <SelectTrigger id="tripId" data-testid="trip-select">
                 <SelectValue placeholder="Select a trip..." />
               </SelectTrigger>
               <SelectContent>

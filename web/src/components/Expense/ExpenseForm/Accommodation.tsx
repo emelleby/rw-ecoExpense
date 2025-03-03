@@ -64,14 +64,29 @@ export const Accommodation = ({
   const [selectedDate, setSelectedDate] = useState(date)
 
   const onCurrencyChange = async (value: string) => {
-    const newExchangeRate = await getCurrencyConversionRate(value, selectedDate)
-    setExchangeRate(newExchangeRate)
-    formMethods.setValue('exchangeRate', newExchangeRate)
-    const amount = formMethods.getValues('amount')
+    try {
+      const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
+      if (exchangeRate === 0) {
+        formMethods.setError('exchangeRate', {
+          type: 'manual',
+          message: 'Failed to fetch exchange rate. Please enter manually.',
+        })
+      } else {
+        formMethods.clearErrors('exchangeRate')
+        setExchangeRate(exchangeRate)
+        formMethods.setValue('exchangeRate', exchangeRate)
+        const amount = formMethods.getValues('amount')
 
-    if (amount) {
-      const nokAmount = (amount * newExchangeRate).toFixed(2)
-      formMethods.setValue('nokAmount', parseFloat(nokAmount))
+        if (amount) {
+          const nokAmount = (amount * exchangeRate).toFixed(2)
+          formMethods.setValue('nokAmount', parseFloat(nokAmount))
+        }
+      }
+    } catch (error) {
+      formMethods.setError('exchangeRate', {
+        type: 'manual',
+        message: 'Failed to fetch exchange rate. Please enter manually.',
+      })
     }
   }
 
@@ -136,7 +151,7 @@ export const Accommodation = ({
     //const formattedData = formatData(dataWithReceipt)
     onSave(dataWithReceipt, expense?.id)
 
-    //console.log(dataWithReceipt)
+    console.log(dataWithReceipt)
   }
 
   useEffect(() => {
@@ -173,22 +188,20 @@ export const Accommodation = ({
             rules={{ required: true }}
             render={({ field }) => (
               <Select
-                onValueChange={(value) => field.onChange(value)}
-                value={field.value?.toString()}
+                onValueChange={field.onChange}
+                value={field.value}
                 defaultValue={ACCOMODATIONTYPES[0]}
               >
-                <SelectTrigger
-                  className={cn(
-                    'w-full',
-                    formMethods.formState.errors?.accommodationType &&
-                      'border-red-500'
-                  )}
-                >
-                  <SelectValue placeholder="Select a category..." />
+                <SelectTrigger data-testid="accommodation-type-trigger">
+                  <SelectValue placeholder="Select accommodation type..." />
                 </SelectTrigger>
                 <SelectContent>
                   {ACCOMODATIONTYPES.map((accommodation, index) => (
-                    <SelectItem key={index} value={accommodation}>
+                    <SelectItem
+                      key={index}
+                      value={accommodation}
+                      data-testid={`accommodation-option-${accommodation}`}
+                    >
                       {accommodation}
                     </SelectItem>
                   ))}
@@ -215,24 +228,20 @@ export const Accommodation = ({
             rules={{ required: true }}
             render={({ field }) => (
               <Select
-                onValueChange={(value) => {
-                  field.onChange(value)
-                  console.log(formMethods.getValues('amount'))
-                }}
-                value={field.value?.toString()}
+                onValueChange={field.onChange}
+                value={field.value}
                 defaultValue={COUNTRY_NAMES[0]}
               >
-                <SelectTrigger
-                  className={cn(
-                    'w-full',
-                    formMethods.formState.errors?.country && 'border-red-500'
-                  )}
-                >
-                  <SelectValue placeholder="Select a category..." />
+                <SelectTrigger data-testid="country-trigger">
+                  <SelectValue placeholder="Select country..." />
                 </SelectTrigger>
                 <SelectContent>
                   {COUNTRY_NAMES.map((country, index) => (
-                    <SelectItem key={index + 100} value={country}>
+                    <SelectItem
+                      key={index}
+                      value={country}
+                      data-testid={`country-option-${country}`}
+                    >
                       {country}
                     </SelectItem>
                   ))}
@@ -345,16 +354,17 @@ export const Accommodation = ({
           >
             Amount
           </Label>
-          <TextField
+          <NumberField
             name="amount"
-            defaultValue={expense?.amount || 0}
+            data-testid="amount-input"
+            placeholder="0"
+            defaultValue={expense?.amount || undefined}
             className="rw-input"
+            step="1.00"
             onChange={(e) => {
-              const value = Number(e.target.value.replace(/[^0-9.]/g, ''))
-              if (value > 0) {
-                const nokAmount = (value * exchangeRate).toFixed(2)
-                formMethods.setValue('nokAmount', parseFloat(nokAmount))
-              }
+              const value = Number(e.target.value)
+              const nokAmount = (value * exchangeRate).toFixed(2)
+              formMethods.setValue('nokAmount', parseFloat(nokAmount))
             }}
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
@@ -377,6 +387,7 @@ export const Accommodation = ({
             rules={{ required: true }}
             render={({ field }) => (
               <Combobox
+                data-testid="currency-select"
                 Data={CURRENCIES_OF_COUTRIES}
                 defaultValue={expense?.currency}
                 defaultText="Currency"
@@ -399,26 +410,35 @@ export const Accommodation = ({
           >
             Exchange rate
           </Label>
-          <TextField
+          <NumberField
             name="exchangeRate"
-            defaultValue={expense?.exchangeRate}
-            validation={{
-              valueAsNumber: true,
-            }}
-            onChange={(event) => {
-              const newExchangeRate = event.target.value.replace(/[^0-9.]/g, '')
-              // if (isNaN(newExchangeRate)) return
-              setExchangeRate(Number(newExchangeRate))
-              formMethods.setValue('exchangeRate', newExchangeRate)
+            data-testid="exchange-rate-input"
+            placeholder="0"
+            defaultValue={expense?.exchangeRate || undefined}
+            className="rw-input"
+            step="0.01"
+            onChange={(e) => {
+              const value = Number(e.target.value)
+              setExchangeRate(value)
+              formMethods.setValue('exchangeRate', value)
+              formMethods.clearErrors('exchangeRate')
 
               const amount = formMethods.getValues('amount')
               if (amount) {
-                const nokAmount = amount * Number(newExchangeRate)
-                formMethods.setValue('nokAmount', nokAmount)
+                const nokAmount = amount * value
+                formMethods.setValue(
+                  'nokAmount',
+                  parseFloat(nokAmount.toFixed(2))
+                )
               }
             }}
-            className="rw-input"
             errorClassName="rw-input rw-input-error"
+            validation={{
+              valueAsNumber: true,
+              required: true,
+              validate: (value) =>
+                value > 0 || 'Exchange rate must be greater than 0',
+            }}
           />
           <FieldError name="exchangeRate" className="rw-field-error" />
         </div>
@@ -433,6 +453,7 @@ export const Accommodation = ({
           </Label>
           <TextField
             name="nokAmount"
+            data-testid="nok-amount-input"
             disabled
             defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
             className="rw-input rw-input-disabled"
