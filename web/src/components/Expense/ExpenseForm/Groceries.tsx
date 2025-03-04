@@ -85,7 +85,7 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
     } catch (error) {
       formMethods.setError('exchangeRate', {
         type: 'manual',
-        message: 'Failed to fetch exchange rate. Please enter manually.',
+        message: `Failed to fetch exchange rate: ${error.message}. Please enter manually.`,
       })
     }
   }
@@ -128,7 +128,7 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
 
     const dataWithReceipt = {
       date,
-      tripId,
+      tripId: Number(tripId),
       amount,
       currency,
       nokAmount,
@@ -154,18 +154,18 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
 
   useEffect(() => {
     async function fetchExchangeRate() {
-      const exchangeRate = await getCurrencyConversionRate(
-        props.expense?.currency,
-        selectedDate
-      )
-      formMethods.setValue('exchangeRate', exchangeRate)
-      setExchangeRate(exchangeRate)
+      const currency =
+        formMethods.getValues('currency') || props.expense?.currency
+      if (currency) {
+        const newExchangeRate = await getCurrencyConversionRate(
+          currency,
+          selectedDate
+        )
+        formMethods.setValue('exchangeRate', newExchangeRate)
+        setExchangeRate(newExchangeRate)
+      }
     }
-    if (props.expense?.currency) {
-      fetchExchangeRate()
-    } else {
-      formMethods.setValue('exchangeRate', 0)
-    }
+    fetchExchangeRate()
   }, [selectedDate, formMethods, props.expense?.currency])
 
   return (
@@ -299,7 +299,7 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
             placeholder="0"
             defaultValue={props.expense?.exchangeRate || undefined}
             className="rw-input"
-            step="0.01"
+            step="0.0001"
             onChange={(e) => {
               const value = Number(e.target.value)
               setExchangeRate(value)

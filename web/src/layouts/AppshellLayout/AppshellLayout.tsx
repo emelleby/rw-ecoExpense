@@ -55,7 +55,7 @@ const AppshellLayout = ({ title, titleTo, children }: AppshellLayoutProps) => {
             )}
           </h1>
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-x-2">
             <ThemeToggle />
             <UserButton />
             <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />

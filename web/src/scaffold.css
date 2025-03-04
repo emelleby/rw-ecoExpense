@@ -106,6 +106,9 @@
 .rw-button.rw-button-blue {
   @apply bg-sky-600 text-white;
 }
+.rw-button.rw-button-disabled {
+  @apply bg-accent text-accent-foreground cursor-not-allowed;
+}
 .rw-button.rw-button-blue:hover {
   @apply bg-sky-800;
 }

@@ -43,6 +43,7 @@ interface ExpenseChartProps {
   data: Expense[]
   showReimburseButton: boolean
   tripId: number
+  tripStatus: string
 }
 
 const Update_Reimbursement_Status: TypedDocumentNode<UpdateReimbursementStatusInput> = gql`
@@ -61,6 +62,7 @@ export function ExpenseTable({
   data,
   showReimburseButton = true,
   tripId,
+  tripStatus,
 }: ExpenseChartProps) {
   console.log('Data in Table; ', data)
   const [updateReimbursementStatus] = useMutation(Update_Reimbursement_Status, {
@@ -106,7 +108,10 @@ export function ExpenseTable({
           {data.map((expense) => (
             <TableRow key={`${expense.id}_${expense.date}`}>
               <TableCell>
-                <ExpenseActions id={Number(expense.id)} />
+                <ExpenseActions
+                  id={Number(expense.id)}
+                  tripStatus={tripStatus}
+                />
               </TableCell>
               <TableCell>
                 {new Date(expense.date).toLocaleDateString()}
@@ -117,7 +122,7 @@ export function ExpenseTable({
                 {formatCurrency(expense.amount)} NOK
               </TableCell>
               <TableCell className="text-right">
-                {expense.emissions} kg Co2e
+                {expense.emissions.toFixed(2)} kg Co2e
               </TableCell>
               <TableCell className="text-right">
                 <ImageDialog
@@ -127,7 +132,7 @@ export function ExpenseTable({
               </TableCell>
             </TableRow>
           ))}
-        </TableBody>
+        </TableBody>{' '}
         {showReimburseButton && (
           <TableFooter>
             <TableRow>

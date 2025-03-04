@@ -3,51 +3,214 @@ import type { QueryResolvers } from 'types/graphql'
 import { db } from 'src/lib/db'
 
 export const dashboard: QueryResolvers['dashboard'] = async () => {
-  const startOfMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth(),
-    1
-  )
-  const startOfLastMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() - 1,
-    1
+  if (!context.currentUser?.dbUserId) {
+    throw new Error('User not authenticated')
+  }
+
+  const startOfYear = new Date(new Date().getFullYear(), 0, 1)
+  const today = new Date()
+
+  // Get total expenses and emissions for current user and current year
+  const currentYearExpenses = await db.expense.aggregate({
+    _sum: {
+      nokAmount: true,
+      scope1Co2Emissions: true,
+      scope2Co2Emissions: true,
+      scope3Co2Emissions: true,
+    },
+    where: {
+      date: {
+        gte: startOfYear,
+      },
+      userId: context.currentUser.dbUserId,
+    },
+  })
+
+  // Set dates for last year
+  const lastYearStart = new Date(new Date().getFullYear() - 1, 0, 1)
+  const lastYearToday = new Date(
+    new Date().getFullYear() - 1,
+    today.getMonth(),
+    today.getDate()
   )
 
-  // Get total expenses and calculate percentage change
-  const currentMonthExpenses = await db.expense.aggregate({
+  // Get total expenses for current user and last year
+  const lastYearExpenses = await db.expense.aggregate({
     _sum: {
       nokAmount: true,
     },
     where: {
       date: {
-        gte: startOfMonth,
+        gte: lastYearStart,
+        lte: lastYearToday,
       },
+      userId: context.currentUser.dbUserId,
     },
   })
 
-  const lastMonthExpenses = await db.expense.aggregate({
-    _sum: {
-      nokAmount: true,
+  // Calculate percentage change from same period last year
+  const total = Number(currentYearExpenses._sum.nokAmount || 0)
+  const lastYearTotal = Number(lastYearExpenses._sum.nokAmount || 0)
+
+  const percentageChange = lastYearTotal
+    ? ((total - lastYearTotal) / lastYearTotal) * 100
+    : undefined
+
+  console.log('Raw expense values:', {
+    currentYearTotal: total,
+    lastYearTotal: lastYearTotal,
+    percentageChange:
+      percentageChange !== undefined
+        ? percentageChange.toFixed(1) + '%'
+        : 'No last year data',
+  })
+
+  console.log('Expense Calculation:', {
+    currentYear: {
+      total,
+      startDate: startOfYear.toISOString(),
+      endDate: today.toISOString(),
     },
+    lastYear: {
+      total: lastYearTotal,
+      startDate: lastYearStart.toISOString(),
+      endDate: lastYearToday.toISOString(),
+    },
+    percentageChange: `${percentageChange.toFixed(1)}%`,
+    calculation: lastYearTotal
+      ? `((${total} - ${lastYearTotal}) / ${lastYearTotal}) * 100`
+      : 'No last year data (defaulting to 0%)',
+  })
+
+  // Calculate percentage change from same period last year
+  const lastYearEmissions = await db.expense.aggregate({
     where: {
+      userId: context.currentUser.dbUserId,
       date: {
-        gte: startOfLastMonth,
-        lt: startOfMonth,
+        gte: lastYearStart,
+        lte: lastYearToday,
       },
+    },
+    _sum: {
+      scope1Co2Emissions: true,
+      scope2Co2Emissions: true,
+      scope3Co2Emissions: true,
     },
   })
 
-  const total = Number(currentMonthExpenses._sum.nokAmount || 0)
-  const lastMonthTotal = Number(lastMonthExpenses._sum.nokAmount || 0)
-  const percentageChange = lastMonthTotal
-    ? ((total - lastMonthTotal) / lastMonthTotal) * 100
-    : 0
+  // Calculate carbon emissions
+  const currentYearCarbonTotal =
+    (currentYearExpenses._sum.scope1Co2Emissions || 0) +
+    (currentYearExpenses._sum.scope2Co2Emissions || 0) +
+    (currentYearExpenses._sum.scope3Co2Emissions || 0)
 
-  // Get pending expenses from trips
+  const lastYearCarbonTotal =
+    (lastYearEmissions._sum.scope1Co2Emissions || 0) +
+    (lastYearEmissions._sum.scope2Co2Emissions || 0) +
+    (lastYearEmissions._sum.scope3Co2Emissions || 0)
+
+  const carbonPercentageChange = lastYearCarbonTotal
+    ? ((currentYearCarbonTotal - lastYearCarbonTotal) / lastYearCarbonTotal) *
+      100
+    : undefined
+
+  console.log('Raw carbon values:', {
+    currentYearTotal: currentYearCarbonTotal,
+    lastYearTotal: lastYearCarbonTotal,
+    percentageChange:
+      carbonPercentageChange !== undefined
+        ? carbonPercentageChange.toFixed(1) + '%'
+        : 'No last year data',
+  })
+
+  // Log detailed calculations for debugging
+  console.log({
+    expenses: {
+      currentYear: {
+        total,
+        startDate: startOfYear.toISOString(),
+        endDate: today.toISOString(),
+      },
+      lastYear: {
+        total: lastYearTotal,
+        startDate: lastYearStart.toISOString(),
+        endDate: lastYearToday.toISOString(),
+      },
+      percentageChange:
+        percentageChange !== undefined
+          ? `${percentageChange.toFixed(1)}%`
+          : 'No comparison available',
+      calculation: lastYearTotal
+        ? `((${total} - ${lastYearTotal}) / ${lastYearTotal}) * 100`
+        : 'No last year data',
+    },
+    carbonEmissions: {
+      currentYear: {
+        total: currentYearCarbonTotal,
+        scope1: currentYearExpenses._sum.scope1Co2Emissions || 0,
+        scope2: currentYearExpenses._sum.scope2Co2Emissions || 0,
+        scope3: currentYearExpenses._sum.scope3Co2Emissions || 0,
+        startDate: startOfYear.toISOString(),
+        endDate: today.toISOString(),
+      },
+      lastYear: {
+        total: lastYearCarbonTotal,
+        scope1: lastYearEmissions._sum.scope1Co2Emissions || 0,
+        scope2: lastYearEmissions._sum.scope2Co2Emissions || 0,
+        scope3: lastYearEmissions._sum.scope3Co2Emissions || 0,
+        startDate: lastYearStart.toISOString(),
+        endDate: lastYearToday.toISOString(),
+      },
+      percentageChange:
+        carbonPercentageChange !== undefined
+          ? `${carbonPercentageChange.toFixed(1)}%`
+          : 'No comparison available',
+      calculation: lastYearCarbonTotal
+        ? `((${currentYearCarbonTotal} - ${lastYearCarbonTotal}) / ${lastYearCarbonTotal}) * 100`
+        : 'No last year data',
+    },
+  })
+
+  // Get all expenses for the user grouped by category with their emissions
+  const expensesByCategory = await db.expense.findMany({
+    where: {
+      userId: context.currentUser.dbUserId,
+    },
+    include: {
+      category: true,
+    },
+  })
+
+  // Group expenses by category and calculate total emissions
+  const categoryEmissions = expensesByCategory.reduce(
+    (acc, expense) => {
+      const categoryName = expense.category.name
+      const totalEmissions =
+        (expense.scope1Co2Emissions || 0) +
+        (expense.scope2Co2Emissions || 0) +
+        (expense.scope3Co2Emissions || 0)
+
+      if (!acc[categoryName]) {
+        acc[categoryName] = 0
+      }
+      acc[categoryName] += totalEmissions
+
+      return acc
+    },
+    {} as Record<string, number>
+  )
+
+  // Calculate total emissions for display
+  const totalCarbon = Object.values(categoryEmissions).reduce(
+    (sum, amount) => sum + amount,
+    0
+  )
+
+  // Get pending trips
   const pendingTrips = await db.trip.findMany({
     where: {
       reimbursementStatus: 'PENDING',
+      userId: context.currentUser.dbUserId,
     },
     include: {
       Expense: {
@@ -65,40 +228,27 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
     0
   )
 
-  // Get recent expenses
-  const recentExpenses = await db.expense.findMany({
+  // Get recent trips for current user
+  const recentTrips = await db.trip.findMany({
     take: 5,
-    orderBy: {
-      date: 'desc',
+    orderBy: { startDate: 'desc' },
+    where: {
+      userId: context.currentUser.dbUserId,
     },
     include: {
-      category: true,
       Project: true,
-      Trip: true,
+      Expense: {
+        select: {
+          nokAmount: true,
+        },
+      },
     },
   })
 
-  // Calculate carbon footprint
-  const carbonData = await db.expense.groupBy({
-    by: ['scope3CategoryId'],
-    _sum: {
-      scope1Co2Emissions: true,
-      scope2Co2Emissions: true,
-      scope3Co2Emissions: true,
-    },
-  })
-
-  const totalCarbon = carbonData.reduce(
-    (sum, data) =>
-      sum +
-      (data._sum.scope1Co2Emissions || 0) +
-      (data._sum.scope2Co2Emissions || 0) +
-      (data._sum.scope3Co2Emissions || 0),
-    0
-  )
-
-  // Mock carbon percentage change for now
-  const carbonPercentageChange = 8.3
+  // console.log(
+  //   'Recent Trips Query Result:',
+  //   JSON.stringify(recentTrips, null, 2)
+  // )
 
   return {
     expenses: {
@@ -108,35 +258,30 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
         amount: pendingTotal,
         count: pendingTrips.length,
       },
-      recent: recentExpenses.map((expense) => ({
-        id: expense.id,
-        type: expense.category.name,
-        project: expense.Project?.name,
-        trip: expense.Trip?.description,
-        amount: Number(expense.nokAmount),
-        status: expense.Trip?.reimbursementStatus || 'NOT_REQUESTED',
-      })),
     },
+    trips: recentTrips.map((trip) => ({
+      id: trip.id,
+      name: trip.name,
+      description: trip.description,
+      project: trip.Project?.name,
+      reimbursementStatus: trip.reimbursementStatus,
+      expenseCount: trip.Expense.length,
+      expenseAmount: trip.Expense.reduce(
+        (sum, exp) => sum + Number(exp.nokAmount),
+        0
+      ),
+    })),
     carbonFootprint: {
       total: Math.round(totalCarbon),
       percentageChange: carbonPercentageChange,
-      byCategory: [
-        {
-          category: 'Transportation',
-          amount: Math.round(totalCarbon * 0.6), // 60% of total for demo
-          unit: 'kg CO2',
-        },
-        {
-          category: 'Accommodation',
-          amount: Math.round(totalCarbon * 0.25), // 25% of total for demo
-          unit: 'kg CO2',
-        },
-        {
-          category: 'Meals',
-          amount: Math.round(totalCarbon * 0.15), // 15% of total for demo
-          unit: 'kg CO2',
-        },
-      ],
+      byCategory: Object.entries(categoryEmissions)
+        .filter(([_, amount]) => amount > 0)
+        .sort(([_c1, a1], [_c2, a2]) => a2 - a1)
+        .map(([category, amount]) => ({
+          category,
+          amount: Math.round(amount),
+          unit: 'kg CO2e',
+        })),
     },
   }
 }

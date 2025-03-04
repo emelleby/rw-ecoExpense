@@ -28,6 +28,9 @@ export const QUERY: TypedDocumentNode<FindExpenses, FindExpensesVariables> =
         sectorId
         supplierId
         tripId
+        trip {
+          reimbursementStatus
+        }
         projectId
         userId
         scope1Co2Emissions

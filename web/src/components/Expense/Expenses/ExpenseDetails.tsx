@@ -1,4 +1,11 @@
+import type { UpdateReimbursementStatusInput } from 'types/graphql'
+
+import { TypedDocumentNode, useMutation } from '@redwoodjs/web'
+import { toast } from '@redwoodjs/web/toast'
+
+import { QUERY } from 'src/components/Trip/TripCell/TripCell'
 import { Badge } from 'src/components/ui/Badge'
+import { Button } from 'src/components/ui/Button'
 import { formatEnum } from 'src/lib/formatters'
 
 import { ExpenseTable } from './ExpenseTable'
@@ -26,6 +33,17 @@ interface ExpenseDetailsProps {
   reimbursementStatus: string
   tripId: number
 }
+const Update_Reimbursement_Status: TypedDocumentNode<UpdateReimbursementStatusInput> = gql`
+  mutation UpdateReimbursementStatus(
+    $reimbursementStatus: ReimbursementStatus!
+    $id: Int!
+  ) {
+    updateReimbursementStatus(
+      reimbursementStatus: $reimbursementStatus
+      id: $id
+    )
+  }
+`
 
 // Add this helper function above your component
 const getBadgeVariant = (status: string) => {
@@ -49,6 +67,32 @@ export function ExpenseDetails({
   console.log('Expense Details Data:', data)
   const showReimburseButton =
     reimbursementStatus === 'NOT_REQUESTED' && data.length > 0
+  console.log('Data in Table; ', data)
+
+  // TODO
+  const [updateReimbursementStatus] = useMutation(Update_Reimbursement_Status, {
+    onCompleted: () => {
+      toast.success('Trip updated')
+      //navigate(routes.trips())
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+
+    refetchQueries: [{ query: QUERY }],
+    awaitRefetchQueries: true,
+  })
+  const handleOpenTrip = async (tripId: number) => {
+    try {
+      const data = await updateReimbursementStatus({
+        variables: { reimbursementStatus: 'NOT_REQUESTED', id: tripId },
+      })
+
+      console.log(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div className="mx-auto w-full space-y-4">
@@ -59,18 +103,29 @@ export function ExpenseDetails({
           </p>
         </div>
 
-        <Badge
-          variant={getBadgeVariant(reimbursementStatus)}
-          className="ml-3 text-nowrap"
-        >
-          {formatEnum(reimbursementStatus)}
-        </Badge>
+        <div className="flex items-center gap-x-2">
+          <Badge
+            variant={getBadgeVariant(reimbursementStatus)}
+            className="ml-3 text-nowrap"
+          >
+            {formatEnum(reimbursementStatus)}
+          </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={reimbursementStatus !== 'PENDING'}
+            onClick={() => handleOpenTrip(tripId)}
+          >
+            Open
+          </Button>
+        </div>
       </div>
 
       <ExpenseTable
         data={data}
         showReimburseButton={showReimburseButton}
         tripId={tripId}
+        tripStatus={reimbursementStatus}
       />
     </div>
   )

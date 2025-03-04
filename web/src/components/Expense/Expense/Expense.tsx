@@ -1,23 +1,23 @@
 import type {
-  DeleteExpenseMutation,
   DeleteExpenseMutationVariables,
   FindExpenseById,
 } from 'types/graphql'
 
 import { Link, routes, navigate } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
-import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { timeTag } from 'src/lib/formatters'
 
-const DELETE_EXPENSE_MUTATION: TypedDocumentNode<
-  DeleteExpenseMutation,
-  DeleteExpenseMutationVariables
-> = gql`
-  mutation DeleteExpenseMutation($id: Int!) {
+const DELETE_SINGLE_EXPENSE_MUTATION = gql`
+  mutation DeleteSingleExpenseMutation($id: Int!) {
     deleteExpense(id: $id) {
-      id
+      ... on Expense {
+        id
+      }
+      ... on ExpenseValidationError {
+        message
+      }
     }
   }
 `
@@ -27,10 +27,15 @@ interface Props {
 }
 
 const Expense = ({ expense }: Props) => {
-  const [deleteExpense] = useMutation(DELETE_EXPENSE_MUTATION, {
-    onCompleted: () => {
-      toast.success('Expense deleted')
-      navigate(routes.expenses())
+  const [deleteExpense] = useMutation(DELETE_SINGLE_EXPENSE_MUTATION, {
+    onCompleted: (data) => {
+      if ('message' in data.deleteExpense) {
+        // This is a validation error
+        toast.error(data.deleteExpense.message)
+      } else {
+        toast.success('Expense deleted')
+        navigate(routes.expenses())
+      }
     },
     onError: (error) => {
       toast.error(error.message)
@@ -41,6 +46,10 @@ const Expense = ({ expense }: Props) => {
     if (confirm('Are you sure you want to delete expense ' + id + '?')) {
       deleteExpense({ variables: { id } })
     }
+  }
+
+  const isExpenseEditable = (tripStatus: string) => {
+    return !['PENDING', 'REIMBURSED'].includes(tripStatus)
   }
 
   return (
@@ -143,15 +152,28 @@ const Expense = ({ expense }: Props) => {
       </div>
       <nav className="rw-button-group">
         <Link
-          to={routes.editExpense({ id: expense.id })}
-          className="rw-button rw-button-blue"
+          to={
+            isExpenseEditable(expense.trip.reimbursementStatus)
+              ? routes.editExpense({ id: expense.id })
+              : '#'
+          }
+          className={`rw-button ${!isExpenseEditable(expense.trip.reimbursementStatus) ? 'rw-button-disabled opacity-50' : 'rw-button-blue'}`}
+          onClick={(e) => {
+            if (!isExpenseEditable(expense.trip.reimbursementStatus)) {
+              e.preventDefault()
+              toast.error(
+                `Cannot edit expenses for trips that are ${expense.trip.reimbursementStatus.toLowerCase()}. Pending trips can be opened from the all trips page.`
+              )
+            }
+          }}
         >
           Edit
         </Link>
         <button
           type="button"
-          className="rw-button rw-button-red"
+          className={`rw-button ${!isExpenseEditable(expense.trip.reimbursementStatus) ? 'rw-button-disabled cursor-not-allowed opacity-50' : 'rw-button-red'}`}
           onClick={() => onDeleteClick(expense.id)}
+          disabled={!isExpenseEditable(expense.trip.reimbursementStatus)}
         >
           Delete
         </button>
@@ -159,5 +181,4 @@ const Expense = ({ expense }: Props) => {
     </>
   )
 }
-
 export default Expense

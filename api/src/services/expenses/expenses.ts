@@ -1,11 +1,45 @@
+import { ReimbursementStatus } from '@prisma/client'
 import type {
   QueryResolvers,
   MutationResolvers,
   ExpenseRelationResolvers,
 } from 'types/graphql'
 
+// Define the interface with __typename to match GraphQL union type resolution
+interface ExpenseValidationError {
+  __typename: 'ExpenseValidationError'
+  message: string
+}
+
+import { context } from '@redwoodjs/graphql-server'
+
 import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
+
+const validateTripStatus = async (
+  tripId: number
+): Promise<ExpenseValidationError | null> => {
+  const trip = await db.trip.findUnique({
+    where: { id: tripId },
+    select: { reimbursementStatus: true },
+  })
+
+  if (!trip) {
+    throw new Error('Trip not found')
+  }
+
+  if (
+    trip.reimbursementStatus === ReimbursementStatus.PENDING ||
+    trip.reimbursementStatus === ReimbursementStatus.REIMBURSED
+  ) {
+    return {
+      __typename: 'ExpenseValidationError',
+      message: `Cannot modify expenses for trips that are ${trip.reimbursementStatus.toLowerCase()}`,
+    }
+  }
+
+  return null
+}
 // import { context } from '@redwoodjs/graphql-server'
 
 export const expenses: QueryResolvers['expenses'] = () => {
@@ -17,6 +51,7 @@ export const expenses: QueryResolvers['expenses'] = () => {
     },
     include: {
       Receipt: true,
+      Trip: true, // Include the Trip relation
     },
   })
 }
@@ -26,6 +61,7 @@ export const expense: QueryResolvers['expense'] = ({ id }) => {
     where: { id },
     include: {
       Receipt: true,
+      Trip: true, // Include the Trip relation
     },
   })
 }
@@ -63,13 +99,27 @@ export const createExpense: MutationResolvers['createExpense'] = async ({
   })
 }
 
-export const updateExpense: MutationResolvers['updateExpense'] = ({
+export const updateExpense: MutationResolvers['updateExpense'] = async ({
   id,
   input,
 }) => {
+  const expense = await db.expense.findUnique({
+    where: { id },
+    select: { tripId: true },
+  })
+
+  if (!expense) {
+    throw new Error('Expense not found')
+  }
+
+  const validationError = await validateTripStatus(expense.tripId)
+  if (validationError) {
+    return validationError
+  }
+
   const { receipt, ...expenseData } = input
 
-  return db.expense.update({
+  const updatedExpense = await db.expense.update({
     where: { id },
     data: {
       ...expenseData,
@@ -86,41 +136,45 @@ export const updateExpense: MutationResolvers['updateExpense'] = ({
       Receipt: true,
     },
   })
+
+  return { __typename: 'Expense', ...updatedExpense }
 }
-
-// export const updateExpense: MutationResolvers['updateExpense'] = ({
-//   id,
-//   input,
-// }) => {
-//   const { receipt, ...expenseData } = input
-
-//   return db.expense.update({
-//     where: { id },
-//     data: {
-//       ...expenseData,
-//       receipt: receipt
-//         ? {
-//             update: {
-//               url: receipt.url,
-//               fileName: receipt.fileName,
-//               fileType: receipt.fileType,
-//             },
-//           }
-//         : undefined,
-//     },
-//   })
-// }
 
 export const deleteExpense: MutationResolvers['deleteExpense'] = async ({
   id,
 }) => {
+  const expense = await db.expense.findUnique({
+    where: { id },
+    select: { tripId: true },
+  })
+
+  if (!expense) {
+    throw new Error('Expense not found')
+  }
+
+  const validationError = await validateTripStatus(expense.tripId)
+  if (validationError) {
+    return validationError
+  }
+
   await db.receipt.deleteMany({
     where: { expenseId: id },
   })
 
-  return db.expense.delete({
+  const deletedExpense = await db.expense.delete({
     where: { id },
   })
+
+  return { __typename: 'Expense', ...deletedExpense }
+}
+
+export const ExpenseResult = {
+  __resolveType(obj: { __typename: string }): string {
+    if (obj.__typename === 'ExpenseValidationError') {
+      return 'ExpenseValidationError'
+    }
+    return 'Expense'
+  },
 }
 
 export const Expense: ExpenseRelationResolvers = {
