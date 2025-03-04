@@ -30,6 +30,9 @@ export const QUERY: TypedDocumentNode<
       sectorId
       supplierId
       tripId
+      trip {
+        reimbursementStatus
+      }
       projectId
       scope1Co2Emissions
       scope2Co2Emissions

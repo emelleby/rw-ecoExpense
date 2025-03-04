@@ -1,11 +1,8 @@
 import { MoreHorizontal } from 'lucide-react'
-import {
-  DeleteExpenseMutation,
-  DeleteExpenseMutationVariables,
-} from 'types/graphql'
+import type { DeleteExpenseMutationVariables } from 'types/graphql'
 
 import { Link, routes } from '@redwoodjs/router'
-import { TypedDocumentNode, useMutation } from '@redwoodjs/web'
+import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { QUERY } from 'src/components/Expense/ExpensesCell'
@@ -17,25 +14,37 @@ import {
   DropdownMenuTrigger,
 } from 'src/components/ui/DropdownMenu'
 
-const DELETE_EXPENSE_MUTATION: TypedDocumentNode<
-  DeleteExpenseMutation,
-  DeleteExpenseMutationVariables
-> = gql`
+const DELETE_EXPENSE_MUTATION = gql`
   mutation DeleteExpenseMutation($id: Int!) {
     deleteExpense(id: $id) {
-      id
+      ... on Expense {
+        id
+      }
+      ... on ExpenseValidationError {
+        message
+      }
     }
   }
 `
 
 interface ExpenseActionsProps {
   id: DeleteExpenseMutationVariables['id']
+  tripStatus: string
 }
 
-export function ExpenseActions({ id }: ExpenseActionsProps) {
+const isExpenseEditable = (tripStatus: string) => {
+  return !['PENDING', 'REIMBURSED'].includes(tripStatus)
+}
+
+export function ExpenseActions({ id, tripStatus }: ExpenseActionsProps) {
   const [deleteExpense] = useMutation(DELETE_EXPENSE_MUTATION, {
-    onCompleted: () => {
-      toast.success('Expense deleted')
+    onCompleted: (data) => {
+      if ('message' in data.deleteExpense) {
+        // This is a validation error
+        toast.error(data.deleteExpense.message)
+      } else {
+        toast.success('Expense deleted')
+      }
     },
     onError: (error) => {
       toast.error(error.message)
@@ -65,13 +74,33 @@ export function ExpenseActions({ id }: ExpenseActionsProps) {
           <DropdownMenuItem>Show</DropdownMenuItem>
         </Link>
 
-        <Link to={routes.editExpense({ id })}>
-          <DropdownMenuItem className="text-sky-600">Edit</DropdownMenuItem>
-        </Link>
+        {isExpenseEditable(tripStatus) ? (
+          <Link to={routes.editExpense({ id })}>
+            <DropdownMenuItem className="text-sky-600">Edit</DropdownMenuItem>
+          </Link>
+        ) : (
+          <DropdownMenuItem
+            className="cursor-not-allowed text-sky-600 opacity-50"
+            onClick={() =>
+              toast.error(
+                `Cannot edit expenses for trips that are ${tripStatus.toLowerCase()}`
+              )
+            }
+          >
+            Edit
+          </DropdownMenuItem>
+        )}
+
         <DropdownMenuItem
-          className="text-rose-600"
+          className={`text-rose-500 ${!isExpenseEditable(tripStatus) ? 'cursor-not-allowed opacity-50' : ''}`}
           onClick={() => {
-            onDeleteClick(id)
+            if (isExpenseEditable(tripStatus)) {
+              onDeleteClick(id)
+            } else {
+              toast.error(
+                `Cannot delete expenses for trips that are ${tripStatus.toLowerCase()}`
+              )
+            }
           }}
         >
           Delete
