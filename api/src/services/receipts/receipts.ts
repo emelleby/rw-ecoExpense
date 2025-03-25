@@ -108,6 +108,6 @@ export const deleteReceipt: MutationResolvers['deleteReceipt'] = async ({
 
 export const Receipt: ReceiptRelationResolvers = {
   expense: (_obj, { root }) => {
-    return db.receipt.findUnique({ where: { id: root?.id } }).expense()
+    return db.receipt.findUnique({ where: { id: root?.id } }).Expense()
   },
 }

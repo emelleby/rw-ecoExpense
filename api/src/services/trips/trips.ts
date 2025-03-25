@@ -10,11 +10,12 @@ export const trips: QueryResolvers['trips'] = () => {
   return db.trip.findMany()
 }
 
-export const trip: QueryResolvers['trip'] = ({ id }) => {
+export const trip: QueryResolvers['trip'] = async ({ id }) => {
   const currentUser = context.currentUser
-  return db.trip.findUnique({
+  const trip = await db.trip.findUnique({
     where: { id, userId: currentUser.dbUserId },
   })
+  return trip
 }
 
 export const topTripsByUser: QueryResolvers['topTripsByUser'] = () => {
@@ -28,37 +29,59 @@ export const topTripsByUser: QueryResolvers['topTripsByUser'] = () => {
   })
 }
 // Added to only fetch trips for the current user
-export const tripsByUser: QueryResolvers['tripsByUser'] = () => {
+export const tripsByUser: QueryResolvers['tripsByUser'] = ({ take }) => {
   const currentUser = context.currentUser
   return db.trip.findMany({
     where: {
       userId: currentUser.dbUserId,
     },
-  })
-}
-
-// export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
-//   return db.trip.create({
-//     data: input,
-//   })
-// }
-
-// This is a custom way of doing it from AI. The above is RW generated.
-export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
-  return db.trip.create({
-    data: {
-      name: input.name,
-      description: input.description,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      user: {
-        connect: {
-          id: input.userId,
-        },
-      },
+    take: take || undefined,
+    orderBy: {
+      startDate: 'desc',
     },
   })
 }
+
+export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
+  return db.trip.create({
+    data: input,
+  })
+}
+
+// This is a custom way of doing it from AI. The above is RW generated.
+// export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
+//   return db.trip.create({
+//     data: {
+//       name: input.name,
+//       description: input.description,
+//       startDate: input.startDate,
+//       endDate: input.endDate,
+//       Project: {
+//         connect: {
+//           id: input.projectId,
+//         },
+//       },
+//       user: {
+//         connect: {
+//           id: input.userId,
+//         },
+//       },
+//     },
+//   })
+// }
+
+// export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
+//   return db.trip.create({
+//     data: {
+//       name: input.name,
+//       description: input.description,
+//       startDate: input.startDate,
+//       endDate: input.endDate,
+//       projectId: input.projectId,  // Direct assignment instead of connect
+//       userId: input.userId,        // Direct assignment instead of connect
+//     },
+//   })
+// }
 
 export const updateTrip: MutationResolvers['updateTrip'] = ({ id, input }) => {
   return db.trip.update({
@@ -66,6 +89,26 @@ export const updateTrip: MutationResolvers['updateTrip'] = ({ id, input }) => {
     where: { id },
   })
 }
+
+// a function to update reimbursementStatus of all trips of a specific user input will be reimbursementStatus only which can be
+// NOT_REQUESTED, PENDING, REIMBURSED
+
+export const updateReimbursementStatus: MutationResolvers['updateReimbursementStatus'] =
+  async ({ reimbursementStatus, id }) => {
+    try {
+      await db.trip.updateMany({
+        data: {
+          reimbursementStatus: reimbursementStatus,
+        },
+        where: {
+          id: id,
+        },
+      })
+      return true
+    } catch (error) {
+      return false
+    }
+  }
 
 export const deleteTrip: MutationResolvers['deleteTrip'] = ({ id }) => {
   return db.trip.delete({
@@ -75,9 +118,9 @@ export const deleteTrip: MutationResolvers['deleteTrip'] = ({ id }) => {
 
 export const Trip: TripRelationResolvers = {
   user: (_obj, { root }) => {
-    return db.trip.findUnique({ where: { id: root?.id } }).user()
+    return db.trip.findUnique({ where: { id: root?.id } }).User()
   },
   expenses: (_obj, { root }) => {
-    return db.trip.findUnique({ where: { id: root?.id } }).expenses()
+    return db.trip.findUnique({ where: { id: root?.id } }).Expense()
   },
 }

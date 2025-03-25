@@ -7,6 +7,7 @@ import type {
 } from '@redwoodjs/web'
 
 import Trip from 'src/components/Trip/Trip'
+import Spinner from 'src/components/ui/Spinner'
 
 export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
   gql`
@@ -21,11 +22,30 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
         approvedDate
         reimbursementStatus
         transactionId
+        expenses {
+          id
+          scope3Co2Emissions
+          description
+          receipt {
+            url
+          }
+          categoryId
+          nokAmount
+          kwh
+          date
+          category {
+            name
+          }
+        }
       }
     }
   `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = () => (
+  <div className="flex h-screen items-center justify-center">
+    <Spinner />
+  </div>
+)
 
 export const Empty = () => <div>Trip not found</div>
 

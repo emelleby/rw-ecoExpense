@@ -4,9 +4,10 @@
   "private": true,
   "dependencies": {
     "@google-cloud/storage": "^7.14.0",
-    "@redwoodjs/api": "8.4.1",
-    "@redwoodjs/auth-clerk-api": "8.4.1",
-    "@redwoodjs/graphql-server": "8.4.1",
+    "@redwoodjs/api": "8.5.0",
+    "@redwoodjs/auth-clerk-api": "8.5.0",
+    "@redwoodjs/graphql-server": "8.5.0",
+    "@whatwg-node/fetch": "^0.10.3",
     "filestack-js": "^3.36.4",
     "uuid": "^11.0.3"
   },

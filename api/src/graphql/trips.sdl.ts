@@ -11,6 +11,8 @@ export const schema = gql`
     approvedDate: DateTime
     reimbursementStatus: ReimbursementStatus!
     transactionId: String
+    projectId: Int
+    project: Project
   }
 
   enum ReimbursementStatus {
@@ -22,7 +24,7 @@ export const schema = gql`
   type Query {
     trips: [Trip!]! @requireAuth
     trip(id: Int!): Trip @requireAuth
-    tripsByUser: [Trip!]! @requireAuth
+    tripsByUser(take: Int): [Trip!]! @requireAuth
     topTripsByUser: [Trip!]! @requireAuth
   }
 
@@ -33,6 +35,7 @@ export const schema = gql`
     userId: Int!
     description: String
     reimbursementStatus: ReimbursementStatus = NOT_REQUESTED
+    projectId: Int! # Remove the optional type here
   }
 
   input UpdateTripInput {
@@ -44,11 +47,20 @@ export const schema = gql`
     approvedDate: DateTime
     reimbursementStatus: ReimbursementStatus
     transactionId: String
+    projectId: Int
+  }
+
+  input UpdateReimbursementStatusInput {
+    reimbursementStatus: ReimbursementStatus!
   }
 
   type Mutation {
     createTrip(input: CreateTripInput!): Trip! @skipAuth
     updateTrip(id: Int!, input: UpdateTripInput!): Trip! @skipAuth
     deleteTrip(id: Int!): Trip! @skipAuth
+    updateReimbursementStatus(
+      reimbursementStatus: ReimbursementStatus!
+      id: Int!
+    ): Boolean! @requireAuth
   }
 `

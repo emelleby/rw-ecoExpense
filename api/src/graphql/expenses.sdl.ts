@@ -1,4 +1,10 @@
 export const schema = gql`
+  type ExpenseValidationError {
+    message: String!
+  }
+
+  union ExpenseResult = Expense | ExpenseValidationError
+
   type Expense {
     id: Int!
     categoryId: Int!
@@ -83,7 +89,8 @@ export const schema = gql`
 
   type Mutation {
     createExpense(input: CreateExpenseInput!): Expense! @skipAuth
-    updateExpense(id: Int!, input: UpdateExpenseInput!): Expense! @skipAuth
-    deleteExpense(id: Int!): Expense! @requireAuth
+    updateExpense(id: Int!, input: UpdateExpenseInput!): ExpenseResult!
+      @requireAuth
+    deleteExpense(id: Int!): ExpenseResult! @requireAuth
   }
 `

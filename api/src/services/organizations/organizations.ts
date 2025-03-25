@@ -44,9 +44,9 @@ export const deleteOrganization: MutationResolvers['deleteOrganization'] = ({
 
 export const Organization: OrganizationRelationResolvers = {
   users: (_obj, { root }) => {
-    return db.organization.findUnique({ where: { id: root?.id } }).users()
+    return db.organization.findUnique({ where: { id: root?.id } }).User()
   },
   suppliers: (_obj, { root }) => {
-    return db.organization.findUnique({ where: { id: root?.id } }).suppliers()
+    return db.organization.findUnique({ where: { id: root?.id } }).Supplier()
   },
 }

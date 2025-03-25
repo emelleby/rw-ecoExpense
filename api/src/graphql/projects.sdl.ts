@@ -3,27 +3,33 @@ export const schema = gql`
     id: Int!
     name: String!
     description: String
-    userId: Int!
-    user: User!
+    active: Boolean!
+    organizationId: Int
+    organization: Organization
+    createdById: Int
+    createdBy: User
     expenses: [Expense]!
+    trips: [Trip]!
+    createdAt: DateTime!
   }
 
   type Query {
-    projects: [Project!]! @requireAuth
+    projects(take: Int): [Project!]! @requireAuth
     project(id: Int!): Project @requireAuth
-    projectsByUser: [Project!]! @requireAuth
   }
 
   input CreateProjectInput {
     name: String!
     description: String
-    userId: Int!
+    active: Boolean!
+    # organizationId: Int
+    # createdById: Int
   }
 
   input UpdateProjectInput {
-    name: String
+    name: String!
     description: String
-    userId: Int
+    active: Boolean!
   }
 
   type Mutation {

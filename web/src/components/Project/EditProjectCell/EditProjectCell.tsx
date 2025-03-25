@@ -21,7 +21,10 @@ export const QUERY: TypedDocumentNode<EditProjectById> = gql`
       id
       name
       description
-      userId
+      active
+      organizationId
+      createdById
+      createdAt
     }
   }
 `
@@ -35,7 +38,10 @@ const UPDATE_PROJECT_MUTATION: TypedDocumentNode<
       id
       name
       description
-      userId
+      active
+      organizationId
+      createdById
+      createdAt
     }
   }
 `
@@ -64,6 +70,9 @@ export const Success = ({ project }: CellSuccessProps<EditProjectById>) => {
     input: UpdateProjectInput,
     id: EditProjectById['project']['id']
   ) => {
+    console.log('Form input:', input) // Debug form input
+    console.log('Project ID:', id)
+
     updateProject({ variables: { id, input } })
   }
 

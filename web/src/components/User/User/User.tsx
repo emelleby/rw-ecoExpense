@@ -9,8 +9,11 @@ import { useMutation } from '@redwoodjs/web'
 import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import { Table, TableBody, TableCell, TableRow } from 'src/components/ui/Table'
 import { formatEnum } from 'src/lib/formatters'
+
+import { useAuth } from '@/auth'
+import { Button } from '@/components/ui/Button'
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/Table'
 
 const DELETE_USER_MUTATION: TypedDocumentNode<
   DeleteUserMutation,
@@ -28,6 +31,7 @@ interface Props {
 }
 
 const User = ({ user }: Props) => {
+  const { hasRole, currentUser } = useAuth()
   const [deleteUser] = useMutation(DELETE_USER_MUTATION, {
     onCompleted: () => {
       toast.success('User deleted')
@@ -39,6 +43,10 @@ const User = ({ user }: Props) => {
   })
 
   const onDeleteClick = (id: DeleteUserMutationVariables['id']) => {
+    if (hasRole('admin')) {
+      toast.error('Cannot delete admin users')
+      return
+    }
     if (confirm('Are you sure you want to delete user ' + id + '?')) {
       deleteUser({ variables: { id } })
     }
@@ -86,27 +94,35 @@ const User = ({ user }: Props) => {
               <TableCell>Status</TableCell>
               <TableCell>{formatEnum(user.status)}</TableCell>
             </TableRow>
-            <TableRow>
+            {/* <TableRow>
               <TableCell>Organization id</TableCell>
               <TableCell>{user.organizationId}</TableCell>
-            </TableRow>
+            </TableRow> */}
           </TableBody>
         </Table>
       </div>
-      <nav className="rw-button-group">
+      <nav className="rw-button-group space-x-3">
+        <Button
+          variant="outline"
+          type="button"
+          className=""
+          onClick={() => navigate(routes.users())}
+        >
+          CANCEL
+        </Button>
         <Link
           to={routes.editUser({ id: user.id })}
           className="rw-button rw-button-blue"
         >
           Edit
         </Link>
-        <button
+        <Button
           type="button"
           className="rw-button rw-button-red"
           onClick={() => onDeleteClick(user.id)}
         >
           Delete
-        </button>
+        </Button>
       </nav>
     </>
   )

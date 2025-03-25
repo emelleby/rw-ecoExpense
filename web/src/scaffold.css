@@ -27,7 +27,7 @@
   @apply mx-4 pb-4;
 }
 .rw-segment {
-  @apply w-full overflow-hidden rounded-lg border border-gray-200;
+  @apply w-full overflow-hidden;
   scrollbar-color: theme('colors.zinc.400') transparent;
 }
 .rw-segment::-webkit-scrollbar {
@@ -43,19 +43,19 @@
   @apply bg-inherit px-4 py-3 ;
 }
 .rw-segment-main {
-  @apply p-4;
+  @apply p-0 sm:p-2 md:p-4;
 }
 .rw-link {
-  @apply text-blue-400 underline;
+  @apply text-sky-500 underline;
 }
 .rw-link:hover {
-  @apply text-blue-500;
+  @apply text-sky-600;
 }
 .rw-forgot-link {
-  @apply mt-1 text-right text-xs text-gray-400 underline;
+  @apply mt-1 text-right text-xs text-gray-500 underline;
 }
 .rw-forgot-link:hover {
-  @apply text-blue-500;
+  @apply text-sky-600;
 }
 .rw-heading {
   @apply font-semibold;
@@ -70,7 +70,7 @@
   @apply text-gray-600 no-underline;
 }
 .rw-heading .rw-link:hover {
-  @apply text-gray-900 underline;
+  @apply text-teal-500 underline;
 }
 .rw-cell-error {
   @apply text-sm font-semibold;
@@ -106,14 +106,17 @@
 .rw-button.rw-button-blue {
   @apply bg-sky-600 text-white;
 }
+.rw-button.rw-button-disabled {
+  @apply bg-accent text-accent-foreground cursor-not-allowed;
+}
 .rw-button.rw-button-blue:hover {
   @apply bg-sky-800;
 }
 .rw-button.rw-button-red {
-  @apply bg-rose-600 text-white;
+  @apply bg-destructive text-slate-100;
 }
 .rw-button.rw-button-red:hover {
-  @apply bg-rose-700 text-white;
+  @apply bg-destructive/80 text-slate-100;
 }
 .rw-button-icon {
   @apply mr-1 text-xl leading-5 h-6;
@@ -134,13 +137,21 @@
   @apply text-rose-600;
 }
 .rw-input {
-  @apply mt-2 block w-full rounded border bg-transparent backdrop-brightness-200 border-gray-500 p-2 outline-none;
+  @apply mt-2 block w-full rounded-md border text-secondary-foreground bg-transparent backdrop-brightness-200 border-border py-2 px-3 outline-none;
 }
 .rw-input-calendar {
-  @apply mt-2 w-full rounded border bg-transparent backdrop-brightness-200 border-gray-500 p-2 outline-none;
+  @apply mt-2 w-full rounded border bg-transparent backdrop-brightness-200 border-border p-2 outline-none;
 }
 .rw-check-radio-items {
   @apply flex justify-items-center gap-2 mt-1;
+}
+.rw-input option {
+  @apply bg-secondary backdrop-brightness-200 border-border;
+  @apply cursor-pointer;
+  @apply py-4 px-4;
+}
+.rw-input option:checked {
+  @apply bg-sky-600 text-white;
 }
 .rw-check-radio-item-none {
   @apply text-gray-600;
@@ -149,11 +160,23 @@
 .rw-input[type='radio'] {
   @apply ml-0 mr-1 mt-1 inline w-4;
 }
+.rw-input::-webkit-outer-spin-button,
+.rw-input::-webkit-inner-spin-button {
+  @apply appearance-none m-0;
+}
+/* For Firefox */
+.rw-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .rw-input:focus {
-  @apply border-sky-500 ring-2 ring-inset;
+  @apply ring-sky-600 ring-2 ring-inset;
 }
 .rw-input-error {
   @apply border-rose-600 text-rose-600;
+}
+.rw-input-disabled {
+  @apply bg-accent border-dotted border-2 text-muted-foreground;
 }
 .rw-input-error:focus {
   @apply border-rose-600 outline-none;
@@ -169,21 +192,21 @@
   min-width: 48rem;
 }
 .rw-table {
-  @apply w-full text-sm;
+  @apply w-full text-sm ;
 }
 .rw-table th,
 .rw-table td {
   @apply p-3;
 }
 .rw-table td {
-  @apply bg-white text-gray-900;
+  @apply  bg-secondary/50 text-foreground;
 }
 .rw-table tr:nth-child(odd) td,
 .rw-table tr:nth-child(odd) th {
-  @apply bg-gray-50;
+  @apply bg-transparent text-foreground;
 }
 .rw-table thead tr {
-  @apply bg-gray-200 text-gray-600;
+  @apply bg-secondary text-foreground;
   position: sticky;
   top: 0;
 }
@@ -205,7 +228,7 @@
   }
 }
 .rw-table tbody tr {
-  @apply border-t border-gray-200;
+  @apply border-t border-secondary;
 }
 .rw-table input {
   @apply ml-0;

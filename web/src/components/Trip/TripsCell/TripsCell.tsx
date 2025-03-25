@@ -9,6 +9,7 @@ import type {
 } from '@redwoodjs/web'
 
 import Trips from 'src/components/Trip/Trips'
+import Spinner from 'src/components/ui/Spinner'
 
 export const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
   query TripsByUser {
@@ -41,7 +42,11 @@ export const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
 //   }
 // `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = () => (
+  <div className="flex h-screen items-center justify-center">
+    <Spinner />
+  </div>
+)
 
 export const Empty = () => {
   return (

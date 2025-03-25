@@ -22,11 +22,14 @@ const ScaffoldLayout = ({
       <header className="rw-header">
         <Link to={routes.homey()}>Home</Link>
         <h1 className="rw-heading rw-heading-primary">
-          <Link to={routes[titleTo]()} className="rw-link">
+          <Link to={routes.organizations()} className="rw-link">
             {title}
           </Link>
         </h1>
-        <Link to={routes[buttonTo]()} className="rw-button rw-button-green">
+        <Link
+          to={routes.newOrganization()}
+          className="rw-button rw-button-green"
+        >
           <div className="rw-button-icon">+</div> {buttonLabel}
         </Link>
       </header>

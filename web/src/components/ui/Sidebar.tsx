@@ -9,7 +9,7 @@ import { PanelLeft } from 'lucide-react'
 import { Button } from 'src/components/ui/Button'
 import { Input } from 'src/components/ui/Input'
 import { Separator } from 'src/components/ui/Separator'
-import { Sheet, SheetContent } from 'src/components/ui/Sheet'
+import { Sheet, SheetContent, SheetTitle } from 'src/components/ui/Sheet'
 import { Skeleton } from 'src/components/ui/Skeleton'
 import {
   Tooltip,
@@ -195,6 +195,7 @@ const Sidebar = React.forwardRef<
     if (isMobile) {
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+          <SheetTitle className="sr-only">Sidebar</SheetTitle>
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
@@ -262,7 +263,7 @@ Sidebar.displayName = 'Sidebar'
 const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
+>(({ className, onClick, buttonText = 'Menu', ...props }, ref) => {
   const { toggleSidebar } = useSidebar()
 
   return (
@@ -279,7 +280,7 @@ const SidebarTrigger = React.forwardRef<
       {...props}
     >
       <PanelLeft className="h-6 w-6" />
-      Menu
+      {buttonText}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
