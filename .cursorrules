@@ -1,0 +1,11 @@
+This is "Ecoexpense" - a web application built with RedwoodJS (v8.5.0) that allows users to track their expenses and related emissions. Key features and technical aspects include:
+Built on RedwoodJS with TypeScript in strict mode
+Uses Prisma with PostgreSQL for data management
+Authentication handled by Clerk
+Multi-tenant architecture with organizations and projects
+Includes expense tracking with currency conversion (to NOK)
+Has flight emissions tracking functionality
+Uses shadcn/ui components with Tailwind CSS for styling
+GraphQL API with role-based authentication
+Follows a standard RedwoodJS project structure with separate `web` and `api` workspaces
+The application is focused on helping organizations track both financial expenses and environmental impact, with features for managing projects, expenses, trips, and flight-related emissions.
