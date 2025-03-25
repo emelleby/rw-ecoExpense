@@ -1,14 +1,14 @@
 import { render } from '@redwoodjs/testing/web'
 
-import TripsPage from './TripsPage'
+import Callout from './Callout'
 
 //   Improve this test with help from the Redwood Testing Doc:
-//   https://redwoodjs.com/docs/testing#testing-pages-layouts
+//    https://redwoodjs.com/docs/testing#testing-components
 
-describe('TripsPage', () => {
+describe('Callout', () => {
   it('renders successfully', () => {
     expect(() => {
-      render(<TripsPage />)
+      render(<Callout />)
     }).not.toThrow()
   })
 })

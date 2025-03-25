@@ -11,6 +11,8 @@ export const schema = gql`
     approvedDate: DateTime
     reimbursementStatus: ReimbursementStatus!
     transactionId: String
+    projectId: Int
+    project: Project
   }
 
   enum ReimbursementStatus {
@@ -33,6 +35,7 @@ export const schema = gql`
     userId: Int!
     description: String
     reimbursementStatus: ReimbursementStatus = NOT_REQUESTED
+    projectId: Int! # Remove the optional type here
   }
 
   input UpdateTripInput {
@@ -44,6 +47,7 @@ export const schema = gql`
     approvedDate: DateTime
     reimbursementStatus: ReimbursementStatus
     transactionId: String
+    projectId: Int
   }
 
   input UpdateReimbursementStatusInput {

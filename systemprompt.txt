@@ -1,0 +1,1 @@
+I am coding in typescript and I use a redwoodjs framework. It uses Prisma and Graphql for data fetching. Please follow best practices for data management in redwood and use the provided functionality as best as possible to kepp code clean.

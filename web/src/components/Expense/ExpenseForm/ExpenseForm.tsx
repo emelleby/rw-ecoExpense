@@ -2,17 +2,18 @@ import { useState } from 'react'
 
 import type { EditExpenseById, CreateExpenseInput } from 'types/graphql'
 
-import { type RWGqlError } from '@redwoodjs/forms'
+import { Controller, RWGqlError } from '@redwoodjs/forms'
 
 import cn from 'src/lib/utils/cn'
 
 import { Accommodation } from './Accommodation'
 import { CarDistanceBased } from './CarDistanceBased'
-import { FeulExpense } from './FeulExpenses'
 import { Flight } from './Flight'
+import { FuelExpense } from './FuelExpenses'
 import { Groceries } from './Groceries'
 import { Miscellaneous } from './Miscellaneous'
 
+import { Label } from '@/components/ui/Label'
 import {
   Select,
   SelectContent,
@@ -35,7 +36,6 @@ interface ExpenseFormProps {
   error: RWGqlError
   loading: boolean
   trips: { id: number; name: string }[]
-  projects: { id: number; name: string }[]
   categories: {
     id: number
     name: string
@@ -47,7 +47,7 @@ const Fields = ({ type, ...props }: { type: string } & ExpenseFormProps) => {
     case '2':
       return <CarDistanceBased {...props} />
     case '3':
-      return <FeulExpense {...props} />
+      return <FuelExpense {...props} />
     case '4':
       return <Flight {...props} />
     case '6':
@@ -62,16 +62,27 @@ const Fields = ({ type, ...props }: { type: string } & ExpenseFormProps) => {
 const ExpenseForm = (props: ExpenseFormProps) => {
   //const { unregister } = formMethods
 
-  const [catagory, setCatagory] = useState(
+  const [catagory, setCategory] = useState(
     props.expense?.categoryId?.toString() || '1'
   )
 
   return (
-    <div className="rw-form-wrapper space-y-1 pt-5">
+    <div className="rw-form-wrapper pt-5">
+      <Label htmlFor="categoryId" className="text-base font-semibold">
+        Expense Type
+      </Label>
+
+      {/* <Label
+        name="expenseType"
+        className="rw-label"
+        errorClassName="rw-label rw-label-error"
+      >
+        Expense Type
+      </Label> */}
       <Select
         name="categoryId"
         onValueChange={(value) => {
-          setCatagory(value.toString())
+          setCategory(value.toString())
           //field.onChange(value)
         }}
         value={props.expense?.categoryId.toString()}

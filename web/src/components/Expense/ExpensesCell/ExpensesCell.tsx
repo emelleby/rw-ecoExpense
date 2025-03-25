@@ -28,6 +28,9 @@ export const QUERY: TypedDocumentNode<FindExpenses, FindExpensesVariables> =
         sectorId
         supplierId
         tripId
+        trip {
+          reimbursementStatus
+        }
         projectId
         userId
         scope1Co2Emissions
@@ -63,7 +66,7 @@ export const Empty = () => {
 }
 
 export const Failure = ({ error }: CellFailureProps<FindExpenses>) => (
-  <div className="rw-cell-error">{error?.message}</div>
+  <div className="rw-cell-error">Failure: {error?.message}</div>
 )
 
 export const Success = ({

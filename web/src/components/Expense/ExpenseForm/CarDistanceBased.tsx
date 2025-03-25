@@ -14,7 +14,7 @@ import {
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import {
   Select,
   SelectContent,
@@ -36,14 +36,14 @@ interface ExpenseFormProps {
   onSave: (data: CreateExpenseInput, id?: number) => void
   expense?: FormExpense
   trips: { id: number; name: string }[]
-  projects: { id: number; name: string }[]
+
   error: RWGqlError
 }
 
 export const CarDistanceBased: FC<ExpenseFormProps> = ({
   expense,
   trips,
-  projects,
+
   onSave,
 }) => {
   const formMethods = useForm()
@@ -104,7 +104,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       kilometers,
       fuelType,
       fuelConsumption,
-      projectId,
+
       tripId,
       nokAmount,
       description,
@@ -122,8 +122,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
 
     const dataWithReceipt = {
       date,
-      projectId,
-      tripId,
+      tripId: Number(tripId),
       amount: nokAmount,
       currency: 'NOK',
       nokAmount,
@@ -157,7 +156,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           >
             Distance
           </Label>
-          <div className="relative mt-1 flex items-center">
+          <div className="relative flex items-center">
             <TextField
               name="kilometers"
               defaultValue={expense?.kilometers ? expense?.kilometers : 0}
@@ -173,7 +172,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
                 handleUpdateDistanceOrFactor()
               }}
             />
-            <span className="absolute right-2 mt-1 text-sm text-gray-500">
+            <span className="absolute right-2 mt-1 text-sm text-muted-foreground">
               Km
             </span>
           </div>
@@ -206,9 +205,9 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
                   <SelectValue placeholder="Select fuel type..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {FUEL_TYPE_LIST.map((feul, index) => (
-                    <SelectItem key={index + 100} value={feul.value}>
-                      {feul.label}
+                  {FUEL_TYPE_LIST.map((fuel, index) => (
+                    <SelectItem key={index + 100} value={fuel.value}>
+                      {fuel.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -252,35 +251,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <Label
-            name="factor"
-            className="rw-label"
-            errorClassName="rw-label rw-label-error"
-          >
-            Factor
-          </Label>
-          <div className="relative flex items-center">
-            <TextField
-              name="factor"
-              defaultValue={3.5}
-              className="rw-input flex-1 pr-16"
-              errorClassName="flex-1 border-none bg-transparent text-sm text-red-600 focus:outline-none"
-              placeholder="0"
-              validation={{ valueAsNumber: true, min: 1 }}
-              onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9]/g, '')
-                e.target.value = value
-                formMethods.setValue('Factor', value ? parseInt(value) : '')
-              }}
-            />
-            <span className="absolute right-2 mt-1 text-sm text-gray-500">
-              Kr/Km
-            </span>
-          </div>
-          <FieldError name="factor" className="rw-field-error" />
-        </div>
+      <div className="grid grid-cols-2 gap-4">
         {/* DEBUG:  ADD Passangers in expnse backend */}
         <div>
           <Label
@@ -346,7 +317,42 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-2">
+        <div>
+          <Label
+            name="factor"
+            className="rw-label"
+            errorClassName="rw-label rw-label-error"
+          >
+            Factor
+          </Label>
+          <div className="relative flex items-baseline justify-between">
+            <TextField
+              name="factor"
+              defaultValue={3.5}
+              className="rw-input flex-1"
+              errorClassName="flex-1 border-none bg-transparent text-sm text-red-600 focus:outline-none"
+              placeholder="0"
+              validation={{ valueAsNumber: true, min: 0 }}
+              onChange={(e) => {
+                // Allow numbers, one decimal separator (either . or ,) and handle trailing decimal
+                const value = e.target.value.replace(',', '.')
+
+                // Allow a trailing decimal point
+                if (value.match(/^\d*\.?\d*$/)) {
+                  e.target.value = value
+                  // Only convert to float if it's a complete number (no trailing decimal)
+                  const numberValue = value.endsWith('.')
+                    ? value
+                    : parseFloat(value)
+                  formMethods.setValue('factor', numberValue || '')
+                }
+              }}
+            />
+            <span className="px-2 text-sm text-muted-foreground">Kr/ Km</span>
+          </div>
+          <FieldError name="factor" className="rw-field-error" />
+        </div>
         <div>
           <Label
             name="nokAmount"
@@ -359,7 +365,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             name="nokAmount"
             disabled
             defaultValue={expense?.nokAmount || 0}
-            className="rw-input disabled:bg-slate-100"
+            className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{
               valueAsNumber: true,
@@ -372,35 +378,34 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           />
           <FieldError name="nokAmount" className="rw-field-error" />
         </div>
-        <div>
-          <Label
-            name="date"
-            className="rw-label"
-            errorClassName="rw-label rw-label-error"
-          >
-            Date
-          </Label>
+      </div>
+      <div className="grid grid-cols-1">
+        <Label
+          name="date"
+          className="rw-label"
+          errorClassName="rw-label rw-label-error"
+        >
+          Date
+        </Label>
 
-          <DatetimeLocalField
-            name="date"
-            defaultValue={new Date()}
-            className="rw-input-calendar"
-            errorClassName="rw-input rw-input-error"
-            validation={{ required: true }}
-          />
+        <DatetimeLocalField
+          name="date"
+          defaultValue={new Date()}
+          className="rw-input-calendar"
+          errorClassName="rw-input rw-input-error"
+          validation={{ required: true }}
+        />
 
-          <FieldError name="date" className="rw-field-error" />
-        </div>
+        <FieldError name="date" className="rw-field-error" />
       </div>
 
       <CommonFields
-        projects={projects}
         trips={trips}
         tripId={expense?.tripId}
         description={expense?.description}
       />
 
-      <div className="mt-6 grid grid-cols-1 gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <UploadReciepts
           fileName={fileName}
           fileType={fileType}
@@ -410,9 +415,6 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-      </div>
-
-      <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Button type="submit" variant="default" className="w-full">
           Save
         </Button>

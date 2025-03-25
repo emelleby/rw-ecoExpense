@@ -1,13 +1,9 @@
-import { useEffect, useState } from 'react'
-
 import type {
   CreateExpenseMutation,
   CreateExpenseInput,
   CreateExpenseMutationVariables,
   TripsByUser,
   TripsByUserVariables,
-  FindProjectsbyUser,
-  FindProjectsbyUserVariables,
 } from 'types/graphql'
 
 import { Link, navigate, routes } from '@redwoodjs/router'
@@ -27,6 +23,16 @@ const CATEGORIES_QUERY = gql`
     }
   }
 `
+const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
+  query TripsByUserForNewExpense {
+    tripsByUser {
+      id
+      name
+      reimbursementStatus
+    }
+  }
+`
+
 const CREATE_EXPENSE_MUTATION: TypedDocumentNode<
   CreateExpenseMutation,
   CreateExpenseMutationVariables
@@ -43,27 +49,6 @@ const CREATE_EXPENSE_MUTATION: TypedDocumentNode<
     }
   }
 `
-
-const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
-  query TripsByUserForNewExpense {
-    tripsByUser {
-      id
-      name
-    }
-  }
-`
-
-const PROJECTQUERY: TypedDocumentNode<
-  FindProjectsbyUser,
-  FindProjectsbyUserVariables
-> = gql`
-  query FindProjectsbyUserForNewExpense {
-    projects {
-      id
-      name
-    }
-  }
-`
 const Loading = () => (
   <div className="flex h-screen items-center justify-center">
     <Spinner />
@@ -71,15 +56,26 @@ const Loading = () => (
 )
 
 const NewExpense = () => {
-  const { data: categoryData } = useQuery(CATEGORIES_QUERY)
-
-  const [trips, setTrips] = useState([])
-
   const { showLoader, hideLoader, Loader } = useLoader()
 
-  const { data: tripsData, loading: tripsLoading } = useQuery(QUERY)
-  const { data: projectsData, loading: projectsLoading } =
-    useQuery(PROJECTQUERY)
+  const {
+    data: categoryData,
+    loading: categoryLoading,
+    error: categoryError,
+  } = useQuery(CATEGORIES_QUERY)
+
+  const {
+    data: tripsData,
+    loading: tripsLoading,
+    error: tripsError,
+  } = useQuery(QUERY, {
+    onCompleted: (data) => {
+      console.log('Trips data loaded:', data)
+    },
+    notifyOnNetworkStatusChange: true,
+  })
+
+  console.log('Data: ', tripsData)
 
   const [createExpense, { loading, error }] = useMutation(
     CREATE_EXPENSE_MUTATION,
@@ -101,47 +97,35 @@ const NewExpense = () => {
     hideLoader()
   }
 
-  // const onSave = async (input: CreateExpenseInput) => {
-  //   const { receipt, ...expenseData } = input
-
-  //   // Ensure the receipt fields are handled properly
-  //   const createExpenseInput: CreateExpenseInput = {
-  //     ...expenseData,
-  //     receipt: receipt
-  //       ? {
-  //           url: receipt.url,
-  //           fileName: receipt.fileName,
-  //           fileType: receipt.fileType,
-  //         }
-  //       : undefined, // Omit receipt if not provided
-  //   }
-
-  //   await createExpense({
-  //     variables: { input: createExpenseInput },
-  //   })
-  // }
-
-  useEffect(() => {
-    if (tripsData?.tripsByUser) {
-      const data = tripsData.tripsByUser.filter(
-        (trip) => trip.reimbursementStatus === 'NOT_REQUESTED'
-      )
-
-      setTrips(data)
-    }
-  }, [])
-
-  if (tripsLoading || projectsLoading) {
+  // Handle loading states
+  if (categoryLoading || tripsLoading) {
     return <Loading />
   }
+
+  // Handle errors -  || tripsError || projectsError
+  if (categoryError) {
+    return <div>Error loading category data</div>
+  }
+
+  const trips =
+    tripsData?.tripsByUser.filter(
+      (trip) => trip.reimbursementStatus === 'NOT_REQUESTED'
+    ) || []
 
   if (trips.length === 0) {
     return (
       <div className="rw-text-center">
-        No open trip has found you need to create trip or open one{' '}
-        <Link to={routes.trips()} className="rw-link">
-          Go to Trips
-        </Link>
+        <p>There are no open trips available.</p>
+        <p>
+          Please open a trip on the{' '}
+          <Link to={routes.trips()} className="rw-link">
+            Trips page
+          </Link>{' '}
+          or create a{' '}
+          <Link to={routes.newTrip()} className="rw-link">
+            new trip
+          </Link>
+        </p>
       </div>
     )
   }
@@ -153,8 +137,7 @@ const NewExpense = () => {
       </header>
       <div className="rw-segment-main">
         <ExpenseForm
-          trips={tripsData?.tripsByUser}
-          projects={projectsData?.projects || []}
+          trips={trips}
           categories={categoryData?.expenseCategories}
           onSave={onSave}
           loading={loading}

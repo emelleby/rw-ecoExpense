@@ -1,7 +1,5 @@
-import type {
-  FindProjectsbyUser,
-  FindProjectsbyUserVariables,
-} from 'types/graphql'
+import { AlertCircle } from 'lucide-react'
+import type { FindProjects, FindProjectsVariables } from 'types/graphql'
 
 import { Link, routes } from '@redwoodjs/router'
 import type {
@@ -12,53 +10,60 @@ import type {
 
 import Projects from 'src/components/Project/Projects'
 
-// export const QUERY: TypedDocumentNode<FindProjects, FindProjectsVariables> =
-//   gql`
-//     query FindProjects {
-//       projects {
-//         id
-//         name
-//         description
-//         userId
-//       }
-//     }
-//   `
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert'
 
-export const QUERY: TypedDocumentNode<
-  FindProjectsbyUser,
-  FindProjectsbyUserVariables
-> = gql`
-  query FindProjectsbyUser {
-    projects {
-      id
-      name
-      description
-      expenses {
+export const QUERY: TypedDocumentNode<FindProjects, FindProjectsVariables> =
+  gql`
+    query FindProjects {
+      projects {
         id
+        name
+        description
+        active
+        organizationId
+        expenses {
+          id
+          nokAmount
+        }
+
+        trips {
+          id
+        }
+
+        createdBy {
+          username
+        }
+        createdAt
       }
     }
-  }
-`
+  `
 
 export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => {
   return (
-    <div className="rw-text-center mt-6">
-      No projects yet.{' '}
-      <Link to={routes.newProject()} className="rw-link">
-        Create one?
-      </Link>
-    </div>
+    <Alert variant="warning">
+      <AlertCircle className="h-5 w-5" />
+      <AlertTitle>No Projects Found</AlertTitle>
+      <AlertDescription>
+        <p>Your organization needs at least one project to track expenses.</p>
+        <Link
+          to={routes.newProject()}
+          className="text-warning hover:text-warning/80 mt-2 inline-block font-medium"
+        >
+          Create First Project →
+        </Link>
+      </AlertDescription>
+    </Alert>
   )
 }
 
-export const Failure = ({ error }: CellFailureProps<FindProjectsbyUser>) => (
+export const Failure = ({ error }: CellFailureProps<FindProjects>) => (
   <div className="rw-cell-error">{error?.message}</div>
 )
 
 export const Success = ({
   projects,
-}: CellSuccessProps<FindProjectsbyUser, FindProjectsbyUserVariables>) => {
+}: CellSuccessProps<FindProjects, FindProjectsVariables>) => {
   return <Projects projects={projects} />
 }

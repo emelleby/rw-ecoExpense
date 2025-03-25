@@ -1,11 +1,6 @@
-import { FC, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-//import { Upload } from 'lucide-react'
-import type {
-  EditExpenseById,
-  // UpdateExpenseInput,
-  CreateExpenseInput,
-} from 'types/graphql'
+import type { EditExpenseById, CreateExpenseInput } from 'types/graphql'
 
 import {
   Controller,
@@ -19,7 +14,7 @@ import {
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
   Select,
@@ -28,7 +23,7 @@ import {
   SelectValue,
   SelectTrigger,
 } from 'src/components/ui/Select'
-import { cn } from 'src/utils/cn'
+// import { cn } from 'src/utils/cn'
 
 import { CommonFields } from './CommonFields'
 import {
@@ -36,63 +31,70 @@ import {
   COUNTRY_EMISSIONS,
   COUNTRY_NAMES,
   CURRENCIES_OF_COUTRIES,
-  //CURRENCIES,
-  //EXCHANGE_RATES,
 } from './constants'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
 
-//import { getCurrencyConversionRate } from './service'
-//import UploadReciepts from './UploadReciepts'
-
 type FormExpense = NonNullable<EditExpenseById['expense']>
 
-interface ExpenseFormProps {
-  onSave: (data: CreateExpenseInput, id?: number) => void // Accept CreateExpenseInput directly
-  expense?: FormExpense
+interface AccommodationProps {
   trips: { id: number; name: string }[]
-  projects: { id: number; name: string }[]
-  error: RWGqlError
+  expense?: FormExpense
+  error?: RWGqlError
+  loading?: boolean
+  onSave: (data: CreateExpenseInput, id?: number) => void
 }
 
-export const Accommodation: FC<ExpenseFormProps> = (
-  props: ExpenseFormProps
-) => {
+export const Accommodation = ({
+  trips,
+  expense,
+  onSave,
+}: AccommodationProps) => {
   const date = new Date()
-
   const formMethods = useForm()
 
-  const [exchangeRate, setExchangeRate] = useState(
-    props.expense?.exchangeRate || 1
-  )
+  const [exchangeRate, setExchangeRate] = useState(expense?.exchangeRate || 1)
 
-  const [fileName, setFileName] = useState(
-    props.expense?.receipt?.fileName || ''
-  )
+  const [fileName, setFileName] = useState(expense?.receipt?.fileName || '')
 
-  const [fileType, setFileType] = useState(
-    props.expense?.receipt?.fileType || ''
-  )
+  const [fileType, setFileType] = useState(expense?.receipt?.fileType || '')
 
-  const [receiptUrl, setReceiptUrl] = useState(
-    props.expense?.receipt?.url || ''
-  )
+  const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '')
 
   const [selectedDate, setSelectedDate] = useState(date)
 
   const onCurrencyChange = async (value: string) => {
-    const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
-    setExchangeRate(exchangeRate)
-    formMethods.setValue('exchangeRate', exchangeRate)
-    const amount = formMethods.getValues('amount')
+    try {
+      const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
+      if (exchangeRate === 0) {
+        formMethods.setError('exchangeRate', {
+          type: 'manual',
+          message: 'Failed to fetch exchange rate. Please enter manually.',
+        })
+      } else {
+        formMethods.clearErrors('exchangeRate')
+        setExchangeRate(exchangeRate)
+        formMethods.setValue('exchangeRate', exchangeRate)
+        const amount = formMethods.getValues('amount')
 
-    if (amount) {
-      const nokAmount = (amount * exchangeRate).toFixed(2)
-      formMethods.setValue('nokAmount', parseInt(nokAmount))
+        if (amount) {
+          const nokAmount = (amount * exchangeRate).toFixed(2)
+          formMethods.setValue('nokAmount', parseFloat(nokAmount))
+        }
+      }
+    } catch (error) {
+      formMethods.setError('exchangeRate', {
+        type: 'manual',
+        message: `Failed to fetch exchange rate: ${error.message}. Please enter manually.`,
+      })
     }
   }
 
-  const getEmission = async (data) => {
+  const getEmission = async (data: {
+    nights: number
+    numberOfPeople: number
+    country: string
+  }) => {
     const { nights, numberOfPeople, country } = data
 
     return {
@@ -108,7 +110,6 @@ export const Accommodation: FC<ExpenseFormProps> = (
 
     const {
       date,
-      projectId,
       tripId,
       amount,
       currency,
@@ -129,8 +130,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
 
     const dataWithReceipt = {
       date,
-      projectId,
-      tripId,
+      tripId: Number(tripId),
       amount,
       currency,
       nokAmount,
@@ -149,30 +149,29 @@ export const Accommodation: FC<ExpenseFormProps> = (
     // format the data before sending it to the server
 
     //const formattedData = formatData(dataWithReceipt)
-    props.onSave(dataWithReceipt, props?.expense?.id)
+    onSave(dataWithReceipt, expense?.id)
 
-    //console.log(dataWithReceipt)
+    console.log(dataWithReceipt)
   }
 
   useEffect(() => {
     async function fetchExchangeRate() {
-      const exchangeRate = await getCurrencyConversionRate(
-        props.expense?.currency,
-        selectedDate
-      )
-      formMethods.setValue('exchangeRate', exchangeRate)
-      setExchangeRate(exchangeRate)
+      const currency = formMethods.getValues('currency') || expense?.currency
+      if (currency) {
+        const newExchangeRate = await getCurrencyConversionRate(
+          currency,
+          selectedDate
+        )
+        formMethods.setValue('exchangeRate', newExchangeRate)
+        setExchangeRate(newExchangeRate)
+      }
     }
-    if (props.expense?.currency) {
-      fetchExchangeRate()
-    } else {
-      formMethods.setValue('exchangeRate', 0)
-    }
-  }, [selectedDate])
+    fetchExchangeRate()
+  }, [selectedDate, expense?.currency, formMethods])
 
   return (
     <Form formMethods={formMethods} onSubmit={onSubmit}>
-      <div className=" grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
         <div>
           <Label
             name="accommodationType"
@@ -188,22 +187,20 @@ export const Accommodation: FC<ExpenseFormProps> = (
             rules={{ required: true }}
             render={({ field }) => (
               <Select
-                onValueChange={(value) => field.onChange(value)}
-                value={field.value?.toString()}
+                onValueChange={field.onChange}
+                value={field.value}
                 defaultValue={ACCOMODATIONTYPES[0]}
               >
-                <SelectTrigger
-                  className={cn(
-                    'w-full',
-                    formMethods.formState.errors?.accommodationType &&
-                      'border-red-500'
-                  )}
-                >
-                  <SelectValue placeholder="Select a category..." />
+                <SelectTrigger data-testid="accommodation-type-trigger">
+                  <SelectValue placeholder="Select accommodation type..." />
                 </SelectTrigger>
                 <SelectContent>
                   {ACCOMODATIONTYPES.map((accommodation, index) => (
-                    <SelectItem key={index} value={accommodation}>
+                    <SelectItem
+                      key={index}
+                      value={accommodation}
+                      data-testid={`accommodation-option-${accommodation}`}
+                    >
                       {accommodation}
                     </SelectItem>
                   ))}
@@ -230,24 +227,20 @@ export const Accommodation: FC<ExpenseFormProps> = (
             rules={{ required: true }}
             render={({ field }) => (
               <Select
-                onValueChange={(value) => {
-                  field.onChange(value)
-                  console.log(formMethods.getValues('amount'))
-                }}
-                value={field.value?.toString()}
+                onValueChange={field.onChange}
+                value={field.value}
                 defaultValue={COUNTRY_NAMES[0]}
               >
-                <SelectTrigger
-                  className={cn(
-                    'w-full',
-                    formMethods.formState.errors?.country && 'border-red-500'
-                  )}
-                >
-                  <SelectValue placeholder="Select a category..." />
+                <SelectTrigger data-testid="country-trigger">
+                  <SelectValue placeholder="Select country..." />
                 </SelectTrigger>
                 <SelectContent>
                   {COUNTRY_NAMES.map((country, index) => (
-                    <SelectItem key={index + 100} value={country}>
+                    <SelectItem
+                      key={index}
+                      value={country}
+                      data-testid={`country-option-${country}`}
+                    >
                       {country}
                     </SelectItem>
                   ))}
@@ -260,7 +253,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
         <div>
           <Label
             name="numberOfPeople"
@@ -309,7 +302,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
           <FieldError name="nights" className="rw-field-error" />
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
         <div>
           <Label
             name="merchant"
@@ -323,7 +316,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
             defaultValue={''}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: false }}
+            // validation={{ valueAsNumber: false }}
           />
           <FieldError name="merchant" className="rw-field-error" />
         </div>
@@ -351,7 +344,7 @@ export const Accommodation: FC<ExpenseFormProps> = (
           <FieldError name="date" className="rw-field-error" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4">
         <div>
           <Label
             name="amount"
@@ -360,16 +353,17 @@ export const Accommodation: FC<ExpenseFormProps> = (
           >
             Amount
           </Label>
-          <TextField
+          <NumberField
             name="amount"
-            defaultValue={props?.expense?.amount || 0}
+            data-testid="amount-input"
+            placeholder="0"
+            defaultValue={expense?.amount || undefined}
             className="rw-input"
+            step="1.00"
             onChange={(e) => {
-              const value = Number(e.target.value.replace(/[^0-9.]/g, ''))
-              if (value > 0) {
-                const nokAmount = (value * exchangeRate).toFixed(2)
-                formMethods.setValue('nokAmount', parseFloat(nokAmount))
-              }
+              const value = Number(e.target.value)
+              const nokAmount = (value * exchangeRate).toFixed(2)
+              formMethods.setValue('nokAmount', parseFloat(nokAmount))
             }}
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
@@ -388,12 +382,13 @@ export const Accommodation: FC<ExpenseFormProps> = (
 
           <Controller
             name="currency"
-            defaultValue={props.expense?.currency}
+            defaultValue={expense?.currency}
             rules={{ required: true }}
             render={({ field }) => (
               <Combobox
+                data-testid="currency-select"
                 Data={CURRENCIES_OF_COUTRIES}
-                defaultValue={props.expense?.currency}
+                defaultValue={expense?.currency}
                 defaultText="Currency"
                 isActive={true}
                 onChangeHandle={(value) => {
@@ -414,26 +409,35 @@ export const Accommodation: FC<ExpenseFormProps> = (
           >
             Exchange rate
           </Label>
-          <TextField
+          <NumberField
             name="exchangeRate"
-            defaultValue={props.expense?.exchangeRate}
-            validation={{
-              valueAsNumber: true,
-            }}
-            onChange={(event) => {
-              const newExchangeRate = event.target.value.replace(/[^0-9.]/g, '')
-              // if (isNaN(newExchangeRate)) return
-              setExchangeRate(Number(newExchangeRate))
-              formMethods.setValue('exchangeRate', newExchangeRate)
+            data-testid="exchange-rate-input"
+            placeholder="0"
+            defaultValue={expense?.exchangeRate || undefined}
+            className="rw-input"
+            step="0.0001"
+            onChange={(e) => {
+              const value = Number(e.target.value)
+              setExchangeRate(value)
+              formMethods.setValue('exchangeRate', value)
+              formMethods.clearErrors('exchangeRate')
 
               const amount = formMethods.getValues('amount')
               if (amount) {
-                const nokAmount = amount * Number(newExchangeRate)
-                formMethods.setValue('nokAmount', nokAmount)
+                const nokAmount = amount * value
+                formMethods.setValue(
+                  'nokAmount',
+                  parseFloat(nokAmount.toFixed(2))
+                )
               }
             }}
-            className="rw-input"
             errorClassName="rw-input rw-input-error"
+            validation={{
+              valueAsNumber: true,
+              required: true,
+              validate: (value) =>
+                value > 0 || 'Exchange rate must be greater than 0',
+            }}
           />
           <FieldError name="exchangeRate" className="rw-field-error" />
         </div>
@@ -448,11 +452,10 @@ export const Accommodation: FC<ExpenseFormProps> = (
           </Label>
           <TextField
             name="nokAmount"
+            data-testid="nok-amount-input"
             disabled
-            defaultValue={
-              props.expense?.nokAmount ? Number(props.expense.nokAmount) : 0
-            }
-            className="rw-input disabled:bg-slate-100"
+            defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
+            className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
           />
@@ -461,25 +464,22 @@ export const Accommodation: FC<ExpenseFormProps> = (
       </div>
 
       <CommonFields
-        projects={props.projects}
-        trips={props.trips}
-        tripId={props.expense?.tripId}
-        description={props.expense?.description}
+        trips={trips}
+        tripId={expense?.tripId}
+        description={expense?.description}
       />
 
-      <div className="mt-6 grid grid-cols-1 gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <UploadReciepts
           fileName={fileName}
           fileType={fileType}
-          id={props.expense?.id}
+          id={expense?.id}
           receiptUrl={receiptUrl}
           setFileName={setFileName}
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-      </div>
 
-      <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Button type="submit" variant="default" className="w-full">
           Save
         </Button>

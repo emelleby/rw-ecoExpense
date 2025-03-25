@@ -19,6 +19,8 @@ import ImageDialog from '../../Trip/Trip/ImageDialog'
 
 import { ExpenseActions } from './ExpenseActions'
 
+import { formatCurrency } from '@/lib/formatters'
+
 export type ExpenseCategory =
   | 'Accommodation'
   | 'Car distance-based'
@@ -41,6 +43,7 @@ interface ExpenseChartProps {
   data: Expense[]
   showReimburseButton: boolean
   tripId: number
+  tripStatus: string
 }
 
 const Update_Reimbursement_Status: TypedDocumentNode<UpdateReimbursementStatusInput> = gql`
@@ -59,7 +62,9 @@ export function ExpenseTable({
   data,
   showReimburseButton = true,
   tripId,
+  tripStatus,
 }: ExpenseChartProps) {
+  console.log('Data in Table; ', data)
   const [updateReimbursementStatus] = useMutation(Update_Reimbursement_Status, {
     onCompleted: () => {
       toast.success('Trip updated')
@@ -103,7 +108,10 @@ export function ExpenseTable({
           {data.map((expense) => (
             <TableRow key={`${expense.id}_${expense.date}`}>
               <TableCell>
-                <ExpenseActions id={Number(expense.id)} />
+                <ExpenseActions
+                  id={Number(expense.id)}
+                  tripStatus={tripStatus}
+                />
               </TableCell>
               <TableCell>
                 {new Date(expense.date).toLocaleDateString()}
@@ -111,10 +119,10 @@ export function ExpenseTable({
               <TableCell>{expense.category}</TableCell>
               <TableCell>{expense.description}</TableCell>
               <TableCell className="text-right">
-                {expense.amount.toFixed(2)} NOK
+                {formatCurrency(expense.amount)} NOK
               </TableCell>
               <TableCell className="text-right">
-                {expense.emissions} kg Co2e
+                {expense.emissions.toFixed(2)} kg Co2e
               </TableCell>
               <TableCell className="text-right">
                 <ImageDialog
@@ -124,7 +132,7 @@ export function ExpenseTable({
               </TableCell>
             </TableRow>
           ))}
-        </TableBody>
+        </TableBody>{' '}
         {showReimburseButton && (
           <TableFooter>
             <TableRow>

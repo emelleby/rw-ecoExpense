@@ -1,10 +1,6 @@
 import { FC, useEffect, useState } from 'react'
 
-import type {
-  EditExpenseById,
-  // UpdateExpenseInput,
-  CreateExpenseInput,
-} from 'types/graphql'
+import type { EditExpenseById, CreateExpenseInput } from 'types/graphql'
 
 import {
   Controller,
@@ -39,22 +35,15 @@ import { cn } from 'src/utils/cn'
 import AirportSelect from '../AirportSearch'
 import { CommonFields } from '../CommonFields'
 import { AIRLINES, CURRENCIES_OF_COUTRIES, FLIGHT_CLASSES } from '../constants'
-import {
-  FlightEmissionResult,
-  // calculateEmissions,
-  getCurrencyConversionRate,
-} from '../service'
+import { FlightEmissionResult, getCurrencyConversionRate } from '../service'
 import UploadReciepts from '../UploadReciepts'
 
 import FlightsTable from './FlightsTable'
 
-//import { getCurrencyConversionRate } from './service'
-//import UploadReciepts from './UploadReciepts'
-
 type FormExpense = NonNullable<EditExpenseById['expense']>
 
 interface ExpenseFormProps {
-  onSave: (data: CreateExpenseInput, id?: number) => void // Accept CreateExpenseInput directly
+  onSave: (data: CreateExpenseInput, id?: number) => void
   expense?: FormExpense
   trips: { id: number; name: string }[]
   projects: { id: number; name: string }[]
@@ -69,6 +58,7 @@ const SUBMIT_FLIGHTS_MUTATION = gql`
         destination
         operatingCarrierCode
         flightNumber
+        class
         departureDate {
           year
           month
@@ -150,21 +140,18 @@ export const FutureFlights: FC<ExpenseFormProps> = (
   }
 
   const getEmission = async (data) => {
-    const { to, from, airline, flightNumber } = data
-
-    //const date = selectedDate.toISOString().split('T')[0]
+    const { to, from, airline, flightNumber, flightClass } = data
 
     const payload = {
       origin: from,
       destination: to,
       operatingCarrierCode: airline,
-      flightNumber: flightNumber,
-      departureDate: selectedDate,
+      flightNumber: flightNumber.toString(),
+      class: flightClass || 'economy', // Ensure we always have a class value
+      departureDate: selectedDate.toISOString().split('T')[0],
     }
 
     const dataToSend = [...flights, payload]
-
-    //console.log(dataToSend)
 
     const result = await submitFlights({
       variables: {
@@ -188,11 +175,6 @@ export const FutureFlights: FC<ExpenseFormProps> = (
   }
 
   const onSubmit = async (data) => {
-    // Construct the receipt object
-    //console.log('Receipt data submitted:', { receiptUrl, fileName, fileType }
-
-    //addAnotherFlight()
-
     const {
       date,
       projectId,
@@ -202,6 +184,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       nokAmount,
       exchangeRate,
       description,
+      flightClass,
     } = data
 
     const receipt = receiptUrl
@@ -212,7 +195,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         }
       : undefined
 
-    const emission = await getEmission(data)
+    const emission = await getEmission({ ...data, flightClass })
 
     const dataWithReceipt = {
       date,
@@ -230,15 +213,10 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       description,
       scope3CategoryId: 6,
       ...emission,
-      receipt, // Add the nested receipt object
+      receipt,
     }
 
-    // format the data before sending it to the server
-
-    //const formattedData = formatData(dataWithReceipt)
     props.onSave(dataWithReceipt, props?.expense?.id)
-
-    //console.log(dataWithReceipt)
   }
 
   const handleDeleteFlight = (index: number) => {
@@ -252,15 +230,16 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     const airline = formMethods.getValues('airline')
     const flightNumber = formMethods.getValues('flightNumber')
     const flightClass = formMethods.getValues('flightClass')
-    const date = formMethods.getValues('date')
+    const dateStr = formMethods.getValues('date')
 
-    if (!from || !to || !airline || !flightNumber || !flightClass) {
+    if (!from || !to || !airline || !flightNumber || !flightClass || !dateStr) {
       formMethods.trigger([
         'from',
         'to',
         'airline',
         'flightNumber',
         'flightClass',
+        'date',
       ])
       return
     }
@@ -271,9 +250,9 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         origin: from,
         destination: to,
         operatingCarrierCode: airline,
-        flightNumber: flightNumber,
-        class: flightClass,
-        departureDate: date,
+        flightNumber: flightNumber.toString(),
+        class: flightClass || 'economy', // Ensure we always have a class value
+        departureDate: dateStr.split('T')[0], // Convert ISO string to YYYY-MM-DD
       },
     ])
   }
@@ -307,11 +286,11 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         </Accordion>
       )}
       <Form onSubmit={onSubmit} formMethods={formMethods}>
-        <div className=" grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
           <div>
             <Label
               name="from"
-              className="rw-label mb-2"
+              className="rw-label"
               errorClassName="rw-label rw-label-error"
             >
               From
@@ -326,9 +305,8 @@ export const FutureFlights: FC<ExpenseFormProps> = (
                   label=""
                   onChange={(value) => {
                     field.onChange(value)
-                    console.log(value)
                   }}
-                  placeholder="Select an Airport..."
+                  placeholder="Departure Airport.."
                   value=""
                 />
               )}
@@ -340,7 +318,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           <div>
             <Label
               name="to"
-              className="rw-label mb-2"
+              className="rw-label"
               errorClassName="rw-label rw-label-error"
             >
               To
@@ -355,9 +333,8 @@ export const FutureFlights: FC<ExpenseFormProps> = (
                   label=""
                   onChange={(value) => {
                     field.onChange(value)
-                    console.log(value)
                   }}
-                  placeholder="Select a Via Airport..."
+                  placeholder="Select destination Airport..."
                   value=""
                 />
               )}
@@ -367,7 +344,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
           <div>
             <Label
               name="airline"
@@ -414,7 +391,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
           <div>
             <Label
               name="flightClass"
@@ -481,7 +458,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
           <div>
             <Label
               name="merchant"
@@ -523,7 +500,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-x-4">
           <div>
             <Label
               name="amount"
@@ -537,7 +514,10 @@ export const FutureFlights: FC<ExpenseFormProps> = (
               defaultValue={props?.expense?.amount || 0}
               className="rw-input"
               onChange={(e) => {
-                const value = Number(e.target.value.replace(/[^0-9.]/g, ''))
+                const rawValue = e.target.value
+                  .replace(/,/g, '.')
+                  .replace(/[^0-9.]/g, '')
+                const value = Number(rawValue)
                 if (value > 0) {
                   const nokAmount = (value * exchangeRate).toFixed(2)
                   formMethods.setValue('nokAmount', parseFloat(nokAmount))
@@ -598,7 +578,6 @@ export const FutureFlights: FC<ExpenseFormProps> = (
                   /[^0-9.]/g,
                   ''
                 )
-                // if (isNaN(newExchangeRate)) return
                 setExchangeRate(Number(newExchangeRate))
                 formMethods.setValue('exchangeRate', newExchangeRate)
 
@@ -628,7 +607,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
               defaultValue={
                 props.expense?.nokAmount ? Number(props.expense.nokAmount) : 0
               }
-              className="rw-input disabled:bg-slate-100"
+              className="rw-input rw-input-disabled"
               errorClassName="rw-input rw-input-error"
               validation={{ valueAsNumber: true, required: true }}
             />
@@ -656,10 +635,12 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         </div>
 
         <div className="mt-6 grid-cols-1 gap-4">
-          <Button asChild variant="link" onClick={addAnotherFlight}>
-            <p className="cursor-pointer font-normal underline">
-              Add another flight
-            </p>
+          <Button
+            variant="link"
+            onClick={addAnotherFlight}
+            className="font-normal underline"
+          >
+            Add another flight
           </Button>
         </div>
 

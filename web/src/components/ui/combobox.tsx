@@ -6,7 +6,7 @@ import { Check, ChevronDown } from 'lucide-react'
 
 import { cn } from 'src/utils/cn'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import {
   Command,
   CommandEmpty,
@@ -47,12 +47,14 @@ export function Combobox({
           role="combobox"
           disabled={!isActive}
           aria-expanded={open}
-          className="w-full justify-between font-normal"
+          className="w-full justify-between border border-border bg-transparent px-3 font-normal backdrop-brightness-200 [&>span]:line-clamp-1"
         >
-          {value
-            ? Data.find((d) => d.value === value)?.label
-            : `Select ${defaultText}...`}
-          <ChevronDown className="ml-4 h-4 w-4 shrink-0 opacity-50" />
+          <span className="truncate overflow-ellipsis">
+            {value
+              ? Data.find((d) => d.value === value)?.label
+              : `Select ${defaultText}...`}
+          </span>
+          <ChevronDown className="ml-4 h-4 w-4 shrink-0 opacity-60" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
@@ -64,7 +66,7 @@ export function Combobox({
             placeholder={`Search ${defaultText}...`}
           />
           <CommandList>
-            <CommandEmpty>No Currency found.</CommandEmpty>
+            <CommandEmpty>{`No ${defaultText} found.`}</CommandEmpty>
             <CommandGroup>
               {Data.map((d) => (
                 <CommandItem

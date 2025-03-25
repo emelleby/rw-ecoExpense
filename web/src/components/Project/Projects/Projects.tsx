@@ -1,7 +1,7 @@
 import type {
   DeleteProjectMutation,
   DeleteProjectMutationVariables,
-  FindProjectsbyUser,
+  FindProjects,
 } from 'types/graphql'
 
 import { Link, routes } from '@redwoodjs/router'
@@ -10,7 +10,7 @@ import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { QUERY } from 'src/components/Project/ProjectsCell'
-import { truncate } from 'src/lib/formatters'
+import { checkboxInputTag, timeTag, truncate } from 'src/lib/formatters'
 
 import {
   Table,
@@ -32,7 +32,7 @@ const DELETE_PROJECT_MUTATION: TypedDocumentNode<
   }
 `
 
-const ProjectsList = ({ projects }: FindProjectsbyUser) => {
+const ProjectsList = ({ projects }: FindProjects) => {
   const [deleteProject] = useMutation(DELETE_PROJECT_MUTATION, {
     onCompleted: () => {
       toast.success('Project deleted')

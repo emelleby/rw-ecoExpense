@@ -9,6 +9,8 @@ import { useMutation } from '@redwoodjs/web'
 import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { checkboxInputTag, timeTag } from 'src/lib/formatters'
+
 import {
   Table,
   TableBody,
@@ -17,8 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/Table'
-
-import {} from 'src/lib/formatters'
 
 const DELETE_PROJECT_MUTATION: TypedDocumentNode<
   DeleteProjectMutation,
@@ -36,6 +36,7 @@ interface Props {
 }
 
 const Project = ({ project }: Props) => {
+  console.log(project)
   const [deleteProject] = useMutation(DELETE_PROJECT_MUTATION, {
     onCompleted: () => {
       toast.success('Project deleted')
@@ -60,42 +61,50 @@ const Project = ({ project }: Props) => {
             Project Detail: {project.name}
           </h2>
         </header>
-        <Table>
+        <Table className="rw-table">
           <TableBody>
             <TableRow>
-              <TableHead>Id</TableHead>
+              <TableHead>Id:</TableHead>
               <TableCell>{project.id}</TableCell>
             </TableRow>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>Name:</TableHead>
               <TableCell>{project.name}</TableCell>
             </TableRow>
             <TableRow>
-              <TableHead>Description</TableHead>
+              <TableHead>Description:</TableHead>
               <TableCell>{project.description}</TableCell>
             </TableRow>
             <TableRow>
-              <TableHead>User Id</TableHead>
-              <TableCell>{project.userId}</TableCell>
+              <TableHead>Created by:</TableHead>
+              <TableCell>{project.createdBy.username}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableHead>Status active:</TableHead>
+              <TableCell>{checkboxInputTag(project.active)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableHead>Created date:</TableHead>
+              <TableCell>{timeTag(project.createdAt)}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
-        <nav className="mt-4 flex justify-center space-x-2">
-          <Link
-            to={routes.editProject({ id: project.id })}
-            className="rw-button rw-button-blue"
-          >
-            Edit
-          </Link>
-          <button
-            type="button"
-            className="rw-button rw-button-red"
-            onClick={() => onDeleteClick(project.id)}
-          >
-            Delete
-          </button>
-        </nav>
       </div>
+      <nav className="mt-4 flex justify-center space-x-2">
+        <Link
+          to={routes.editProject({ id: project.id })}
+          className="rw-button rw-button-blue"
+        >
+          Edit
+        </Link>
+        <button
+          type="button"
+          className="rw-button rw-button-red"
+          onClick={() => onDeleteClick(project.id)}
+        >
+          Delete
+        </button>
+      </nav>
     </>
   )
 }

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 
-import { Airport } from 'src/components/types/expense/airport'
+import { Airport } from 'types/expense/airport'
 
 import { searchAirports } from './service'
 
@@ -58,9 +58,6 @@ export default function AirportSelect({
 
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium text-gray-700">
-        {label}
-      </label>
       <div className="relative">
         <input
           type="text"
@@ -69,10 +66,10 @@ export default function AirportSelect({
           onFocus={() => setIsOpen(true)}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-blue-500"
+          className="rw-input"
         />
         <div
-          className="absolute right-2 top-1/2 -translate-y-1/2 transform cursor-pointer"
+          className="absolute right-4 top-1/2 -translate-y-1/2 transform cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
         >
           <svg
@@ -91,21 +88,23 @@ export default function AirportSelect({
         </div>
 
         {isOpen && options.length > 0 && (
-          <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-300 bg-white shadow-lg">
+          <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border  bg-background shadow-lg">
             {options.map((airport) => (
               <li
                 key={airport.airport_code}
                 onClick={() => handleOptionSelect(airport)}
-                className="cursor-pointer px-4 py-2 hover:bg-blue-50"
+                className="border-b-1 cursor-pointer border px-4 py-2 hover:bg-sky-500/30"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-primary">
                     {airport.airport_code}
                   </span>
-                  <span className="text-sm text-gray-500">{airport.town}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {airport.airport_name}
+                  </span>
                 </div>
-                <div className="text-sm text-gray-600">
-                  {airport.airport_name}
+                <div className="text text-sm">
+                  {airport.town}, {airport.country}
                 </div>
               </li>
             ))}

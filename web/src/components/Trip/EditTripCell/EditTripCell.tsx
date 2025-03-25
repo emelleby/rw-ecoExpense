@@ -27,6 +27,17 @@ export const QUERY: TypedDocumentNode<EditTripById> = gql`
       approvedDate
       reimbursementStatus
       transactionId
+      projectId
+      project {
+        id
+        name
+      }
+    }
+    projects {
+      id
+      name
+      description
+      active
     }
   }
 `
@@ -46,6 +57,7 @@ const UPDATE_TRIP_MUTATION: TypedDocumentNode<
       approvedDate
       reimbursementStatus
       transactionId
+      projectId
     }
   }
 `
@@ -56,7 +68,7 @@ export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>
 )
 
-export const Success = ({ trip }: CellSuccessProps<EditTripById>) => {
+export const Success = ({ trip, projects }: CellSuccessProps<EditTripById>) => {
   const [updateTrip, { loading, error }] = useMutation(UPDATE_TRIP_MUTATION, {
     onCompleted: () => {
       toast.success('Trip updated')
@@ -69,7 +81,15 @@ export const Success = ({ trip }: CellSuccessProps<EditTripById>) => {
 
   const onSave = (input: UpdateTripInput, id: EditTripById['trip']['id']) => {
     console.log('UpdateTrip mutation payload:', { id, input })
-    updateTrip({ variables: { id, input } })
+    updateTrip({
+      variables: {
+        id,
+        input: {
+          ...input,
+          projectId: Number(input.projectId),
+        },
+      },
+    })
   }
 
   return (
@@ -80,7 +100,13 @@ export const Success = ({ trip }: CellSuccessProps<EditTripById>) => {
         </h2>
       </header>
       <div className="rw-segment-main">
-        <TripForm trip={trip} onSave={onSave} error={error} loading={loading} />
+        <TripForm
+          projects={projects}
+          trip={trip}
+          onSave={onSave}
+          error={error}
+          loading={loading}
+        />
       </div>
     </div>
   )
