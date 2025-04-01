@@ -146,7 +146,7 @@ const TripForm = (props: TripFormProps) => {
             className="rw-label mb-2"
             errorClassName="rw-label rw-label-error"
           >
-            {props.p}
+            Project
           </Label>
 
           <SelectField

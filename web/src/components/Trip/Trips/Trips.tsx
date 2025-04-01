@@ -14,6 +14,7 @@ import { QUERY } from 'src/components/Trip/TripsCell'
 import { formatEnum, timeTag, truncate } from 'src/lib/formatters'
 
 import { Button } from '@/components/ui/Button'
+import { GlowEffect } from '@/components/ui/glow-effect'
 import {
   Table,
   TableBody,
@@ -93,12 +94,22 @@ const TripsList = ({ tripsByUser }: TripsByUser) => {
 
   return (
     <>
-      <Link
-        to={routes.newTrip()}
-        className="rw-button rw-button-primary m-4 items-center"
-      >
-        <div className="rw-button-icon">+</div> New Trip
-      </Link>
+      <div className="relative">
+        <GlowEffect
+          colors={['#FF5733', '#33FF57', '#3357FF', '#F1C40F']}
+          mode="colorShift"
+          blur="soft"
+          duration={3}
+          scale={1}
+        />
+
+        <Link
+          to={routes.newTrip()}
+          className="rw-button rw-button-primary relative m-4 items-center"
+        >
+          <div className="rw-button-icon relative">+</div> New Trip
+        </Link>
+      </div>
 
       <div className="rounded-md border">
         <Table>
@@ -124,14 +135,29 @@ const TripsList = ({ tripsByUser }: TripsByUser) => {
 
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link
-                        to={routes.trip({ id: trip.id })}
-                        title={'Show trip ' + trip.id + ' detail'}
+                    <div className="relative">
+                      <GlowEffect
+                        colors={['#FF5733', '#33FF57', '#3357FF', '#F1C40F']}
+                        mode="colorShift"
+                        blur="soft"
+                        duration={3}
+                        scale={0.9}
+                      />
+                      <Button
+                        className="relative"
+                        variant="outline"
+                        size="sm"
+                        asChild
                       >
-                        Show
-                      </Link>
-                    </Button>
+                        <Link
+                          to={routes.trip({ id: trip.id })}
+                          title={'Show trip ' + trip.id + ' detail'}
+                        >
+                          Show
+                        </Link>
+                      </Button>
+                    </div>
+
                     <Button variant="secondary" size="sm" asChild>
                       <Link
                         to={routes.editTrip({ id: trip.id })}
