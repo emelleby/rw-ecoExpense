@@ -10,7 +10,7 @@ import {
   Submit,
 } from '@redwoodjs/forms'
 import FieldWrapper from 'src/components/forms/FieldWrapper/FieldWrapper'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 
 <% if (fieldsToImport.includes('DatetimeLocalField')) { %>
 const formatDatetime = (value) => {

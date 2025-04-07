@@ -6,7 +6,7 @@ import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { QUERY } from 'src/components/Expense/ExpensesCell'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import {
   DropdownMenu,
   DropdownMenuContent,

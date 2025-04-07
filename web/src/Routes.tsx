@@ -55,6 +55,7 @@ const Routes = () => {
           <Set wrap={(props) => <AppshellLayout {...props} title="EcoExpense" />}>
             <Route path="/test" page={TestPage} name="test" />
             <Route path="/home" page={HomePage} name="homey" />
+            <Route path="/profile" page={ProfilePage} name="profile" />
             <Route path="/add-expense" page={AddExpensePage} name="addExpense" />
             <Route path="/expenses2" page={ExpensesPage} name="expenses2" />
             <Route path="/projects" page={ProjectProjectsPage} name="projects" />

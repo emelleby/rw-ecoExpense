@@ -7,7 +7,7 @@ import { toast } from '@redwoodjs/web/toast'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { ${formattersImports} } from 'src/lib/formatters'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/components/ui/card'
-import { Button, buttonVariants } from 'src/components/ui/button'
+import { Button, buttonVariants } from 'src/components/ui/Button'
 
 const DELETE_${singularConstantName}_MUTATION: TypedDocumentNode<Delete${singularPascalName}Mutation, Delete${singularPascalName}MutationVariables> = gql`
   mutation Delete${singularPascalName}Mutation($${idName}: ${idType}!) {
