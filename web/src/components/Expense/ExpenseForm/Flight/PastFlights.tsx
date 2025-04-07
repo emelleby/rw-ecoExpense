@@ -15,13 +15,12 @@ import {
   Label,
   NumberField,
   RWGqlError,
-  SelectField,
   TextField,
   useForm,
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
   Select,
@@ -199,15 +198,15 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
             Flight Type
           </Label>
 
-          {/* <Controller
+          <Controller
             name="flightType"
-            defaultValue={'return'}
+            defaultValue={flightTypeOptions[0].value}
             rules={{ required: true }}
             render={({ field }) => (
               <Select
                 onValueChange={(value) => field.onChange(value)}
-                value={field.value?.toString()}
-                defaultValue={'return'}
+                value={field.value}
+                defaultValue={flightTypeOptions[0].value}
               >
                 <SelectTrigger
                   className={cn(
@@ -218,33 +217,15 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
                   <SelectValue placeholder="Select a Flight Type..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem key={'fReturn'} value={'return'}>
-                    Return
-                  </SelectItem>
-                  <SelectItem key={'fOneway'} value={'oneWay'}>
-                    One Way
-                  </SelectItem>
+                  {flightTypeOptions.map((option) => (
+                    <SelectItem key={option.label} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}
-          /> */}
-          <SelectField
-            name="flightType"
-            defaultValue={flightTypeOptions[0].value}
-            className="rw-input"
-            errorClassName="rw-input rw-input-error"
-            validation={{ required: true }}
-            // className={cn(
-            //   'rw-input w-full',
-            //   formMethods.formState.errors?.flightType && 'border-red-500'
-            // )}
-          >
-            {flightTypeOptions.map((option) => (
-              <option key={option.label} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </SelectField>
+          />
 
           <FieldError name="flightType" className="rw-field-error" />
         </div>
@@ -562,7 +543,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       </div>
 
       <CommonFields
-        projects={props.projects}
+        // projects={props.projects}
         trips={props.trips}
         tripId={props.expense?.tripId}
         description={props.expense?.description}
@@ -595,7 +576,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
         </div>
       </div>
 
-      <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="my-6 grid grid-cols-1">
         <Button type="submit" variant="default" className="w-full">
           Save
         </Button>

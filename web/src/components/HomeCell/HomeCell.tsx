@@ -12,6 +12,7 @@ import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
+import { GlowEffect } from '@/components/ui/glow-effect'
 import { Progress } from '@/components/ui/Progress'
 import { formatCurrency } from '@/lib/formatters'
 
@@ -99,18 +100,27 @@ const ActionCard = ({
   description,
   href,
 }: ActionCardProps) => (
-  <Link to={href}>
-    <Card className="transition hover:shadow-lg">
-      <CardContent className="flex items-center gap-4 p-6">
-        <div className="rounded-lg bg-primary/10 p-2">
-          <Icon className="h-6 w-6 text-primary" />
-        </div>
-        <div>
-          <h3 className="font-semibold">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-      </CardContent>
-    </Card>
+  <Link to={href} className="h-full">
+    <div className="relative h-full">
+      <GlowEffect
+        colors={['#FF5733', '#33FF57', '#3357FF', '#F1C40F']}
+        mode="colorShift"
+        blur="strong"
+        duration={3}
+        scale={0.98}
+      />
+      <Card className="relative h-full transition hover:shadow-lg">
+        <CardContent className="flex gap-4 p-6">
+          <div className="h-10 rounded-lg bg-primary/10 p-2">
+            <Icon className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-semibold">{title}</h3>
+            <p className="text-sm text-muted-foreground">{description}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   </Link>
 )
 
@@ -279,13 +289,14 @@ export const Success = ({
   return (
     <div className="space-y-6">
       {/* Action Cards */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-x-6 gap-y-4 md:grid-cols-2">
         <ActionCard
           icon={PlusCircle}
           title="New Expense"
           description="Add a new expense"
           href={routes.newExpense()}
         />
+
         <ActionCard
           icon={Plane}
           title="New Trip"

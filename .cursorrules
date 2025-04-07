@@ -1,6 +1,41 @@
-# RedwoodJS Project Context
-The application is focused on helping organizations track both financial expenses and environmental impact, with features for managing projects, expenses, trips, and flight-related emissions.
+# EcoExpense Project Intelligence
 
+## EcoExpense Overview
+- EcoExpense is a RedwoodJS application for tracking both financial expenses and environmental impact
+- Core features include expense tracking, emissions calculation, and reporting
+- Multi-tenant architecture with organizations, projects, trips, and expenses
+- Data models include currency conversion to NOK and emissions tracking
+
+## Key Workflows
+- Organizations contain users, projects, and suppliers
+- Projects organize trips and expenses
+- Trips group related expenses with travel information
+- Expenses track both financial data and environmental impact
+- Environment impact calculated across three scopes of emissions
+
+## Important Patterns
+- Use organization context for all data queries to maintain multi-tenant isolation
+- Ensure proper currency conversion for all expense amounts
+- Calculate and track emissions data for relevant expenses
+- Follow RedwoodJS conventions for cells, services, and components
+- Use shadcn/ui components with Tailwind styling
+
+## File Locations
+- GraphQL schemas in `api/src/graphql/*.sdl.ts`
+- Database models in `api/db/schema.prisma`
+- Services (business logic) in `api/src/services/`
+- UI components in `web/src/components/`
+- Pages in `web/src/pages/`
+
+## Data Model Details
+- Organizations are the top-level entity for multi-tenancy
+- Users belong to a specific organization
+- Projects organize expenses and belong to organizations
+- Trips belong to projects and contain multiple expenses
+- Expenses track financial and emissions data
+- Categories have both English and Norwegian names
+
+# RedwoodJS Project Context
 
 ## Technologies & Versions
 - **RedwoodJS** v8.5.0
@@ -45,7 +80,7 @@ The application is focused on helping organizations track both financial expense
 ### 1. Version & Tooling
 - RedwoodJS 8.5.0 is used throughout the project with Yarn 4.
 - Run `yarn rw prisma migrate dev` to apply schema changes.
-- Use Redwood’s dev commands:
+- Use Redwood's dev commands:
   - `yarn rw dev` (local dev)
   - `yarn rw test` (tests)
   - `yarn rw storybook` (Storybook dev)
@@ -64,24 +99,7 @@ The application is focused on helping organizations track both financial expense
 - Clerk is integrated via `@clerk/express`.
 - Redwood config uses `clerkAuthDecoder` in `api/src/functions/auth.ts` or similar.
 - The `User` model may include `clerkId` for references.
-- Roles come from Clerk’s session or metadata, verified in Redwood’s `getCurrentUser` or services.
-Key features of Clerk implementation:
-1. Use useAuth() hook to access:
-- isAuthenticated: Check if user is logged in
-- hasRole: Check user roles
-- currentUser: Access user data
-- signUp: Initiate signup
-- loading: Check auth state
-2. Protect routes using:
-- <PrivateSet>: For authenticated routes
-- roles prop: For role-based access
-- unauthenticated: Redirect path for unauthorized users
-3. Backend protection using:
-- @requireAuth directive in GraphQL SDL
-- requireAuth() function in services
-- Role checking with hasRole()
-4. User roles are stored in Clerk's metadata and accessible via currentUser.roles
-This setup provides a complete authentication and authorization system integrated with Clerk's services.
+- Roles come from Clerk's session or metadata, verified in Redwood's `getCurrentUser` or services.
 
 ### 5. shadcn/ui
 - Components installed via rw-shad or shadcn CLI.
@@ -94,7 +112,7 @@ This setup provides a complete authentication and authorization system integrate
 
 ### 6. Testing (Jest)
 - Files named `*.test.ts` or `*.test.tsx`.
-- Use Redwood’s helpers:
+- Use Redwood's helpers:
   ```ts
   import { render, screen, waitFor } from '@redwoodjs/testing/web'
   ```
@@ -134,29 +152,27 @@ This setup provides a complete authentication and authorization system integrate
   ```bash
   yarn rw g scaffold expense
   ```
-- Redwood’s built-in components like `<Form>` used with shadcn UI parts.
+- Redwood's built-in components like `<Form>` used with shadcn UI parts.
 
 ### 9. Schema Conventions
 - The `schema.prisma` file includes relations (one-to-many, etc.).
 - Foreign keys often in `camelCase` (e.g. `organizationId`, `userId`).
-- Use Redwood’s recommended approach for migrations:
+- Use Redwood's recommended approach for migrations:
   ```bash
   yarn rw prisma migrate dev
   ```
 - Keep enum usage consistent with the existing models (ex. `USER_STATUS`).
 
 ### 10. Styling & Layout
-- Tailwind CSS 3 under Redwood’s default setup.
-- Redwood’s scaffold-generated CSS in `web/src/scaffold.css` for Redwood forms, table, etc.
+- Tailwind CSS 3 under Redwood's default setup.
+- Redwood's scaffold-generated CSS in `web/src/scaffold.css` for Redwood forms, table, etc.
 - Additional custom classes for shadcn/ui in `web/src/components/ui/` or global styles.
 - css classes prefixed with `rw-` for Redwood-specific styles. These styles are defined in `web/src/scaffold.css`
 
 ### 11. Common Patterns & Reminders
 - Validate user input in service functions.
-- Redwood’s `requireAuth` or role-based checks in GraphQL SDL or services.
+- Redwood's `requireAuth` or role-based checks in GraphQL SDL or services.
 - For multi-tenant or org-level logic, pass `organizationId` to service queries.
 - After updates, run `yarn rw type-check` to ensure consistent types.
 - Keep test coverage for cells, components, and services.
-- Use Redwood’s recommended directory structure for maintainability.
-
-
+- Use Redwood's recommended directory structure for maintainability.
