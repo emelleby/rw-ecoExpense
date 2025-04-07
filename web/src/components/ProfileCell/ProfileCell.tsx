@@ -65,100 +65,121 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
       return
     }
 
-    // Fetch the API key from the backend
-    const fetchApiKey = async () => {
-      try {
-        console.log('Fetching Maps API key from backend')
-
-        // Use the environment variable directly
-        const apiKey = process.env.REDWOOD_ENV_GOOGLE_MAPS_API_KEY
-        console.log('Google Maps API Key:', apiKey)
-
-        if (!apiKey) {
-          throw new Error('API key not found in response')
-        }
-
-        console.log('Successfully fetched Maps API key from backend')
-
-        // Create a script element to load the Google Maps API
-        const script = document.createElement('script')
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
-        script.async = true
-        script.defer = true
-        script.onload = () => {
-          console.log('Google Maps API loaded')
-          setIsLoaded(true)
-        }
-        script.onerror = (error) => {
-          console.error('Failed to load Google Maps API:', error)
-          setMapError('Failed to load Google Maps API')
-        }
-
-        document.head.appendChild(script)
-      } catch (error) {
-        console.error('Error fetching Maps API key:', error)
-        setMapError(`Failed to fetch Maps API key: ${error.message}`)
-      }
+    // Define a global callback function for Google Maps to call when loaded
+    window.initMap = () => {
+      console.log('Google Maps API loaded via callback')
+      setIsLoaded(true)
     }
 
-    fetchApiKey()
+    // Use the environment variable directly
+    const apiKey = process.env.REDWOOD_ENV_GOOGLE_MAPS_API_KEY
+    console.log('Google Maps API Key:', apiKey)
 
-    return () => {
-      // No need to clean up the script as it's beneficial to keep it loaded
-      // for other components that might use Google Maps
-    }
-  }, [])
-
-  const handleAddressUpdate = async (type: 'home' | 'work', address: string) => {
-    console.log('Updating address:', type, address)
-    if (!isLoaded) {
-      console.error('Google Maps API not loaded')
-      toast.error('Google Maps API not loaded')
+    if (!apiKey) {
+      setMapError('Google Maps API key is missing')
       return
     }
 
-    try {
-      console.log('Creating Geocoder')
-      const geocoder = new window.google.maps.Geocoder()
-      console.log('Geocoder created')
-
-      console.log('Geocoding address:', address)
-      geocoder.geocode({ address }, (results: any, status: any) => {
-        console.log('Geocoding result:', results, status)
-
-        if (status === window.google.maps.GeocoderStatus.OK && results && results[0]) {
-          const location = results[0].geometry.location
-          const lat = location.lat()
-          const lng = location.lng()
-          console.log('Coordinates:', lat, lng)
-
-          updateUser({
-            variables: {
-              id: user.id,
-              input: {
-                [`${type}Address`]: address,
-                [`${type}Latitude`]: lat,
-                [`${type}Longitude`]: lng,
-              },
-            },
-          })
-            .then(() => {
-              toast.success(`${type} address updated`)
-            })
-            .catch((error) => {
-              console.error('Error updating user:', error)
-              toast.error('Failed to update user')
-            })
-        } else {
-          console.error('No results found for address:', address, status)
-          toast.error(`No results found for address: ${status}`)
-        }
-      })
-    } catch (error) {
-      console.error('Error updating address:', error)
-      toast.error('Failed to update address: ' + (error instanceof Error ? error.message : String(error)))
+    // Create a script element to load the Google Maps API with loading=async parameter
+    const script = document.createElement('script')
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&loading=async&callback=initMap`
+    script.async = true
+    script.defer = true
+    script.onerror = (error) => {
+      console.error('Failed to load Google Maps API:', error)
+      setMapError('Failed to load Google Maps API')
     }
-  }
+
+    document.head.appendChild(script)
+
+    return () => {
+      // Clean up the global callback when component unmounts
+      delete window.initMap
+    }
+  }, [])
+
+  // Set up autocomplete for address inputs
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    try {
+      // Initialize autocomplete for home address
+      const homeInput = document.getElementById('homeAddress') as HTMLInputElement;
+      if (homeInput) {
+        const homeAutocomplete = new window.google.maps.places.Autocomplete(homeInput, {
+          types: ['address'],
+        });
+
+        // Add listener for place selection
+        homeAutocomplete.addListener('place_changed', () => {
+          const place = homeAutocomplete.getPlace();
+          if (place.geometry && place.geometry.location) {
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            const address = place.formatted_address || homeInput.value;
+
+            updateUser({
+              variables: {
+                id: user.id,
+                input: {
+                  homeAddress: address,
+                  homeLatitude: lat,
+                  homeLongitude: lng,
+                },
+              },
+            })
+              .then(() => {
+                toast.success('Home address updated');
+              })
+              .catch((error) => {
+                console.error('Error updating user:', error);
+                toast.error('Failed to update user');
+              });
+          }
+        });
+      }
+
+      // Initialize autocomplete for work address
+      const workInput = document.getElementById('workAddress') as HTMLInputElement;
+      if (workInput) {
+        const workAutocomplete = new window.google.maps.places.Autocomplete(workInput, {
+          types: ['address'],
+        });
+
+        // Add listener for place selection
+        workAutocomplete.addListener('place_changed', () => {
+          const place = workAutocomplete.getPlace();
+          if (place.geometry && place.geometry.location) {
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            const address = place.formatted_address || workInput.value;
+
+            updateUser({
+              variables: {
+                id: user.id,
+                input: {
+                  workAddress: address,
+                  workLatitude: lat,
+                  workLongitude: lng,
+                },
+              },
+            })
+              .then(() => {
+                toast.success('Work address updated');
+              })
+              .catch((error) => {
+                console.error('Error updating user:', error);
+                toast.error('Failed to update user');
+              });
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error setting up autocomplete:', error);
+    }
+  }, [isLoaded, user.id, updateUser]);
+
+  // We're now using the Places Autocomplete API instead of manual geocoding
 
   if (mapError) {
     return (
@@ -229,7 +250,7 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
         <Input
           id="homeAddress"
           defaultValue={user.homeAddress}
-          onBlur={(e) => handleAddressUpdate('home', e.target.value)}
+          placeholder="Start typing to search for an address"
         />
       </div>
 
@@ -238,21 +259,39 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
         <Input
           id="workAddress"
           defaultValue={user.workAddress}
-          onBlur={(e) => handleAddressUpdate('work', e.target.value)}
+          placeholder="Start typing to search for an address"
         />
       </div>
 
-      {user.homeLatitude && user.homeLongitude && (
+      {user.homeLatitude && user.homeLongitude && isLoaded && (
         <div id="map" className="w-full h-64" ref={(el) => {
-          if (el && isLoaded) {
-            const map = new window.google.maps.Map(el, {
-              zoom: 15,
-              center: { lat: user.homeLatitude, lng: user.homeLongitude },
-            })
-            new window.google.maps.Marker({
-              position: { lat: user.homeLatitude, lng: user.homeLongitude },
-              map,
-            })
+          if (el && window.google && window.google.maps) {
+            try {
+              const map = new window.google.maps.Map(el, {
+                zoom: 15,
+                center: { lat: user.homeLatitude, lng: user.homeLongitude },
+                mapId: 'DEMO_MAP_ID', // Optional: you can create a map ID in the Google Cloud Console
+              })
+
+              // Check if AdvancedMarkerElement is available (it's part of the marker library)
+              if (window.google.maps.marker && window.google.maps.marker.AdvancedMarkerElement) {
+                // Use the new AdvancedMarkerElement
+                const position = { lat: user.homeLatitude, lng: user.homeLongitude }
+                new window.google.maps.marker.AdvancedMarkerElement({
+                  position,
+                  map,
+                  title: 'Home Location',
+                })
+              } else {
+                // Fallback to the deprecated Marker if AdvancedMarkerElement is not available
+                new window.google.maps.Marker({
+                  position: { lat: user.homeLatitude, lng: user.homeLongitude },
+                  map,
+                })
+              }
+            } catch (error) {
+              console.error('Error initializing map:', error)
+            }
           }
         }} />
       )}

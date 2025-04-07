@@ -8,6 +8,16 @@ declare interface Window {
       GeocoderStatus: {
         OK: any;
       };
+      marker?: {
+        AdvancedMarkerElement: any;
+      };
+      places: {
+        Autocomplete: any;
+        AutocompleteService: any;
+        PlacesService: any;
+        PlacesServiceStatus: any;
+      };
     };
   };
+  initMap?: () => void; // Global callback function for Google Maps API
 }
