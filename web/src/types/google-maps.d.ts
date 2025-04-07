@@ -1,4 +1,17 @@
 // Type definitions for Google Maps JavaScript API
+declare namespace google.maps {
+  interface Place {
+    geometry?: {
+      location?: {
+        lat(): number;
+        lng(): number;
+      };
+    };
+    formattedAddress?: string;
+    formatted_address?: string;
+  }
+}
+
 declare interface Window {
   google: {
     maps: {
@@ -35,6 +48,19 @@ declare interface Window {
         AutocompleteService: any;
         PlacesService: any;
         PlacesServiceStatus: any;
+        PlaceAutocompleteElement: {
+          new(options: {
+            types?: string[];
+            inputPlaceholder?: string;
+            inputValue?: string;
+            componentRestrictions?: {
+              country?: string[];
+            };
+          }): HTMLElement & {
+            addEventListener(event: string, callback: (event: { detail: { place: google.maps.Place } }) => void): void;
+          };
+        };
+        Place: google.maps.Place;
       };
     };
   };

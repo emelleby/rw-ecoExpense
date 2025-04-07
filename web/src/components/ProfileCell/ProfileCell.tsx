@@ -100,9 +100,11 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
     }
   }, [])
 
-  // Set up autocomplete for address inputs
+  // We'll use regular input elements with the Autocomplete API
+
+  // Initialize the autocomplete components
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || !window.google || !window.google.maps || !window.google.maps.places) return;
 
     try {
       // Initialize autocomplete for home address
@@ -180,6 +182,9 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
       console.error('Error setting up autocomplete:', error);
     }
   }, [isLoaded, user.id, updateUser]);
+
+  // Note: We're using the legacy Autocomplete API for now, as the PlaceAutocompleteElement
+  // requires additional setup. We'll update to the new API in a future release.
 
   // We're now using the Places Autocomplete API instead of manual geocoding
 
