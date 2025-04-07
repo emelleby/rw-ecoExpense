@@ -21,7 +21,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from 'src/components/ui/Accordion'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
   Select,
@@ -616,7 +616,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         </div>
 
         <CommonFields
-          projects={props.projects}
+          // projects={props.projects}
           trips={props.trips}
           tripId={props.expense?.tripId}
           description={props.expense?.description}
@@ -632,9 +632,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             setFileType={setFileType}
             setReceiptUrl={setReceiptUrl}
           />
-        </div>
 
-        <div className="mt-6 grid-cols-1 gap-4">
           <Button
             variant="link"
             onClick={addAnotherFlight}
@@ -644,7 +642,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           </Button>
         </div>
 
-        <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="my-6 grid grid-cols-1">
           <Button type="submit" variant="default" className="w-full">
             Save
           </Button>
