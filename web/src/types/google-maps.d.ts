@@ -8,6 +8,25 @@ declare interface Window {
       GeocoderStatus: {
         OK: any;
       };
+      LatLngBounds: any;
+      LatLng: any;
+      Polyline: any;
+      DirectionsService: any;
+      DirectionsRenderer: any;
+      TravelMode: {
+        DRIVING: any;
+        WALKING: any;
+        BICYCLING: any;
+        TRANSIT: any;
+      };
+      SymbolPath: {
+        CIRCLE: any;
+        FORWARD_CLOSED_ARROW: any;
+        FORWARD_OPEN_ARROW: any;
+        BACKWARD_CLOSED_ARROW: any;
+        BACKWARD_OPEN_ARROW: any;
+        HOME: any;
+      };
       marker?: {
         AdvancedMarkerElement: any;
       };

@@ -11,6 +11,8 @@ import { toast } from '@redwoodjs/web/toast'
 import { useEffect, useState } from 'react'
 // No need to import anything special for the API key
 
+import DistanceCalculation from 'src/components/DistanceCalculation/DistanceCalculation'
+
 import { Input } from 'src/components/ui/Input'
 import { Label } from 'src/components/ui/Label'
 
@@ -245,55 +247,159 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <Label htmlFor="homeAddress">Home Address</Label>
+      <h2 className='text-xl font-semibold'>My profile</h2>
+      <div className="space-y-2">
+        <Label htmlFor="homeAddress" className="rw-label">Home Address</Label>
         <Input
           id="homeAddress"
           defaultValue={user.homeAddress}
           placeholder="Start typing to search for an address"
+          className="rw-input"
         />
       </div>
 
-      <div>
-        <Label htmlFor="workAddress">Work Address</Label>
+      <div className="space-y-2">
+        <Label htmlFor="workAddress" className="rw-label">Work Address</Label>
         <Input
           id="workAddress"
           defaultValue={user.workAddress}
           placeholder="Start typing to search for an address"
+          className="rw-input"
         />
       </div>
 
-      {user.homeLatitude && user.homeLongitude && isLoaded && (
-        <div id="map" className="w-full h-64" ref={(el) => {
-          if (el && window.google && window.google.maps) {
-            try {
-              const map = new window.google.maps.Map(el, {
-                zoom: 15,
-                center: { lat: user.homeLatitude, lng: user.homeLongitude },
-                mapId: 'DEMO_MAP_ID', // Optional: you can create a map ID in the Google Cloud Console
-              })
+      {isLoaded && ((user.homeLatitude && user.homeLongitude) || (user.workLatitude && user.workLongitude)) && (
+        <div className="space-y-4">
+          <div id="map" className="w-full h-64" ref={(el) => {
+            if (el && window.google && window.google.maps) {
+              try {
+                // Determine map center and bounds
+                let mapCenter: { lat: number; lng: number } | null = null;
+                const bounds = new window.google.maps.LatLngBounds();
+                const hasHome = user.homeLatitude && user.homeLongitude;
+                const hasWork = user.workLatitude && user.workLongitude;
 
-              // Check if AdvancedMarkerElement is available (it's part of the marker library)
-              if (window.google.maps.marker && window.google.maps.marker.AdvancedMarkerElement) {
-                // Use the new AdvancedMarkerElement
-                const position = { lat: user.homeLatitude, lng: user.homeLongitude }
-                new window.google.maps.marker.AdvancedMarkerElement({
-                  position,
-                  map,
-                  title: 'Home Location',
+                if (hasHome) {
+                  mapCenter = { lat: user.homeLatitude, lng: user.homeLongitude };
+                  bounds.extend(mapCenter);
+                }
+
+                if (hasWork) {
+                  const workLocation = { lat: user.workLatitude, lng: user.workLongitude };
+                  if (!hasHome) mapCenter = workLocation;
+                  bounds.extend(workLocation);
+                }
+
+                // Create the map with default styling
+                const map = new window.google.maps.Map(el, {
+                  zoom: 12,
+                  center: mapCenter,
+                  mapId: 'DEMO_MAP_ID',
                 })
-              } else {
-                // Fallback to the deprecated Marker if AdvancedMarkerElement is not available
-                new window.google.maps.Marker({
-                  position: { lat: user.homeLatitude, lng: user.homeLongitude },
-                  map,
-                })
+
+                // Add markers for home and work locations
+                if (hasHome) {
+                  const homePosition = { lat: user.homeLatitude, lng: user.homeLongitude };
+
+                  // Check if AdvancedMarkerElement is available
+                  if (window.google.maps.marker && window.google.maps.marker.AdvancedMarkerElement) {
+                    // Create a home icon element
+                    const homePin = document.createElement('div');
+                    homePin.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>';
+                    homePin.style.color = '#2563eb'; // Blue color
+
+                    new window.google.maps.marker.AdvancedMarkerElement({
+                      position: homePosition,
+                      map,
+                      title: 'Home Location',
+                      content: homePin
+                    })
+                  } else {
+                    // Fallback to the deprecated Marker
+                    new window.google.maps.Marker({
+                      position: homePosition,
+                      map,
+                      title: 'Home Location',
+                      icon: {
+                        path: window.google.maps.SymbolPath.HOME,
+                        fillColor: '#2563eb',
+                        fillOpacity: 1,
+                        strokeWeight: 1,
+                        scale: 10
+                      }
+                    })
+                  }
+                }
+
+                if (hasWork) {
+                  const workPosition = { lat: user.workLatitude, lng: user.workLongitude };
+
+                  // Check if AdvancedMarkerElement is available
+                  if (window.google.maps.marker && window.google.maps.marker.AdvancedMarkerElement) {
+                    // Create a work icon element
+                    const workPin = document.createElement('div');
+                    workPin.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>';
+                    workPin.style.color = '#dc2626'; // Red color
+
+                    new window.google.maps.marker.AdvancedMarkerElement({
+                      position: workPosition,
+                      map,
+                      title: 'Work Location',
+                      content: workPin
+                    })
+                  } else {
+                    // Fallback to the deprecated Marker
+                    new window.google.maps.Marker({
+                      position: workPosition,
+                      map,
+                      title: 'Work Location',
+                      icon: {
+                        path: window.google.maps.SymbolPath.CIRCLE,
+                        fillColor: '#dc2626',
+                        fillOpacity: 1,
+                        strokeWeight: 1,
+                        scale: 10
+                      }
+                    })
+                  }
+                }
+
+                // If both home and work locations exist, draw a line between them and calculate distance
+                if (hasHome && hasWork) {
+                  // Draw a line between home and work
+                  const homePosition = { lat: user.homeLatitude, lng: user.homeLongitude };
+                  const workPosition = { lat: user.workLatitude, lng: user.workLongitude };
+
+                  new window.google.maps.Polyline({
+                    path: [homePosition, workPosition],
+                    geodesic: true,
+                    strokeColor: '#4b5563',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    map: map
+                  });
+
+                  // Fit the map to show both markers
+                  map.fitBounds(bounds);
+                }
+              } catch (error) {
+                console.error('Error initializing map:', error)
               }
-            } catch (error) {
-              console.error('Error initializing map:', error)
             }
-          }
-        }} />
+          }} />
+
+          {/* Distance calculation */}
+          {user.homeLatitude && user.homeLongitude && user.workLatitude && user.workLongitude && (
+            <div className="rw-segment p-4">
+              <h3 className="rw-heading mb-2">Distance Information</h3>
+              <DistanceCalculation
+                homeLocation={{ lat: user.homeLatitude, lng: user.homeLongitude }}
+                workLocation={{ lat: user.workLatitude, lng: user.workLongitude }}
+                isLoaded={isLoaded}
+              />
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
