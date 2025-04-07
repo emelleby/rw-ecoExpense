@@ -616,7 +616,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         </div>
 
         <CommonFields
-          projects={props.projects}
+          // projects={props.projects}
           trips={props.trips}
           tripId={props.expense?.tripId}
           description={props.expense?.description}

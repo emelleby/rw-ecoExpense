@@ -543,7 +543,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       </div>
 
       <CommonFields
-        projects={props.projects}
+        // projects={props.projects}
         trips={props.trips}
         tripId={props.expense?.tripId}
         description={props.expense?.description}
@@ -576,7 +576,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
         </div>
       </div>
 
-      <div className="my-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="my-6 grid grid-cols-1">
         <Button type="submit" variant="default" className="w-full">
           Save
         </Button>
