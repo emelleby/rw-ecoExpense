@@ -21,6 +21,8 @@ const DistanceCalculation = ({
   workLocation,
   isLoaded,
 }: DistanceCalculationProps) => {
+  console.log("Home Location:", homeLocation);
+  console.log("Work Location:", workLocation);
   const [selectedMode, setSelectedMode] = useState<TravelModeType>('DRIVING')
   const [routeInfo, setRouteInfo] = useState<Record<TravelModeType, RouteInfo>>({
     DRIVING: { distance: '', duration: '', loading: true, error: null },

@@ -493,7 +493,7 @@ export const AIRLINES = [
   { label: 'ZH', value: 'ZH' },
 ]
 
-export const FEUL_FACTORS_DATA = {
+export const FUEL_FACTORS_DATA = {
   Butane: {
     name: 'Butane',
     unit: 'litres',

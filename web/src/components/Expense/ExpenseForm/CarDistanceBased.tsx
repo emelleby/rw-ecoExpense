@@ -25,7 +25,7 @@ import {
 //import { cn } from 'src/utils/cn'
 
 import { CommonFields } from './CommonFields'
-import { FEUL_FACTORS_DATA, FUEL_TYPE_LIST } from './constants'
+import { FUEL_FACTORS_DATA, FUEL_TYPE_LIST } from './constants'
 import UploadReciepts from './UploadReciepts'
 
 import { Switch } from '@/components/ui/Switch'
@@ -46,46 +46,77 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
 
   onSave,
 }) => {
-  const formMethods = useForm()
-
-  const [fileName, setFileName] = useState(expense?.receipt?.fileName || '')
-
-  const [fileType, setFileType] = useState(expense?.receipt?.fileType || '')
-
-  const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '')
-
-  const handleUpdateDistanceOrFactor = () => {
-    const distance = formMethods.getValues('kilometers')
-
-    let factor = formMethods.getValues('factor')
-
-    const passengers = formMethods.getValues('passengers')
-
-    factor += passengers
-
-    if (distance && factor && distance > 0 && factor > 0) {
-      formMethods.setValue('nokAmount', factor * distance)
-    }
+  // Set up form with all default values in one place
+  interface CarDistanceFormValues {
+    kilometers: number;
+    fuelType: string;
+    fuelConsumption: number;
+    passengers: number;
+    factor: number;
+    nokAmount: number;
+    trailer: boolean;
+    date: Date;
+    tripId: number;
+    description: string;
   }
 
-  const getEmission = async (data) => {
+  const formMethods = useForm<CarDistanceFormValues>({
+      defaultValues: {
+        kilometers: expense?.kilometers || 0,
+        fuelType: expense?.fuelType || FUEL_TYPE_LIST[0].value,
+        fuelConsumption: expense?.fuelAmountLiters || 10,
+        passengers: 0,
+        factor: 3.5,
+        nokAmount: expense?.nokAmount || 0,
+        trailer: false,
+        date: expense?.date ? new Date(expense.date) : new Date(),
+        tripId: expense?.tripId,
+        description: expense?.description || '',
+      }
+    });
+
+  // Receipt state
+  const [fileName, setFileName] = useState(expense?.receipt?.fileName || '');
+  const [fileType, setFileType] = useState(expense?.receipt?.fileType || '');
+  const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '');
+
+  // Create a helper function to access form values
+  const getFormValue = (name: keyof CarDistanceFormValues) => formMethods.getValues(name);
+
+  const handleUpdateDistanceOrFactor = () => {
+    const distance = getFormValue('kilometers');
+    let factor: number = Number(getFormValue('factor'));
+    const passengers = getFormValue('passengers');
+
+    // Add passenger adjustment to factor
+    factor = Number(factor) + Number(passengers);
+
+    if (distance && factor && Number(distance) > 0 && Number(factor) > 0) {
+      const amount = Number(distance) * Number(factor);
+      formMethods.setValue('nokAmount', parseFloat(amount.toFixed(2)));
+    }
+  };
+
+  const getEmission = async (data: {
+    kilometers: number;
+    fuelType: string;
+    fuelConsumption: number;
+  }) => {
     const { kilometers, fuelType, fuelConsumption } = data
 
-    const feulConsumed = kilometers / fuelConsumption
+    const fuelConsumed = kilometers * fuelConsumption / 100
 
-    let factor = 0
+    let totalfactor = 0
 
-    const scope3 = FEUL_FACTORS_DATA[fuelType].scope3
+    const scope1 = FUEL_FACTORS_DATA[fuelType].scope1
+    const scope2 = FUEL_FACTORS_DATA[fuelType].scope2
+    const scope3 = FUEL_FACTORS_DATA[fuelType].scope3
 
-    const scope1 = FEUL_FACTORS_DATA[fuelType].scope1
+    const kwh = FUEL_FACTORS_DATA[fuelType].kwh * fuelConsumed
+    // Sum the factors since it is all scope 3 emissions when it's a private car.
+    totalfactor = (scope1 || 0) + (scope2 || 0) + (scope3 || 0)
 
-    const scope2 = FEUL_FACTORS_DATA[fuelType].scope2
-
-    const kwh = FEUL_FACTORS_DATA[fuelType].kwh * feulConsumed
-
-    factor = (scope1 || 0) + (scope2 || 0) + (scope3 || 0)
-
-    const scope3Co2Emissions = factor * feulConsumed
+    const scope3Co2Emissions = totalfactor * fuelConsumed
 
     return {
       scope1Co2Emissions: 0,
@@ -95,7 +126,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
     }
   }
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: CarDistanceFormValues) => {
     // Construct the receipt object
     //console.log('Receipt data submitted:', { receiptUrl, fileName, fileType }
 
@@ -104,7 +135,6 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       kilometers,
       fuelType,
       fuelConsumption,
-
       tripId,
       nokAmount,
       description,
@@ -121,7 +151,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
     const emission = await getEmission(data)
 
     const dataWithReceipt = {
-      date,
+      date: date.toISOString(),
       tripId: Number(tripId),
       amount: nokAmount,
       currency: 'NOK',
@@ -168,7 +198,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
               onChange={(e) => {
                 const value = e.target.value.replace(/[^0-9.]/g, '')
                 e.target.value = value
-                formMethods.setValue('kilometers', value ? parseInt(value) : '')
+                formMethods.setValue('kilometers', value ? parseInt(value) : 0)
                 handleUpdateDistanceOrFactor()
               }}
             />
@@ -239,7 +269,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
                 e.target.value = value
                 formMethods.setValue(
                   'fuelConsumption',
-                  value ? parseInt(value) : ''
+                  value ? parseInt(value) : 0
                 )
               }}
             />
@@ -272,7 +302,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             onChange={(e) => {
               const value = e.target.value.replace(/[^0-9]/g, '')
               e.target.value = value
-              formMethods.setValue('passengers', value ? parseInt(value) : '')
+              formMethods.setValue('passengers', value ? parseInt(value) : 0)
               if (Number(value) > 0) {
                 handleUpdateDistanceOrFactor()
               }
@@ -335,18 +365,43 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
               placeholder="0"
               validation={{ valueAsNumber: true, min: 0 }}
               onChange={(e) => {
-                // Allow numbers, one decimal separator (either . or ,) and handle trailing decimal
-                const value = e.target.value.replace(',', '.')
+                // First replace commas with periods for decimal handling
+                let value = e.target.value.replace(',', '.')
+                // Then remove any non-numeric characters except the decimal point
+                value = value.replace(/[^0-9.]/g, '')
 
-                // Allow a trailing decimal point
-                if (value.match(/^\d*\.?\d*$/)) {
-                  e.target.value = value
-                  // Only convert to float if it's a complete number (no trailing decimal)
-                  const numberValue = value.endsWith('.')
-                    ? value
-                    : parseFloat(value)
-                  formMethods.setValue('factor', numberValue || '')
+                // Ensure we don't have multiple decimal points
+                const parts = value.split('.')
+                if (parts.length > 2) {
+                  value = parts[0] + '.' + parts.slice(1).join('')
                 }
+
+                // Update the input field with the cleaned value
+                e.target.value = value
+
+                // Convert to number if it's a complete number (no trailing decimal)
+                if (value === '' || value === '.') {
+                  formMethods.setValue('factor', 0)
+                } else if (value.endsWith('.')) {
+                  // For trailing decimal, store the numeric part and handle display separately
+                  const numericPart = parseFloat(value.slice(0, -1)) || 0
+                  formMethods.setValue('factor', numericPart)
+                  // We keep the display value with the decimal for UX purposes
+                } else {
+                  // Otherwise convert to number
+                  formMethods.setValue('factor', parseFloat(value))
+                }
+              }}
+              onBlur={(e) => {
+                // On blur, ensure the value is always a number
+                let value = e.target.value
+                if (value === '' || value === '.') {
+                  value = '0'
+                } else if (value.endsWith('.')) {
+                  value = value.slice(0, -1) // Remove trailing decimal
+                }
+                e.target.value = value
+                formMethods.setValue('factor', parseFloat(value) || 0)
               }}
             />
             <span className="px-2 text-sm text-muted-foreground">Kr/ Km</span>
@@ -371,9 +426,16 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
               valueAsNumber: true,
             }}
             onChange={(e) => {
-              const value = e.target.value.replace(/[^0-9.]/g, '')
+              // First replace commas with periods for decimal handling
+              let value = e.target.value.replace(',', '.')
+              // Then remove any non-numeric characters except the decimal point
+              value = value.replace(/[^0-9.]/g, '')
+
+              // Update the input field with the cleaned value
               e.target.value = value
-              formMethods.setValue('nokAmount', value ? parseInt(value) : '')
+
+              // Convert to number or use 0 if empty
+              formMethods.setValue('nokAmount', value ? parseInt(value) : 0)
             }}
           />
           <FieldError name="nokAmount" className="rw-field-error" />
