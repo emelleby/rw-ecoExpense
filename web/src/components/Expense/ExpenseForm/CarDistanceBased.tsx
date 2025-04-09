@@ -49,65 +49,71 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
 }) => {
   // Set up form with all default values in one place
   interface CarDistanceFormValues {
-    kilometers: number;
-    fuelType: string;
-    fuelConsumption: number;
-    passengers: number;
-    factor: number;
-    nokAmount: number;
-    trailer: boolean;
-    date: Date;
-    tripId: number;
-    description: string;
+    kilometers: number
+    fuelType: string
+    fuelConsumption: number
+    passengers: number
+    factor: number
+    nokAmount: number
+    trailer: boolean
+    date: Date
+    tripId: number
+    description: string
+    merchant: string
   }
 
   const formMethods = useForm<CarDistanceFormValues>({
-      defaultValues: {
-        kilometers: expense?.kilometers || 0,
-        fuelType: expense?.fuelType || FUEL_TYPE_LIST[0].value,
-        fuelConsumption: expense?.fuelAmountLiters && expense?.kilometers
-          ? Number((expense.fuelAmountLiters / expense.kilometers * 100).toFixed(1))
+    defaultValues: {
+      kilometers: expense?.kilometers || 0,
+      fuelType: expense?.fuelType || FUEL_TYPE_LIST[0].value,
+      fuelConsumption:
+        expense?.fuelAmountLiters && expense?.kilometers
+          ? Number(
+              ((expense.fuelAmountLiters / expense.kilometers) * 100).toFixed(1)
+            )
           : 10,
-        passengers: 0,
-        factor: 3.5,
-        nokAmount: expense?.nokAmount || 0,
-        trailer: false,
-        date: expense?.date ? new Date(expense.date) : new Date(),
-        tripId: expense?.tripId,
-        description: expense?.description || '',
-      }
-    });
+      passengers: 0,
+      factor: 3.5,
+      nokAmount: expense?.nokAmount || 0,
+      trailer: false,
+      date: expense?.date ? new Date(expense.date) : new Date(),
+      tripId: expense?.tripId,
+      description: expense?.description || '',
+      merchant: expense?.merchant || '',
+    },
+  })
 
   // Receipt state
-  const [fileName, setFileName] = useState(expense?.receipt?.fileName || '');
-  const [fileType, setFileType] = useState(expense?.receipt?.fileType || '');
-  const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '');
+  const [fileName, setFileName] = useState(expense?.receipt?.fileName || '')
+  const [fileType, setFileType] = useState(expense?.receipt?.fileType || '')
+  const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '')
 
   // Create a helper function to access form values
-  const getFormValue = (name: keyof CarDistanceFormValues) => formMethods.getValues(name);
+  const getFormValue = (name: keyof CarDistanceFormValues) =>
+    formMethods.getValues(name)
 
   const handleUpdateDistanceOrFactor = () => {
-    const distance = getFormValue('kilometers');
-    let factor: number = Number(getFormValue('factor'));
-    const passengers = getFormValue('passengers');
+    const distance = getFormValue('kilometers')
+    let factor: number = Number(getFormValue('factor'))
+    const passengers = getFormValue('passengers')
 
     // Add passenger adjustment to factor
-    factor = Number(factor) + Number(passengers);
+    factor = Number(factor) + Number(passengers)
 
     if (distance && factor && Number(distance) > 0 && Number(factor) > 0) {
-      const amount = Number(distance) * Number(factor);
-      formMethods.setValue('nokAmount', parseFloat(amount.toFixed(2)));
+      const amount = Number(distance) * Number(factor)
+      formMethods.setValue('nokAmount', parseFloat(amount.toFixed(2)))
     }
-  };
+  }
 
   const getEmission = async (data: {
-    kilometers: number;
-    fuelType: string;
-    fuelConsumption: number;
+    kilometers: number
+    fuelType: string
+    fuelConsumption: number
   }) => {
     const { kilometers, fuelType, fuelConsumption } = data
 
-    const fuelConsumed = kilometers * fuelConsumption / 100
+    const fuelConsumed = (kilometers * fuelConsumption) / 100
 
     let totalfactor = 0
 
@@ -141,6 +147,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       tripId,
       nokAmount,
       description,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -161,10 +168,11 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       nokAmount,
       exchangeRate: 1,
       categoryId: 2,
-      fuelAmountLiters: fuelConsumption * kilometers / 100,
+      fuelAmountLiters: (fuelConsumption * kilometers) / 100,
       fuelType,
       kilometers,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt, // Add the nested receipt object
@@ -196,7 +204,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
               className="rw-input flex-1 pr-16"
               validation={{
                 required: true,
-                min: 0
+                min: 0,
               }}
               onChange={(e) => {
                 const value = Number(e.target.value)
@@ -267,7 +275,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
               className="rw-input flex-1 pr-16"
               validation={{
                 required: true,
-                min: 1
+                min: 1,
               }}
               onChange={(e) => {
                 const value = Number(e.target.value)
@@ -298,7 +306,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{
-              min: 0
+              min: 0,
             }}
             onChange={(e) => {
               const value = Number(e.target.value)
@@ -364,7 +372,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
               errorClassName="flex-1 border-none bg-transparent text-sm text-red-600 focus:outline-none"
               step="0.1"
               validation={{
-                min: 0
+                min: 0,
               }}
               onChange={(e) => {
                 const value = Number(e.target.value)

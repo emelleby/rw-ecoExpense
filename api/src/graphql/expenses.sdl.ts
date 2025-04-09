@@ -34,6 +34,7 @@ export const schema = gql`
     kwh: Float!
     scope3CategoryId: Int!
     receipt: Receipt
+    merchant: String
   }
 
   type Query {
@@ -62,6 +63,7 @@ export const schema = gql`
     kwh: Float!
     scope3CategoryId: Int!
     receipt: ReceiptInput
+    merchant: String
   }
 
   input UpdateExpenseInput {
@@ -85,6 +87,7 @@ export const schema = gql`
     kwh: Float
     scope3CategoryId: Int
     receipt: ReceiptInput
+    merchant: String
   }
 
   type Mutation {

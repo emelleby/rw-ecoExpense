@@ -25,7 +25,11 @@ import {
 } from 'src/components/ui/Select'
 
 import { CommonFields } from './CommonFields'
-import { CURRENCIES_OF_COUTRIES, FUEL_TYPE_LIST, FUEL_FACTORS_DATA } from './constants'
+import {
+  CURRENCIES_OF_COUTRIES,
+  FUEL_TYPE_LIST,
+  FUEL_FACTORS_DATA,
+} from './constants'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
 
@@ -51,8 +55,9 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
       currency: expense?.currency || 'Norwegian Krone',
       exchangeRate: expense?.exchangeRate || 1,
       nokAmount: expense?.nokAmount || 0,
+      merchant: expense?.merchant || '',
       // ... other form fields ...
-    }
+    },
   })
 
   const date = new Date()
@@ -76,7 +81,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
     formMethods.setValue('exchangeRate', newExchangeRate)
 
     if (currentAmount) {
-      const nokAmount = (currentAmount * newExchangeRate)
+      const nokAmount = currentAmount * newExchangeRate
       formMethods.setValue('nokAmount', parseFloat(nokAmount.toFixed(2)))
     }
 
@@ -90,17 +95,17 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
   }) => {
     console.log(data)
 
-    let emissionFactor = FUEL_FACTORS_DATA[data.fuelType]
+    const emissionFactor = FUEL_FACTORS_DATA[data.fuelType]
     console.log(emissionFactor)
-    let scope1Co2Emissions = emissionFactor.scope1 * data.fuelAmountLiters
-    let scope3Co2Emissions = emissionFactor.scope3 * data.fuelAmountLiters
-    let kwh = emissionFactor.kwh * data.fuelAmountLiters
+    const scope1Co2Emissions = emissionFactor.scope1 * data.fuelAmountLiters
+    const scope3Co2Emissions = emissionFactor.scope3 * data.fuelAmountLiters
+    const kwh = emissionFactor.kwh * data.fuelAmountLiters
 
     return {
       scope1Co2Emissions,
       scope2Co2Emissions: 0,
       scope3Co2Emissions,
-      kwh
+      kwh,
     }
   }
 
@@ -114,6 +119,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
     nokAmount: number
     exchangeRate: number
     description: string
+    merchant: string
   }) => {
     const {
       date,
@@ -125,6 +131,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
       nokAmount,
       exchangeRate,
       description,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -150,6 +157,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
       kilometers: 0.0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt,
@@ -214,7 +222,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
             <NumberField
               name="fuelAmountLiters"
               className="rw-input flex-1"
-              placeholder='Liters'
+              placeholder="Liters"
               step="0.01"
               validation={{
                 valueAsNumber: true,
@@ -259,7 +267,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
             errorClassName="rw-input rw-input-error"
             validation={{
               valueAsNumber: true,
-              required: true
+              required: true,
             }}
           />
           <FieldError name="amount" className="rw-field-error" />
@@ -332,7 +340,10 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
               const amount = formMethods.getValues('amount')
               if (amount && numericRate) {
                 const nokAmount = amount * numericRate
-                formMethods.setValue('nokAmount', parseFloat(nokAmount.toFixed(2)))
+                formMethods.setValue(
+                  'nokAmount',
+                  parseFloat(nokAmount.toFixed(2))
+                )
               }
             }}
             className="rw-input"
@@ -372,7 +383,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           </Label>
           <TextField
             name="merchant"
-            // defaultValue={expense?.supplier}
+            //defaultValue={expense?.supplier}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: false }}

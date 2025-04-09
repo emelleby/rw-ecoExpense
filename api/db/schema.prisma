@@ -135,8 +135,9 @@ model Expense {
   nokAmount          Decimal
   date               DateTime        @default(now())
   description        String?         @db.Text
+  merchant           String?         @db.VarChar(100)
   kilometers         Float?          @default(0.0)
-  fuelType           String?         @default("") @db.VarChar(50)
+  fuelType           String?         @db.VarChar(50)
   fuelAmountLiters   Float?          @default(0.0)
   sectorId           Int?
   Sector             Sector?         @relation(fields: [sectorId], references: [id])
