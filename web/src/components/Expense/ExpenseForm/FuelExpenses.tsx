@@ -7,6 +7,7 @@ import {
   FieldError,
   Label,
   TextField,
+  NumberField,
   RWGqlError,
   Form,
   useForm,
@@ -45,9 +46,9 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
   const formMethods = useForm({
     defaultValues: {
       fuelType: expense?.fuelType || FUEL_TYPE_LIST[0].value,
-      fuelAmountLiters: expense?.fuelAmountLiters || 0,
-      amount: expense?.amount || 0,
-      currency: expense?.currency || 'NOK',
+      fuelAmountLiters: expense?.fuelAmountLiters,
+      amount: expense?.amount,
+      currency: expense?.currency || 'Norwegian Krone',
       exchangeRate: expense?.exchangeRate || 1,
       nokAmount: expense?.nokAmount || 0,
       // ... other form fields ...
@@ -210,32 +211,18 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
             Liters
           </Label>
           <div className="relative flex items-center">
-            <TextField
+            <NumberField
               name="fuelAmountLiters"
-              defaultValue={expense?.fuelAmountLiters ? expense.fuelAmountLiters : 0}
               className="rw-input flex-1"
+              placeholder='Liters'
+              step="0.01"
               validation={{
                 valueAsNumber: true,
                 required: true,
-                //min: 1,
               }}
               onChange={(e) => {
-                // First replace commas with periods for decimal handling
-                let value = e.target.value.replace(',', '.')
-                // Then remove any non-numeric characters except the decimal point
-                value = value.replace(/[^0-9.]/g, '')
-
-                // Ensure we don't have multiple decimal points
-                const parts = value.split('.')
-                if (parts.length > 2) {
-                  value = parts[0] + '.' + parts.slice(1).join('')
-                }
-
-                // Update the input field with the cleaned value
-                e.target.value = value
-
-                // Convert to number only if we have a valid value
-                formMethods.setValue('fuelAmountLiters', value ? parseFloat(value) : 0)
+                const value = Number(e.target.value)
+                formMethods.setValue('fuelAmountLiters', value)
               }}
             />
             <span className="absolute right-2 mt-1 text-sm text-muted-foreground">
@@ -255,39 +242,25 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           >
             Amount
           </Label>
-          <TextField
+          <NumberField
             name="amount"
-            defaultValue={expense?.amount || 0}
+            placeholder="0.00"
             className="rw-input"
+            step="0.01"
             onChange={(e) => {
-              // First replace commas with periods for decimal handling
-              let value = e.target.value.replace(',', '.')
-              // Then remove any non-numeric characters except the decimal point
-              value = value.replace(/[^0-9.]/g, '')
+              const value = Number(e.target.value)
+              formMethods.setValue('amount', value)
 
-              // Ensure we don't have multiple decimal points
-              const parts = value.split('.')
-              if (parts.length > 2) {
-                value = parts[0] + '.' + parts.slice(1).join('')
-              }
-
-              // Update the input field with the cleaned value
-              e.target.value = value
-
-              // Convert to number only if we have a valid value
-              const numericValue = value ? parseFloat(value) : 0
-
-              // Update the form value
-              formMethods.setValue('amount', numericValue)
-
-              // Calculate NOK amount if we have a valid number
-              if (numericValue > 0) {
-                const nokAmount = (numericValue * exchangeRate).toFixed(2)
+              if (value > 0) {
+                const nokAmount = (value * exchangeRate).toFixed(2)
                 formMethods.setValue('nokAmount', parseFloat(nokAmount))
               }
             }}
             errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: true, required: true }}
+            validation={{
+              valueAsNumber: true,
+              required: true
+            }}
           />
           <FieldError name="amount" className="rw-field-error" />
         </div>
@@ -303,13 +276,13 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
 
           <Controller
             name="currency"
-            defaultValue={expense?.currency}
+            // defaultValue={expense?.currency}
             rules={{ required: true }}
             render={({ field }) => (
               <Combobox
                 Data={CURRENCIES_OF_COUTRIES}
                 defaultValue={expense?.currency}
-                defaultText="Currency"
+                defaultText="Norwegian Krone"
                 isActive={true}
                 onChangeHandle={(value) => {
                   field.onChange(value)
@@ -379,7 +352,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           <TextField
             name="nokAmount"
             disabled
-            defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
+            // defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
             className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
@@ -399,7 +372,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           </Label>
           <TextField
             name="merchant"
-            defaultValue={''}
+            // defaultValue={expense?.supplier}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: false }}

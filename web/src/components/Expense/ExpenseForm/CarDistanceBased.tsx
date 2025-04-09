@@ -8,6 +8,7 @@ import {
   Label,
   //useFormContext,
   TextField,
+  NumberField,
   RWGqlError,
   useForm,
   Form,
@@ -64,7 +65,9 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       defaultValues: {
         kilometers: expense?.kilometers || 0,
         fuelType: expense?.fuelType || FUEL_TYPE_LIST[0].value,
-        fuelConsumption: expense?.fuelAmountLiters || 10,
+        fuelConsumption: expense?.fuelAmountLiters && expense?.kilometers
+          ? Number((expense.fuelAmountLiters / expense.kilometers * 100).toFixed(1))
+          : 10,
         passengers: 0,
         factor: 3.5,
         nokAmount: expense?.nokAmount || 0,
@@ -158,7 +161,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       nokAmount,
       exchangeRate: 1,
       categoryId: 2,
-      fuelAmountLiters: fuelConsumption,
+      fuelAmountLiters: fuelConsumption * kilometers / 100,
       fuelType,
       kilometers,
       description,
@@ -187,18 +190,17 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             Distance
           </Label>
           <div className="relative flex items-center">
-            <TextField
+            <NumberField
               name="kilometers"
-              defaultValue={expense?.kilometers ? expense?.kilometers : 0}
+              // defaultValue={expense?.kilometers || 0}
               className="rw-input flex-1 pr-16"
               validation={{
-                valueAsNumber: true,
                 required: true,
+                min: 0
               }}
               onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9.]/g, '')
-                e.target.value = value
-                formMethods.setValue('kilometers', value ? parseInt(value) : 0)
+                const value = Number(e.target.value)
+                formMethods.setValue('kilometers', value)
                 handleUpdateDistanceOrFactor()
               }}
             />
@@ -229,7 +231,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
                   // setValue('economy', VEHICLE_ECONOMY[value])
                 }}
                 value={field.value?.toString()}
-                defaultValue={FUEL_TYPE_LIST[0].value}
+                // defaultValue={FUEL_TYPE_LIST[0].value}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select fuel type..." />
@@ -259,18 +261,17 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             Fuel Consumption
           </Label>
           <div className="relative mt-1 flex items-center">
-            <TextField
+            <NumberField
               name="fuelConsumption"
-              defaultValue={10}
+              //defaultValue={expense?.fuelAmountLiters || 10}
               className="rw-input flex-1 pr-16"
-              validation={{ valueAsNumber: true, required: true, min: 1 }}
+              validation={{
+                required: true,
+                min: 1
+              }}
               onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9.]/g, '')
-                e.target.value = value
-                formMethods.setValue(
-                  'fuelConsumption',
-                  value ? parseInt(value) : 0
-                )
+                const value = Number(e.target.value)
+                formMethods.setValue('fuelConsumption', value)
               }}
             />
             <span className="absolute right-2 mt-1 text-sm text-gray-500">
@@ -291,19 +292,18 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           >
             Passengers
           </Label>
-          <TextField
+          <NumberField
             name="passengers"
-            defaultValue={0}
+            // defaultValue={0}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{
-              valueAsNumber: true,
+              min: 0
             }}
             onChange={(e) => {
-              const value = e.target.value.replace(/[^0-9]/g, '')
-              e.target.value = value
-              formMethods.setValue('passengers', value ? parseInt(value) : 0)
-              if (Number(value) > 0) {
+              const value = Number(e.target.value)
+              formMethods.setValue('passengers', value)
+              if (value > 0) {
                 handleUpdateDistanceOrFactor()
               }
             }}
@@ -314,7 +314,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         <div className="mt-6 flex flex-row items-center justify-center">
           <Controller
             name="trailer"
-            defaultValue={false}
+            // defaultValue={false}
             render={({ field }) => (
               <Switch
                 className="mt-7"
@@ -357,51 +357,19 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             Factor
           </Label>
           <div className="relative flex items-baseline justify-between">
-            <TextField
+            <NumberField
               name="factor"
-              defaultValue={3.5}
+              // defaultValue={3.5}
               className="rw-input flex-1"
               errorClassName="flex-1 border-none bg-transparent text-sm text-red-600 focus:outline-none"
-              placeholder="0"
-              validation={{ valueAsNumber: true, min: 0 }}
-              onChange={(e) => {
-                // First replace commas with periods for decimal handling
-                let value = e.target.value.replace(',', '.')
-                // Then remove any non-numeric characters except the decimal point
-                value = value.replace(/[^0-9.]/g, '')
-
-                // Ensure we don't have multiple decimal points
-                const parts = value.split('.')
-                if (parts.length > 2) {
-                  value = parts[0] + '.' + parts.slice(1).join('')
-                }
-
-                // Update the input field with the cleaned value
-                e.target.value = value
-
-                // Convert to number if it's a complete number (no trailing decimal)
-                if (value === '' || value === '.') {
-                  formMethods.setValue('factor', 0)
-                } else if (value.endsWith('.')) {
-                  // For trailing decimal, store the numeric part and handle display separately
-                  const numericPart = parseFloat(value.slice(0, -1)) || 0
-                  formMethods.setValue('factor', numericPart)
-                  // We keep the display value with the decimal for UX purposes
-                } else {
-                  // Otherwise convert to number
-                  formMethods.setValue('factor', parseFloat(value))
-                }
+              step="0.1"
+              validation={{
+                min: 0
               }}
-              onBlur={(e) => {
-                // On blur, ensure the value is always a number
-                let value = e.target.value
-                if (value === '' || value === '.') {
-                  value = '0'
-                } else if (value.endsWith('.')) {
-                  value = value.slice(0, -1) // Remove trailing decimal
-                }
-                e.target.value = value
-                formMethods.setValue('factor', parseFloat(value) || 0)
+              onChange={(e) => {
+                const value = Number(e.target.value)
+                formMethods.setValue('factor', value)
+                handleUpdateDistanceOrFactor()
               }}
             />
             <span className="px-2 text-sm text-muted-foreground">Kr/ Km</span>
@@ -416,27 +384,13 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           >
             NOK Amount
           </Label>
-          <TextField
+          <NumberField
             name="nokAmount"
             disabled
-            defaultValue={expense?.nokAmount || 0}
+            // defaultValue={expense?.nokAmount || 0}
             className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
-            validation={{
-              valueAsNumber: true,
-            }}
-            onChange={(e) => {
-              // First replace commas with periods for decimal handling
-              let value = e.target.value.replace(',', '.')
-              // Then remove any non-numeric characters except the decimal point
-              value = value.replace(/[^0-9.]/g, '')
-
-              // Update the input field with the cleaned value
-              e.target.value = value
-
-              // Convert to number or use 0 if empty
-              formMethods.setValue('nokAmount', value ? parseInt(value) : 0)
-            }}
+            step="0.01"
           />
           <FieldError name="nokAmount" className="rw-field-error" />
         </div>
@@ -452,7 +406,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
 
         <DatetimeLocalField
           name="date"
-          defaultValue={new Date()}
+          // defaultValue={new Date()}
           className="rw-input-calendar"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}

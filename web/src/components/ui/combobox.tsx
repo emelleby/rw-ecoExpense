@@ -52,7 +52,7 @@ export function Combobox({
           <span className="truncate overflow-ellipsis">
             {value
               ? Data.find((d) => d.value === value)?.label
-              : `Select ${defaultText}...`}
+              : `${defaultText}`}
           </span>
           <ChevronDown className="ml-4 h-4 w-4 shrink-0 opacity-60" />
         </Button>
@@ -63,7 +63,7 @@ export function Combobox({
             onValueChange={(value) => {
               console.log(value)
             }}
-            placeholder={`Search ${defaultText}...`}
+            placeholder={`Search...`}
           />
           <CommandList>
             <CommandEmpty>{`No ${defaultText} found.`}</CommandEmpty>
