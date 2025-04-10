@@ -1,6 +1,15 @@
-import { formatCurrency } from '@/lib/formatters'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from 'src/components/ui/Card'
 import { ExpenseTable } from 'src/components/Expense/Expenses/ExpenseTable'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from 'src/components/ui/Card'
+
+import { formatCurrency } from '@/lib/formatters'
+
+// Using Tailwind's print: variants for print-specific styling
 
 interface TripReportProps {
   trip: {
@@ -53,42 +62,45 @@ const TripReport = ({ trip }: TripReportProps) => {
   const endDate = new Date(trip.endDate).toLocaleDateString()
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="space-y-8">
+      {/* Trip header */}
+      <Card className="bg-white text-black">
         <CardHeader>
-          <CardTitle className="text-2xl">Trip Report: {trip.name}</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl text-gray-900">
+            Trip Report: {trip.name}
+          </CardTitle>
+          <CardDescription className="text-gray-600">
             {startDate} - {endDate}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {trip.description && (
             <div className="mb-4">
-              <h3 className="text-lg font-medium">Description</h3>
+              <h3 className="text-lg font-medium text-gray-900">Description</h3>
               <p className="text-gray-600">{trip.description}</p>
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="rounded-lg border p-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3 print:grid-cols-3">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
               <h3 className="text-sm font-medium text-gray-500">Project</h3>
-              <p className="text-lg font-semibold">
+              <p className="text-lg font-semibold text-gray-900">
                 {trip.project ? trip.project.name : 'No project assigned'}
               </p>
             </div>
-            <div className="rounded-lg border p-4">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
               <h3 className="text-sm font-medium text-gray-500">
                 Total Expenses
               </h3>
-              <p className="text-lg font-semibold">
+              <p className="text-lg font-semibold text-gray-900">
                 {formatCurrency(totalExpenses)} NOK
               </p>
             </div>
-            <div className="rounded-lg border p-4">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
               <h3 className="text-sm font-medium text-gray-500">
                 Total CO2 Emissions
               </h3>
-              <p className="text-lg font-semibold">
+              <p className="text-lg font-semibold text-gray-900">
                 {totalEmissions.toFixed(2)} kg CO2e
               </p>
             </div>
@@ -96,28 +108,32 @@ const TripReport = ({ trip }: TripReportProps) => {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Signature section */}
+      <Card className="bg-white text-black">
         <CardHeader>
-          <CardTitle>Expenses</CardTitle>
-          <CardDescription>
-            All expenses associated with this trip
-          </CardDescription>
+          <CardTitle className="text-xl text-gray-900">Signatures</CardTitle>
         </CardHeader>
         <CardContent>
-          <ExpenseTable
-            data={trip.expenses.map(expense => ({
-              id: expense.id,
-              category: expense.category.name,
-              amount: expense.nokAmount,
-              emissions: expense.totalCo2Emissions,
-              date: expense.date,
-              description: expense.description || '',
-              imageUrl: expense.receipt?.url || ''
-            }))}
-            showReimburseButton={false}
-            tripId={trip.id}
-            tripStatus={trip.reimbursementStatus}
-          />
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 print:grid-cols-2">
+            <div>
+              <h3 className="mb-2 text-lg font-medium text-gray-900">
+                Employee Signature
+              </h3>
+              <div className="h-16 border-b border-gray-300"></div>
+              <p className="mt-2 text-sm text-gray-500">
+                Date: _______________
+              </p>
+            </div>
+            <div>
+              <h3 className="mb-2 text-lg font-medium text-gray-900">
+                Manager Approval
+              </h3>
+              <div className="h-16 border-b border-gray-300"></div>
+              <p className="mt-2 text-sm text-gray-500">
+                Date: _______________
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

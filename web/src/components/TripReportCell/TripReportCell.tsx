@@ -6,47 +6,49 @@ import type {
   TypedDocumentNode,
 } from '@redwoodjs/web'
 
-import TripReport from '../TripReport/TripReport'
 import Spinner from 'src/components/ui/Spinner'
 
-export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> = gql`
-  query FindTripById($id: Int!) {
-    trip: trip(id: $id) {
-      id
-      name
-      description
-      startDate
-      endDate
-      userId
-      approvedDate
-      reimbursementStatus
-      transactionId
-      projectId
-      project {
+import TripReport from '../TripReport/TripReport'
+
+export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
+  gql`
+    query FindTripById($id: Int!) {
+      trip: trip(id: $id) {
         id
         name
-      }
-      expenses {
-        id
-        scope1Co2Emissions
-        scope2Co2Emissions
-        scope3Co2Emissions
-        totalCo2Emissions
         description
-        receipt {
-          url
-        }
-        categoryId
-        nokAmount
-        kwh
-        date
-        category {
+        startDate
+        endDate
+        userId
+        approvedDate
+        reimbursementStatus
+        transactionId
+        projectId
+        project {
+          id
           name
+        }
+        expenses {
+          id
+          scope1Co2Emissions
+          scope2Co2Emissions
+          scope3Co2Emissions
+          totalCo2Emissions
+          description
+          receipt {
+            url
+          }
+          categoryId
+          nokAmount
+          kwh
+          date
+          category {
+            name
+          }
         }
       }
     }
-  }
-`
+  `
 
 export const Loading = () => (
   <div className="flex h-screen items-center justify-center">
