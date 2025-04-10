@@ -8,6 +8,12 @@ export const schema = gql`
     lastName: String
     bankAccount: String
     status: USER_STATUS!
+    homeAddress: String
+    workAddress: String
+    homeLatitude: Float
+    homeLongitude: Float
+    workLatitude: Float
+    workLongitude: Float
     organizationId: Int!
     organization: Organization!
     expenses: [Expense]!
@@ -35,6 +41,12 @@ export const schema = gql`
     bankAccount: String
     status: USER_STATUS!
     organizationId: Int!
+    homeAddress: String
+    workAddress: String
+    homeLatitude: Float
+    homeLongitude: Float
+    workLatitude: Float
+    workLongitude: Float
   }
 
   input UpdateUserInput {
@@ -46,6 +58,12 @@ export const schema = gql`
     bankAccount: String
     status: USER_STATUS
     organizationId: Int
+    homeAddress: String
+    workAddress: String
+    homeLatitude: Float
+    homeLongitude: Float
+    workLatitude: Float
+    workLongitude: Float
   }
 
   type Mutation {

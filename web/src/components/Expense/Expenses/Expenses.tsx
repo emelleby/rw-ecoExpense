@@ -9,9 +9,10 @@ const ExpensesList = ({ expenses }: FindExpenses) => {
 
   useEffect(() => {
     const data = expenses.map((expense) => {
+      let totalEmissions = expense.scope1Co2Emissions + expense.scope2Co2Emissions + expense.scope3Co2Emissions
       return {
         category: expense.category.name,
-        emissions: expense.scope3Co2Emissions,
+        emissions: totalEmissions,
         amount: expense.nokAmount,
         id: expense.id,
         description: expense.description,

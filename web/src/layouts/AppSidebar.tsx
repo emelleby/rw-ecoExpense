@@ -17,6 +17,7 @@ import {
   FolderOpenDot,
   FlaskRound,
   User2Icon,
+  UserCircle
 } from 'lucide-react'
 
 import { NavLink, Link, routes } from '@redwoodjs/router'
@@ -56,6 +57,11 @@ const items = [
     title: 'Expenses',
     url: 'expenses',
     icon: BookOpen,
+  },
+  {
+    title: 'Profile',
+    url: 'profile',
+    icon: UserCircle,
   },
 ]
 const data = {

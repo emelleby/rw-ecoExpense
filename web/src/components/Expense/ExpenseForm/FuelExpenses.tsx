@@ -7,6 +7,7 @@ import {
   FieldError,
   Label,
   TextField,
+  NumberField,
   RWGqlError,
   Form,
   useForm,
@@ -24,11 +25,28 @@ import {
 } from 'src/components/ui/Select'
 
 import { CommonFields } from './CommonFields'
-import { CURRENCIES_OF_COUTRIES, FUEL_TYPE_LIST } from './constants'
+import {
+  CURRENCIES_OF_COUTRIES,
+  FUEL_TYPE_LIST,
+  FUEL_FACTORS_DATA,
+} from './constants'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
 
 type FormExpense = NonNullable<EditExpenseById['expense']>
+
+interface FuelExpenseFormValues {
+  date: Date | string
+  fuelType: string
+  tripId: number
+  amount: number
+  fuelAmountLiters: number
+  currency: string
+  nokAmount: number
+  exchangeRate: number
+  description: string
+  merchant: string
+}
 
 interface FuelExpenseProps {
   onSave: (data: CreateExpenseInput, id?: number) => void
@@ -42,7 +60,20 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
   trips,
   onSave,
 }) => {
-  const formMethods = useForm()
+  const formMethods = useForm<FuelExpenseFormValues>({
+    defaultValues: {
+      fuelType: expense?.fuelType || FUEL_TYPE_LIST[0].value,
+      fuelAmountLiters: expense?.fuelAmountLiters,
+      amount: expense?.amount,
+      currency: expense?.currency || 'NOK',
+      exchangeRate: expense?.exchangeRate || 1,
+      nokAmount: expense?.nokAmount || 0,
+      merchant: expense?.merchant || '',
+      date: expense?.date ? new Date(expense.date) : new Date(),
+      tripId: expense?.tripId || (trips.length > 0 ? trips[0].id : 0),
+      description: expense?.description || '',
+    },
+  })
 
   const date = new Date()
 
@@ -57,52 +88,59 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
   const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '')
 
   const onCurrencyChange = async (value: string) => {
-    const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
-    setExchangeRate(exchangeRate)
-    formMethods.setValue('exchangeRate', exchangeRate)
-    const amount = formMethods.getValues('amount')
+    const newExchangeRate = await getCurrencyConversionRate(value, selectedDate)
+    const currentAmount = formMethods.getValues('amount')
 
-    if (amount) {
-      const nokAmount = (amount * exchangeRate).toFixed(2)
-      formMethods.setValue('nokAmount', parseFloat(nokAmount))
+    // Batch the form updates
+    formMethods.setValue('currency', value)
+    formMethods.setValue('exchangeRate', newExchangeRate)
+
+    if (currentAmount) {
+      const nokAmount = currentAmount * newExchangeRate
+      formMethods.setValue('nokAmount', parseFloat(nokAmount.toFixed(2)))
     }
+
+    // Update local state if needed for UI purposes
+    setExchangeRate(newExchangeRate)
   }
 
-  const getEmission = async (_data: {
+  const getEmission = async (data: {
     fuelType: string
-    kilometers: number
+    fuelAmountLiters: number
   }) => {
-    // Since we're not using the parameters yet, prefix with underscore
-    // to indicate it's intentionally unused
+    console.log(data)
+
+    const emissionFactor = FUEL_FACTORS_DATA[data.fuelType]
+    console.log(emissionFactor)
+    const scope1Co2Emissions = emissionFactor.scope1 * data.fuelAmountLiters
+    const scope3Co2Emissions = emissionFactor.scope3 * data.fuelAmountLiters
+    const kwh = emissionFactor.kwh * data.fuelAmountLiters
+
     return {
-      scope1Co2Emissions: 0,
+      scope1Co2Emissions,
       scope2Co2Emissions: 0,
-      scope3Co2Emissions: 0,
+      scope3Co2Emissions,
+      kwh,
     }
   }
 
-  const onSubmit = async (data: {
-    date: Date
-    fuelType: string
-    tripId: number
-    amount: number
-    kilometers: number
-    currency: string
-    nokAmount: number
-    exchangeRate: number
-    description: string
-  }) => {
+  const onSubmit = async (data: FuelExpenseFormValues) => {
     const {
       date,
       fuelType,
       tripId,
       amount,
-      kilometers,
+      fuelAmountLiters,
       currency,
       nokAmount,
       exchangeRate,
       description,
+      merchant,
     } = data
+
+    // Ensure we have a valid date string
+    const formattedDate =
+      date instanceof Date ? date.toISOString() : new Date(date).toISOString()
 
     const receipt = receiptUrl
       ? {
@@ -115,35 +153,29 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
     const emission = await getEmission(data)
 
     const dataWithReceipt: CreateExpenseInput = {
-      date: date.toISOString(), // Convert Date to ISO string
-      tripId,
+      date: formattedDate,
+      tripId: Number(tripId),
       amount,
       currency,
       nokAmount,
       exchangeRate,
       categoryId: 3,
-      fuelAmountLiters: 0.0,
+      fuelAmountLiters,
       fuelType,
-      kilometers,
+      kilometers: 0.0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
-      receipt, // Changed from 'receipt' to 'Receipt'
+      receipt,
     }
 
-    // format the data before sending it to the server
-
-    //const formattedData = formatData(dataWithReceipt)
-
     onSave(dataWithReceipt, expense?.id)
-
-    //console.log(dataWithReceipt)
   }
-
   return (
-    <Form formMethods={formMethods} onSubmit={onSubmit}>
-      <div className=" grid grid-cols-2 gap-3 sm:gap-4">
+    <Form<FuelExpenseFormValues> formMethods={formMethods} onSubmit={onSubmit}>
+      <div className=" grid grid-cols-1 gap-x-3 sm:grid-cols-2 sm:gap-x-4">
         <div>
           <Label
             name="fuelType"
@@ -169,9 +201,9 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
                   <SelectValue placeholder="Select fuel type ..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {FUEL_TYPE_LIST.map((feul, index) => (
-                    <SelectItem key={index + 100} value={feul.value}>
-                      {feul.label}
+                  {FUEL_TYPE_LIST.map((fuel, index) => (
+                    <SelectItem key={index + 100} value={fuel.value}>
+                      {fuel.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -182,37 +214,36 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
         </div>
         <div>
           <Label
-            name="kilometers"
+            name="fuelAmountLiters"
             className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
-            Distance
+            Liters
           </Label>
           <div className="relative flex items-center">
-            <TextField
-              name="kilometers"
-              defaultValue={expense?.kilometers ? expense.kilometers : 0}
+            <NumberField
+              name="fuelAmountLiters"
               className="rw-input flex-1"
+              placeholder="Liters"
+              step="0.01"
               validation={{
                 valueAsNumber: true,
                 required: true,
-                //min: 1,
               }}
               onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9.]/g, '')
-                e.target.value = value
-                formMethods.setValue('kilometers', value ? parseInt(value) : '')
+                const value = Number(e.target.value)
+                formMethods.setValue('fuelAmountLiters', value)
               }}
             />
             <span className="absolute right-2 mt-1 text-sm text-muted-foreground">
-              KM
+              Liters
             </span>
           </div>
-          <FieldError name="kilometers" className="rw-field-error" />
+          <FieldError name="fuelAmountLiters" className="rw-field-error" />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4">
         <div>
           <Label
             name="amount"
@@ -221,19 +252,25 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           >
             Amount
           </Label>
-          <TextField
+          <NumberField
             name="amount"
-            defaultValue={expense?.amount || 0}
+            placeholder="0.00"
             className="rw-input"
+            step="0.01"
             onChange={(e) => {
-              const value = Number(e.target.value.replace(/[^0-9.]/g, ''))
+              const value = Number(e.target.value)
+              formMethods.setValue('amount', value)
+
               if (value > 0) {
                 const nokAmount = (value * exchangeRate).toFixed(2)
                 formMethods.setValue('nokAmount', parseFloat(nokAmount))
               }
             }}
             errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: true, required: true }}
+            validation={{
+              valueAsNumber: true,
+              required: true,
+            }}
           />
           <FieldError name="amount" className="rw-field-error" />
         </div>
@@ -249,13 +286,13 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
 
           <Controller
             name="currency"
-            defaultValue={expense?.currency}
+            // defaultValue={expense?.currency}
             rules={{ required: true }}
             render={({ field }) => (
               <Combobox
                 Data={CURRENCIES_OF_COUTRIES}
                 defaultValue={expense?.currency}
-                defaultText="Currency"
+                defaultText="Norwegian Krone"
                 isActive={true}
                 onChangeHandle={(value) => {
                   field.onChange(value)
@@ -282,15 +319,33 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
               valueAsNumber: true,
             }}
             onChange={(event) => {
-              const newExchangeRate = event.target.value.replace(/[^0-9.]/g, '')
-              // if (isNaN(newExchangeRate)) return
-              setExchangeRate(Number(newExchangeRate))
-              formMethods.setValue('exchangeRate', newExchangeRate)
+              // First replace commas with periods for decimal handling
+              let value = event.target.value.replace(',', '.')
+              // Then remove any non-numeric characters except the decimal point
+              value = value.replace(/[^0-9.]/g, '')
+
+              // Ensure we don't have multiple decimal points
+              const parts = value.split('.')
+              if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('')
+              }
+
+              // Update the input field with the cleaned value
+              event.target.value = value
+
+              // Convert to number only if we have a valid value
+              const numericRate = value ? parseFloat(value) : 0
+
+              setExchangeRate(numericRate)
+              formMethods.setValue('exchangeRate', numericRate)
 
               const amount = formMethods.getValues('amount')
-              if (amount) {
-                const nokAmount = amount * Number(newExchangeRate)
-                formMethods.setValue('nokAmount', nokAmount)
+              if (amount && numericRate) {
+                const nokAmount = amount * numericRate
+                formMethods.setValue(
+                  'nokAmount',
+                  parseFloat(nokAmount.toFixed(2))
+                )
               }
             }}
             className="rw-input"
@@ -310,7 +365,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           <TextField
             name="nokAmount"
             disabled
-            defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
+            // defaultValue={expense?.nokAmount ? Number(expense.nokAmount) : 0}
             className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true }}
@@ -319,7 +374,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
         <div>
           <Label
             name="merchant"
@@ -330,7 +385,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           </Label>
           <TextField
             name="merchant"
-            defaultValue={''}
+            //defaultValue={expense?.supplier}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: false }}
@@ -348,7 +403,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
 
           <DatetimeLocalField
             name="date"
-            defaultValue={new Date()}
+            defaultValue={formMethods.getValues('date')}
             onChange={(date) => {
               setSelectedDate(date)
             }}
@@ -361,10 +416,11 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
         </div>
       </div>
 
-      <CommonFields
+      <CommonFields<FuelExpenseFormValues>
         trips={trips}
         tripId={expense?.tripId}
         description={expense?.description}
+        formMethods={formMethods}
       />
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">

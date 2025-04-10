@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import {
   Dialog,
   DialogContent,

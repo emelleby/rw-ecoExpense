@@ -47,20 +47,25 @@ model Organization {
 }
 
 model User {
-  id             Int          @id @default(autoincrement())
-  clerkId        String?      @unique @db.VarChar(100)
-  username       String       @unique @db.VarChar(64)
-  email          String       @unique @db.VarChar(120)
-  firstName      String?      @db.VarChar(100)
-  lastName       String?      @db.VarChar(50)
-  bankAccount    String?      @db.VarChar(50)
-  status         USER_STATUS  @default(INACTIVE)
-  organizationId Int
-  Organization   Organization @relation(fields: [organizationId], references: [id])
-  Expense        Expense[]
-  Trip           Trip[]
-
-  createdProjects Project[] @relation("CreatedBy")
+  id              Int          @id @default(autoincrement())
+  clerkId         String?      @unique @db.VarChar(100)
+  username        String       @unique @db.VarChar(64)
+  email           String       @unique @db.VarChar(120)
+  firstName       String?      @db.VarChar(100)
+  lastName        String?      @db.VarChar(50)
+  bankAccount     String?      @db.VarChar(50)
+  status          USER_STATUS  @default(INACTIVE)
+  homeAddress     String?      @db.VarChar(255)
+  workAddress     String?      @db.VarChar(255)
+  homeLatitude    Float?
+  homeLongitude   Float?
+  workLatitude    Float?
+  workLongitude   Float?
+  organizationId  Int
+  Organization    Organization @relation(fields: [organizationId], references: [id])
+  Expense         Expense[]
+  Trip            Trip[]
+  createdProjects Project[]    @relation("CreatedBy")
 
   @@index([username], name: "idx_user_username")
 }
@@ -130,8 +135,9 @@ model Expense {
   nokAmount          Decimal
   date               DateTime        @default(now())
   description        String?         @db.Text
+  merchant           String?         @db.VarChar(100)
   kilometers         Float?          @default(0.0)
-  fuelType           String?         @default("") @db.VarChar(50)
+  fuelType           String?         @db.VarChar(50)
   fuelAmountLiters   Float?          @default(0.0)
   sectorId           Int?
   Sector             Sector?         @relation(fields: [sectorId], references: [id])

@@ -7,7 +7,8 @@ import {
   FieldError,
   Label,
   //useFormContext,
-  TextField,
+  // TextField,
+  NumberField,
   RWGqlError,
   useForm,
   Form,
@@ -25,7 +26,7 @@ import {
 //import { cn } from 'src/utils/cn'
 
 import { CommonFields } from './CommonFields'
-import { FEUL_FACTORS_DATA, FUEL_TYPE_LIST } from './constants'
+import { FUEL_FACTORS_DATA, FUEL_TYPE_LIST } from './constants'
 import UploadReciepts from './UploadReciepts'
 
 import { Switch } from '@/components/ui/Switch'
@@ -46,46 +47,85 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
 
   onSave,
 }) => {
-  const formMethods = useForm()
+  // Set up form with all default values in one place
+  interface CarDistanceFormValues {
+    kilometers: number
+    fuelType: string
+    fuelConsumption: number
+    passengers: number
+    factor: number
+    nokAmount: number
+    trailer: boolean
+    date: Date
+    tripId: number
+    description: string
+    merchant: string
+  }
 
+  const formMethods = useForm<CarDistanceFormValues>({
+    defaultValues: {
+      kilometers: expense?.kilometers || 0,
+      fuelType: expense?.fuelType || FUEL_TYPE_LIST[0].value,
+      fuelConsumption:
+        expense?.fuelAmountLiters && expense?.kilometers
+          ? Number(
+              ((expense.fuelAmountLiters / expense.kilometers) * 100).toFixed(1)
+            )
+          : 10,
+      passengers: 0,
+      factor: 3.5,
+      nokAmount: expense?.nokAmount || 0,
+      trailer: false,
+      date: expense?.date ? new Date(expense.date) : new Date(),
+      tripId: expense?.tripId,
+      description: expense?.description || '',
+      merchant: expense?.merchant || '',
+    },
+  })
+
+  // Receipt state
   const [fileName, setFileName] = useState(expense?.receipt?.fileName || '')
-
   const [fileType, setFileType] = useState(expense?.receipt?.fileType || '')
-
   const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '')
 
+  // Create a helper function to access form values
+  const getFormValue = (name: keyof CarDistanceFormValues) =>
+    formMethods.getValues(name)
+
   const handleUpdateDistanceOrFactor = () => {
-    const distance = formMethods.getValues('kilometers')
+    const distance = getFormValue('kilometers')
+    let factor: number = Number(getFormValue('factor'))
+    const passengers = getFormValue('passengers')
 
-    let factor = formMethods.getValues('factor')
+    // Add passenger adjustment to factor
+    factor = Number(factor) + Number(passengers)
 
-    const passengers = formMethods.getValues('passengers')
-
-    factor += passengers
-
-    if (distance && factor && distance > 0 && factor > 0) {
-      formMethods.setValue('nokAmount', factor * distance)
+    if (distance && factor && Number(distance) > 0 && Number(factor) > 0) {
+      const amount = Number(distance) * Number(factor)
+      formMethods.setValue('nokAmount', parseFloat(amount.toFixed(2)))
     }
   }
 
-  const getEmission = async (data) => {
+  const getEmission = async (data: {
+    kilometers: number
+    fuelType: string
+    fuelConsumption: number
+  }) => {
     const { kilometers, fuelType, fuelConsumption } = data
 
-    const feulConsumed = kilometers / fuelConsumption
+    const fuelConsumed = (kilometers * fuelConsumption) / 100
 
-    let factor = 0
+    let totalfactor = 0
 
-    const scope3 = FEUL_FACTORS_DATA[fuelType].scope3
+    const scope1 = FUEL_FACTORS_DATA[fuelType].scope1
+    const scope2 = FUEL_FACTORS_DATA[fuelType].scope2
+    const scope3 = FUEL_FACTORS_DATA[fuelType].scope3
 
-    const scope1 = FEUL_FACTORS_DATA[fuelType].scope1
+    const kwh = FUEL_FACTORS_DATA[fuelType].kwh * fuelConsumed
+    // Sum the factors since it is all scope 3 emissions when it's a private car.
+    totalfactor = (scope1 || 0) + (scope2 || 0) + (scope3 || 0)
 
-    const scope2 = FEUL_FACTORS_DATA[fuelType].scope2
-
-    const kwh = FEUL_FACTORS_DATA[fuelType].kwh * feulConsumed
-
-    factor = (scope1 || 0) + (scope2 || 0) + (scope3 || 0)
-
-    const scope3Co2Emissions = factor * feulConsumed
+    const scope3Co2Emissions = totalfactor * fuelConsumed
 
     return {
       scope1Co2Emissions: 0,
@@ -95,7 +135,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
     }
   }
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: CarDistanceFormValues) => {
     // Construct the receipt object
     //console.log('Receipt data submitted:', { receiptUrl, fileName, fileType }
 
@@ -104,10 +144,10 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
       kilometers,
       fuelType,
       fuelConsumption,
-
       tripId,
       nokAmount,
       description,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -118,20 +158,25 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         }
       : undefined
 
+    // Ensure we have a valid date string
+    const formattedDate =
+      date instanceof Date ? date.toISOString() : new Date(date).toISOString()
+
     const emission = await getEmission(data)
 
     const dataWithReceipt = {
-      date,
+      date: formattedDate,
       tripId: Number(tripId),
       amount: nokAmount,
       currency: 'NOK',
       nokAmount,
       exchangeRate: 1,
       categoryId: 2,
-      fuelAmountLiters: fuelConsumption,
+      fuelAmountLiters: (fuelConsumption * kilometers) / 100,
       fuelType,
       kilometers,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt, // Add the nested receipt object
@@ -157,18 +202,17 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             Distance
           </Label>
           <div className="relative flex items-center">
-            <TextField
+            <NumberField
               name="kilometers"
-              defaultValue={expense?.kilometers ? expense?.kilometers : 0}
+              // defaultValue={expense?.kilometers || 0}
               className="rw-input flex-1 pr-16"
               validation={{
-                valueAsNumber: true,
                 required: true,
+                min: 0,
               }}
               onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9.]/g, '')
-                e.target.value = value
-                formMethods.setValue('kilometers', value ? parseInt(value) : '')
+                const value = Number(e.target.value)
+                formMethods.setValue('kilometers', value)
                 handleUpdateDistanceOrFactor()
               }}
             />
@@ -199,7 +243,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
                   // setValue('economy', VEHICLE_ECONOMY[value])
                 }}
                 value={field.value?.toString()}
-                defaultValue={FUEL_TYPE_LIST[0].value}
+                // defaultValue={FUEL_TYPE_LIST[0].value}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select fuel type..." />
@@ -229,18 +273,17 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             Fuel Consumption
           </Label>
           <div className="relative mt-1 flex items-center">
-            <TextField
+            <NumberField
               name="fuelConsumption"
-              defaultValue={10}
+              //defaultValue={expense?.fuelAmountLiters || 10}
               className="rw-input flex-1 pr-16"
-              validation={{ valueAsNumber: true, required: true, min: 1 }}
+              validation={{
+                required: true,
+                min: 1,
+              }}
               onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9.]/g, '')
-                e.target.value = value
-                formMethods.setValue(
-                  'fuelConsumption',
-                  value ? parseInt(value) : ''
-                )
+                const value = Number(e.target.value)
+                formMethods.setValue('fuelConsumption', value)
               }}
             />
             <span className="absolute right-2 mt-1 text-sm text-gray-500">
@@ -251,7 +294,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-x-4">
         {/* DEBUG:  ADD Passangers in expnse backend */}
         <div>
           <Label
@@ -261,19 +304,18 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           >
             Passengers
           </Label>
-          <TextField
+          <NumberField
             name="passengers"
-            defaultValue={0}
+            // defaultValue={0}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{
-              valueAsNumber: true,
+              min: 0,
             }}
             onChange={(e) => {
-              const value = e.target.value.replace(/[^0-9]/g, '')
-              e.target.value = value
-              formMethods.setValue('passengers', value ? parseInt(value) : '')
-              if (Number(value) > 0) {
+              const value = Number(e.target.value)
+              formMethods.setValue('passengers', value)
+              if (value > 0) {
                 handleUpdateDistanceOrFactor()
               }
             }}
@@ -281,10 +323,10 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           <FieldError name="passengers" className="rw-field-error" />
         </div>
 
-        <div className="mt-6 flex flex-row items-center justify-center">
+        <div className="justify-left flex flex-row items-end gap-x-4 pb-3 ">
           <Controller
             name="trailer"
-            defaultValue={false}
+            // defaultValue={false}
             render={({ field }) => (
               <Switch
                 className="mt-7"
@@ -309,15 +351,13 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           />
           <Label
             name="trailer"
-            className="rw-label ml-3"
+            className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
             Trailer
           </Label>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-2">
         <div>
           <Label
             name="factor"
@@ -327,26 +367,19 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
             Factor
           </Label>
           <div className="relative flex items-baseline justify-between">
-            <TextField
+            <NumberField
               name="factor"
-              defaultValue={3.5}
+              // defaultValue={3.5}
               className="rw-input flex-1"
               errorClassName="flex-1 border-none bg-transparent text-sm text-red-600 focus:outline-none"
-              placeholder="0"
-              validation={{ valueAsNumber: true, min: 0 }}
+              step="0.1"
+              validation={{
+                min: 0,
+              }}
               onChange={(e) => {
-                // Allow numbers, one decimal separator (either . or ,) and handle trailing decimal
-                const value = e.target.value.replace(',', '.')
-
-                // Allow a trailing decimal point
-                if (value.match(/^\d*\.?\d*$/)) {
-                  e.target.value = value
-                  // Only convert to float if it's a complete number (no trailing decimal)
-                  const numberValue = value.endsWith('.')
-                    ? value
-                    : parseFloat(value)
-                  formMethods.setValue('factor', numberValue || '')
-                }
+                const value = Number(e.target.value)
+                formMethods.setValue('factor', value)
+                handleUpdateDistanceOrFactor()
               }}
             />
             <span className="px-2 text-sm text-muted-foreground">Kr/ Km</span>
@@ -361,20 +394,13 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           >
             NOK Amount
           </Label>
-          <TextField
+          <NumberField
             name="nokAmount"
             disabled
-            defaultValue={expense?.nokAmount || 0}
+            // defaultValue={expense?.nokAmount || 0}
             className="rw-input rw-input-disabled"
             errorClassName="rw-input rw-input-error"
-            validation={{
-              valueAsNumber: true,
-            }}
-            onChange={(e) => {
-              const value = e.target.value.replace(/[^0-9.]/g, '')
-              e.target.value = value
-              formMethods.setValue('nokAmount', value ? parseInt(value) : '')
-            }}
+            step="0.01"
           />
           <FieldError name="nokAmount" className="rw-field-error" />
         </div>
@@ -390,7 +416,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
 
         <DatetimeLocalField
           name="date"
-          defaultValue={new Date()}
+          defaultValue={formMethods.getValues('date')}
           className="rw-input-calendar"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}
@@ -403,6 +429,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         trips={trips}
         tripId={expense?.tripId}
         description={expense?.description}
+        formMethods={formMethods}
       />
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">

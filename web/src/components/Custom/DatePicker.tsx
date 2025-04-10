@@ -44,20 +44,20 @@ const DatetimeLocalField = ({
   })
 
   const [open, setOpen] = useState(false)
-  //console.log(`DatePicker ${name} defaultValue:`, defaultValue)
-  // Convert ISO string to Date object if needed
-  const initialDate =
-    typeof defaultValue === 'string' ? new Date(defaultValue) : defaultValue
+
+  // Convert string or Date to Date object
+  const initialDate = defaultValue
+    ? typeof defaultValue === 'string'
+      ? new Date(defaultValue)
+      : defaultValue
+    : undefined
+
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     initialDate
   )
 
   const handleSelect = (date: Date | undefined) => {
-    //console.log(`DatePicker ${name} selected:`, date)
-    //console.log(`DatePicker ${name} ISO string:`, date?.toISOString())
     setSelectedDate(date)
-
-    // Always store and transmit full ISO string for DB compatibility
     field.onChange(date?.toISOString())
     onChange?.(date)
     setOpen(false)
