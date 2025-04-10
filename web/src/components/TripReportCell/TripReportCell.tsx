@@ -35,6 +35,7 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
           scope3Co2Emissions
           totalCo2Emissions
           description
+          merchant
           receipt {
             url
           }

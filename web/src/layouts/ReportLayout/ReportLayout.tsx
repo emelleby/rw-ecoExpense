@@ -1,33 +1,69 @@
-import { Link, routes } from '@redwoodjs/router'
 import { useEffect } from 'react'
+
+import { Link, routes } from '@redwoodjs/router'
 
 type ReportLayoutProps = {
   children?: React.ReactNode
   title?: string
 }
 
-const ReportLayout = ({ children, title = 'Trip Report' }: ReportLayoutProps) => {
-  // Force light mode for the report page
+const ReportLayout = ({
+  children,
+  title = 'Trip Report',
+}: ReportLayoutProps) => {
+  // Remove all theming for the report page, especially for printing
   useEffect(() => {
     // Save the current theme
     const htmlElement = document.documentElement
-    const currentTheme = htmlElement.classList.contains('dark') ? 'dark' : 'light'
+    const currentTheme = htmlElement.classList.contains('dark')
+      ? 'dark'
+      : 'light'
 
-    // Force light mode
-    htmlElement.classList.remove('dark')
+    // Store any theme-related classes
+    const themeClasses = [...htmlElement.classList].filter(
+      (cls) => cls === 'dark' || cls === 'light' || cls.startsWith('theme-')
+    )
+
+    // Remove all theme-related classes
+    themeClasses.forEach((cls) => htmlElement.classList.remove(cls))
+
+    // Add a print-specific class
+    htmlElement.classList.add('print-report')
+
+    // Add a style tag for print media
+    const styleTag = document.createElement('style')
+    styleTag.id = 'print-report-style'
+    styleTag.innerHTML = `
+      @media print {
+        html.print-report,
+        html.print-report body {
+          background-color: white !important;
+          color: black !important;
+        }
+      }
+    `
+    document.head.appendChild(styleTag)
 
     // Restore the original theme when component unmounts
     return () => {
+      // Remove the print-specific class and style
+      htmlElement.classList.remove('print-report')
+      const styleElement = document.getElementById('print-report-style')
+      if (styleElement) styleElement.remove()
+
+      // Restore original theme classes
       if (currentTheme === 'dark') {
         htmlElement.classList.add('dark')
+      } else {
+        htmlElement.classList.add('light')
       }
     }
   }, [])
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="rw-scaffold min-h-screen">
       {/* Header - will be hidden when printing */}
-      <header className="border-b print:hidden">
+      <header className="sticky top-0 z-50 w-full border-b bg-slate-50 print:hidden">
         <div className="container mx-auto flex items-center justify-between py-4">
           <div className="flex items-center gap-4">
             <Link
@@ -77,9 +113,11 @@ const ReportLayout = ({ children, title = 'Trip Report' }: ReportLayoutProps) =>
       </header>
 
       {/* Main content */}
-      <main className="container mx-auto py-8">
+      <main className="container mx-auto pb-6 pt-4 print:bg-white print:text-black">
         {title && (
-          <h1 className="mb-8 text-center text-3xl font-bold print:mb-4">{title}</h1>
+          <h1 className="mb-4 text-center text-3xl font-bold print:mb-2">
+            {title}
+          </h1>
         )}
         {children}
       </main>
