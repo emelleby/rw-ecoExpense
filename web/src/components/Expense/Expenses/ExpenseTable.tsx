@@ -4,7 +4,7 @@ import { TypedDocumentNode, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { QUERY } from 'src/components/Trip/TripCell/TripCell'
-import { Button } from 'src/components/ui/button'
+import { Button } from 'src/components/ui/Button'
 import {
   Table,
   TableBody,

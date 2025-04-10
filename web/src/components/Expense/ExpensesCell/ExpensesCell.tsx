@@ -22,6 +22,7 @@ export const QUERY: TypedDocumentNode<FindExpenses, FindExpensesVariables> =
         nokAmount
         date
         description
+        merchant
         kilometers
         fuelType
         fuelAmountLiters

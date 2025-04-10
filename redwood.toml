@@ -13,7 +13,8 @@
     # Add any ENV vars that should be available to the web side to this array
     # See https://redwoodjs.com/docs/environment-variables#web
     'CLERK_PUBLISHABLE_KEY',
-    'QUETZAL_API_KEY'
+    'QUETZAL_API_KEY',
+    'GOOGLE_MAPS_API_KEY'
   ]
 
 [prisma]

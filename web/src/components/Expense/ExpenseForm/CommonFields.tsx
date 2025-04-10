@@ -1,6 +1,12 @@
 import React from 'react'
 
-import { Controller, FieldError, Label, TextField } from '@redwoodjs/forms'
+import {
+  Controller,
+  FieldError,
+  Label,
+  TextField,
+  UseFormReturn,
+} from '@redwoodjs/forms'
 
 import {
   Select,
@@ -10,17 +16,19 @@ import {
   SelectValue,
 } from 'src/components/ui/Select'
 
-interface CommonFieldsProps {
+// Generic type parameter for form values
+interface CommonFieldsProps<T = Record<string, unknown>> {
   trips: { id: number; name: string }[]
   tripId?: number
   description?: string
+  formMethods?: UseFormReturn<T, unknown>
 }
 
-export const CommonFields: React.FC<CommonFieldsProps> = ({
-  trips,
-  tripId,
-  description,
-}) => {
+export const CommonFields = <T = Record<string, unknown>,>(
+  props: CommonFieldsProps<T>
+) => {
+  const { trips, tripId, description, formMethods } = props
+
   return (
     <>
       <div className="grid grid-cols-1 gap-x-4">
@@ -52,12 +60,20 @@ export const CommonFields: React.FC<CommonFieldsProps> = ({
         </Label>
         <Controller
           name="tripId"
-          defaultValue={tripId || trips[0].id}
+          defaultValue={tripId || (trips.length > 0 ? trips[0].id : undefined)}
           data-testid="trip-select"
           rules={{ required: true }}
           render={({ field }) => (
             <Select
-              onValueChange={(value) => field.onChange(value)}
+              onValueChange={(value) => {
+                field.onChange(Number(value))
+                if (formMethods) {
+                  // Use type assertion to handle the dynamic field name
+                  ;(
+                    formMethods as UseFormReturn<Record<string, unknown>>
+                  ).setValue('tripId', Number(value))
+                }
+              }}
               value={field.value?.toString()}
             >
               <SelectTrigger id="tripId" data-testid="trip-select">

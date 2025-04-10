@@ -28,6 +28,7 @@ export const QUERY: TypedDocumentNode<EditExpenseById> = gql`
       nokAmount
       date
       description
+      merchant
       kilometers
       fuelType
       fuelAmountLiters
@@ -47,6 +48,7 @@ export const QUERY: TypedDocumentNode<EditExpenseById> = gql`
         fileName
         fileType
       }
+      merchant
     }
     expenseCategories {
       id
