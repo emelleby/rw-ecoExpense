@@ -132,7 +132,7 @@ export function ExpenseTable({
               </TableCell>
             </TableRow>
           ))}
-        </TableBody>{' '}
+        </TableBody>
         {showReimburseButton && (
           <TableFooter>
             <TableRow>
