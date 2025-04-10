@@ -199,4 +199,13 @@ export const Expense: ExpenseRelationResolvers = {
   receipt: (_obj, { root }) => {
     return db.expense.findUnique({ where: { id: root?.id } }).Receipt()
   },
+  // Add this resolver
+  totalCo2Emissions: (_obj, { root }) => {
+    console.log('Calculation of totalCo2Emissions')
+    return (
+      (root?.scope1Co2Emissions || 0) +
+      (root?.scope2Co2Emissions || 0) +
+      (root?.scope3Co2Emissions || 0)
+    )
+  },
 }
