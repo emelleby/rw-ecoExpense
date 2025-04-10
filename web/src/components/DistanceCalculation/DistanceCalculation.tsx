@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+
 import { Button } from '@/components/ui/Button'
 
 interface DistanceCalculationProps {
@@ -21,89 +22,94 @@ const DistanceCalculation = ({
   workLocation,
   isLoaded,
 }: DistanceCalculationProps) => {
-  console.log("Home Location:", homeLocation);
-  console.log("Work Location:", workLocation);
+  console.log('Home Location:', homeLocation)
+  console.log('Work Location:', workLocation)
   const [selectedMode, setSelectedMode] = useState<TravelModeType>('DRIVING')
-  const [routeInfo, setRouteInfo] = useState<Record<TravelModeType, RouteInfo>>({
-    DRIVING: { distance: '', duration: '', loading: true, error: null },
-    WALKING: { distance: '', duration: '', loading: true, error: null },
-    BICYCLING: { distance: '', duration: '', loading: true, error: null },
-    TRANSIT: { distance: '', duration: '', loading: true, error: null },
-  })
-
-  const calculateRoute = (travelMode: TravelModeType) => {
-    if (!isLoaded || !homeLocation || !workLocation) {
-      return
+  const [routeInfo, setRouteInfo] = useState<Record<TravelModeType, RouteInfo>>(
+    {
+      DRIVING: { distance: '', duration: '', loading: true, error: null },
+      WALKING: { distance: '', duration: '', loading: true, error: null },
+      BICYCLING: { distance: '', duration: '', loading: true, error: null },
+      TRANSIT: { distance: '', duration: '', loading: true, error: null },
     }
+  )
 
-    // Update loading state for this travel mode
-    setRouteInfo((prev) => ({
-      ...prev,
-      [travelMode]: { ...prev[travelMode], loading: true, error: null },
-    }))
+  const calculateRoute = useCallback(
+    (travelMode: TravelModeType) => {
+      if (!isLoaded || !homeLocation || !workLocation) {
+        return
+      }
 
-    try {
-      const directionsService = new window.google.maps.DirectionsService()
+      // Update loading state for this travel mode
+      setRouteInfo((prev) => ({
+        ...prev,
+        [travelMode]: { ...prev[travelMode], loading: true, error: null },
+      }))
 
-      directionsService.route(
-        {
-          origin: new window.google.maps.LatLng(
-            homeLocation.lat,
-            homeLocation.lng
-          ),
-          destination: new window.google.maps.LatLng(
-            workLocation.lat,
-            workLocation.lng
-          ),
-          travelMode: window.google.maps.TravelMode[travelMode],
-        },
-        (result, status) => {
-          if (status === 'OK' && result) {
-            const route = result.routes[0]
-            if (route && route.legs && route.legs[0]) {
-              setRouteInfo((prev) => ({
-                ...prev,
-                [travelMode]: {
-                  distance: route.legs[0].distance?.text || 'Unknown',
-                  duration: route.legs[0].duration?.text || 'Unknown',
-                  loading: false,
-                  error: null,
-                },
-              }))
+      try {
+        const directionsService = new window.google.maps.DirectionsService()
+
+        directionsService.route(
+          {
+            origin: new window.google.maps.LatLng(
+              homeLocation.lat,
+              homeLocation.lng
+            ),
+            destination: new window.google.maps.LatLng(
+              workLocation.lat,
+              workLocation.lng
+            ),
+            travelMode: window.google.maps.TravelMode[travelMode],
+          },
+          (result, status) => {
+            if (status === 'OK' && result) {
+              const route = result.routes[0]
+              if (route && route.legs && route.legs[0]) {
+                setRouteInfo((prev) => ({
+                  ...prev,
+                  [travelMode]: {
+                    distance: route.legs[0].distance?.text || 'Unknown',
+                    duration: route.legs[0].duration?.text || 'Unknown',
+                    loading: false,
+                    error: null,
+                  },
+                }))
+              } else {
+                setRouteInfo((prev) => ({
+                  ...prev,
+                  [travelMode]: {
+                    ...prev[travelMode],
+                    loading: false,
+                    error: 'Could not calculate route details',
+                  },
+                }))
+              }
             } else {
               setRouteInfo((prev) => ({
                 ...prev,
                 [travelMode]: {
                   ...prev[travelMode],
                   loading: false,
-                  error: 'Could not calculate route details',
+                  error: `Could not calculate route: ${status}`,
                 },
               }))
             }
-          } else {
-            setRouteInfo((prev) => ({
-              ...prev,
-              [travelMode]: {
-                ...prev[travelMode],
-                loading: false,
-                error: `Could not calculate route: ${status}`,
-              },
-            }))
           }
-        }
-      )
-    } catch (err) {
-      console.error(`Error calculating ${travelMode} route:`, err)
-      setRouteInfo((prev) => ({
-        ...prev,
-        [travelMode]: {
-          ...prev[travelMode],
-          loading: false,
-          error: 'Error calculating distance',
-        },
-      }))
-    }
-  }
+        )
+      } catch (err) {
+        console.error(`Error calculating ${travelMode} route:`, err)
+        setRouteInfo((prev) => ({
+          ...prev,
+          [travelMode]: {
+            ...prev[travelMode],
+            loading: false,
+            error: 'Error calculating distance',
+          },
+        }))
+      }
+    },
+    [isLoaded, homeLocation, workLocation]
+  )
 
   // Calculate the route for the selected travel mode when component mounts or locations change
   useEffect(() => {
@@ -116,7 +122,7 @@ const DistanceCalculation = ({
     calculateRoute('WALKING')
     calculateRoute('BICYCLING')
     calculateRoute('TRANSIT')
-  }, [isLoaded, homeLocation, workLocation])
+  }, [isLoaded, homeLocation, workLocation, calculateRoute])
 
   const currentRouteInfo = routeInfo[selectedMode]
 
@@ -207,7 +213,11 @@ const DistanceCalculation = ({
   }
 
   if (currentRouteInfo.loading) {
-    return <div className="rw-text-gray">Calculating {travelModeLabels[selectedMode].toLowerCase()} route...</div>
+    return (
+      <div className="rw-text-gray">
+        Calculating {travelModeLabels[selectedMode].toLowerCase()} route...
+      </div>
+    )
   }
 
   if (currentRouteInfo.error) {
@@ -217,14 +227,17 @@ const DistanceCalculation = ({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        {(['DRIVING', 'WALKING', 'BICYCLING', 'TRANSIT'] as TravelModeType[]).map((mode) => (
+        {(
+          ['DRIVING', 'WALKING', 'BICYCLING', 'TRANSIT'] as TravelModeType[]
+        ).map((mode) => (
           <Button
             key={mode}
             onClick={() => setSelectedMode(mode)}
-            className={`flex items-center px-3 py-2 rounded-md transition-colors ${selectedMode === mode
-              ? 'rw-button rw-button-blue'
-              : 'bg-slate-500'
-              }`}
+            className={`flex items-center rounded-md px-3 py-2 transition-colors ${
+              selectedMode === mode
+                ? 'rw-button rw-button-blue'
+                : 'bg-slate-500'
+            }`}
             disabled={routeInfo[mode].loading}
           >
             <span className="mr-2">{getTravelModeIcon(mode)}</span>
@@ -240,7 +253,7 @@ const DistanceCalculation = ({
         <div className="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 rw-text-gray mr-2"
+            className="rw-text-gray mr-2 h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -258,7 +271,7 @@ const DistanceCalculation = ({
         <div className="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 rw-text-gray mr-2"
+            className="rw-text-gray mr-2 h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

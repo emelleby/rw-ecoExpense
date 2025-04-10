@@ -7,7 +7,7 @@ import {
   FieldError,
   Label,
   //useFormContext,
-  TextField,
+  // TextField,
   NumberField,
   RWGqlError,
   useForm,
@@ -158,10 +158,14 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         }
       : undefined
 
+    // Ensure we have a valid date string
+    const formattedDate =
+      date instanceof Date ? date.toISOString() : new Date(date).toISOString()
+
     const emission = await getEmission(data)
 
     const dataWithReceipt = {
-      date: date.toISOString(),
+      date: formattedDate,
       tripId: Number(tripId),
       amount: nokAmount,
       currency: 'NOK',
@@ -414,7 +418,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
 
         <DatetimeLocalField
           name="date"
-          // defaultValue={new Date()}
+          defaultValue={formMethods.getValues('date')}
           className="rw-input-calendar"
           errorClassName="rw-input rw-input-error"
           validation={{ required: true }}

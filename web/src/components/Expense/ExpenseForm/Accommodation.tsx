@@ -50,18 +50,24 @@ export const Accommodation = ({
   expense,
   onSave,
 }: AccommodationProps) => {
-  const date = new Date()
-  const formMethods = useForm()
+  const formMethods = useForm({
+    defaultValues: {
+      merchant: expense?.merchant || '',
+      date: expense?.date ? new Date(expense.date) : new Date(),
+      amount: expense?.amount || undefined,
+      currency: expense?.currency || 'NOK',
+      exchangeRate: expense?.exchangeRate || 1,
+      nokAmount: expense?.nokAmount || 0,
+    },
+  })
 
   const [exchangeRate, setExchangeRate] = useState(expense?.exchangeRate || 1)
-
   const [fileName, setFileName] = useState(expense?.receipt?.fileName || '')
-
   const [fileType, setFileType] = useState(expense?.receipt?.fileType || '')
-
   const [receiptUrl, setReceiptUrl] = useState(expense?.receipt?.url || '')
-
-  const [selectedDate, setSelectedDate] = useState(date)
+  const [selectedDate, setSelectedDate] = useState(
+    formMethods.getValues('date')
+  )
 
   const onCurrencyChange = async (value: string) => {
     try {
@@ -105,9 +111,6 @@ export const Accommodation = ({
   }
 
   const onSubmit = async (data) => {
-    // Construct the receipt object
-    //console.log('Receipt data submitted:', { receiptUrl, fileName, fileType }
-
     const {
       date,
       tripId,
@@ -116,7 +119,15 @@ export const Accommodation = ({
       nokAmount,
       exchangeRate,
       description,
+      merchant,
+      nights,
+      numberOfPeople,
+      country,
     } = data
+
+    // Ensure proper date formatting
+    const formattedDate =
+      date instanceof Date ? date.toISOString() : new Date(date).toISOString()
 
     const receipt = receiptUrl
       ? {
@@ -126,10 +137,10 @@ export const Accommodation = ({
         }
       : undefined
 
-    const emission = await getEmission(data)
+    const emission = await getEmission({ nights, numberOfPeople, country })
 
     const dataWithReceipt = {
-      date,
+      date: formattedDate,
       tripId: Number(tripId),
       amount,
       currency,
@@ -141,22 +152,18 @@ export const Accommodation = ({
       kilometers: 0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
-      receipt, // Add the nested receipt object
+      receipt,
     }
 
-    // format the data before sending it to the server
-
-    //const formattedData = formatData(dataWithReceipt)
     onSave(dataWithReceipt, expense?.id)
-
-    console.log(dataWithReceipt)
   }
 
   useEffect(() => {
     async function fetchExchangeRate() {
-      const currency = formMethods.getValues('currency') || expense?.currency
+      const currency = formMethods.getValues('currency')
       if (currency) {
         const newExchangeRate = await getCurrencyConversionRate(
           currency,
@@ -167,7 +174,7 @@ export const Accommodation = ({
       }
     }
     fetchExchangeRate()
-  }, [selectedDate, expense?.currency, formMethods])
+  }, [selectedDate, formMethods])
 
   return (
     <Form formMethods={formMethods} onSubmit={onSubmit}>
@@ -251,9 +258,7 @@ export const Accommodation = ({
 
           <FieldError name="country" className="rw-field-error" />
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
         <div>
           <Label
             name="numberOfPeople"
@@ -301,8 +306,7 @@ export const Accommodation = ({
           />
           <FieldError name="nights" className="rw-field-error" />
         </div>
-      </div>
-      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
+
         <div>
           <Label
             name="merchant"
@@ -332,7 +336,7 @@ export const Accommodation = ({
 
           <DatetimeLocalField
             name="date"
-            defaultValue={new Date()}
+            defaultValue={formMethods.getValues('date')}
             onChange={(date) => {
               setSelectedDate(date)
             }}
@@ -344,7 +348,7 @@ export const Accommodation = ({
           <FieldError name="date" className="rw-field-error" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Label
             name="amount"

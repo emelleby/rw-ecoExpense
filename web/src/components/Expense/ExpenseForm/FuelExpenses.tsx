@@ -35,6 +35,19 @@ import UploadReciepts from './UploadReciepts'
 
 type FormExpense = NonNullable<EditExpenseById['expense']>
 
+interface FuelExpenseFormValues {
+  date: Date | string
+  fuelType: string
+  tripId: number
+  amount: number
+  fuelAmountLiters: number
+  currency: string
+  nokAmount: number
+  exchangeRate: number
+  description: string
+  merchant: string
+}
+
 interface FuelExpenseProps {
   onSave: (data: CreateExpenseInput, id?: number) => void
   expense?: FormExpense
@@ -52,11 +65,11 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
       fuelType: expense?.fuelType || FUEL_TYPE_LIST[0].value,
       fuelAmountLiters: expense?.fuelAmountLiters,
       amount: expense?.amount,
-      currency: expense?.currency || 'Norwegian Krone',
+      currency: expense?.currency || 'NOK',
       exchangeRate: expense?.exchangeRate || 1,
       nokAmount: expense?.nokAmount || 0,
       merchant: expense?.merchant || '',
-      // ... other form fields ...
+      date: expense?.date ? new Date(expense.date) : new Date(),
     },
   })
 
@@ -109,18 +122,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
     }
   }
 
-  const onSubmit = async (data: {
-    date: Date
-    fuelType: string
-    tripId: number
-    amount: number
-    fuelAmountLiters: number
-    currency: string
-    nokAmount: number
-    exchangeRate: number
-    description: string
-    merchant: string
-  }) => {
+  const onSubmit = async (data: FuelExpenseFormValues) => {
     const {
       date,
       fuelType,
@@ -134,6 +136,10 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
       merchant,
     } = data
 
+    // Ensure we have a valid date string
+    const formattedDate =
+      date instanceof Date ? date.toISOString() : new Date(date).toISOString()
+
     const receipt = receiptUrl
       ? {
           url: receiptUrl,
@@ -145,7 +151,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
     const emission = await getEmission(data)
 
     const dataWithReceipt: CreateExpenseInput = {
-      date: date.toISOString(),
+      date: formattedDate,
       tripId: Number(tripId),
       amount,
       currency,
@@ -163,16 +169,10 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
       receipt,
     }
 
-    // format the data before sending it to the server
-
-    //const formattedData = formatData(dataWithReceipt)
-
     onSave(dataWithReceipt, expense?.id)
-
-    //console.log(dataWithReceipt)
   }
   return (
-    <Form formMethods={formMethods} onSubmit={onSubmit}>
+    <Form<FuelExpenseFormValues> formMethods={formMethods} onSubmit={onSubmit}>
       <div className=" grid grid-cols-2 gap-3 sm:gap-4">
         <div>
           <Label
@@ -401,7 +401,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
 
           <DatetimeLocalField
             name="date"
-            defaultValue={new Date()}
+            defaultValue={formMethods.getValues('date')}
             onChange={(date) => {
               setSelectedDate(date)
             }}
