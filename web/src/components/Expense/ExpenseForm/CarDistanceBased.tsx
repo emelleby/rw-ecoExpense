@@ -294,7 +294,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-x-4">
         {/* DEBUG:  ADD Passangers in expnse backend */}
         <div>
           <Label
@@ -323,7 +323,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           <FieldError name="passengers" className="rw-field-error" />
         </div>
 
-        <div className="mt-6 flex flex-row items-center justify-center">
+        <div className="justify-left flex flex-row items-end gap-x-4 pb-3 ">
           <Controller
             name="trailer"
             // defaultValue={false}
@@ -351,15 +351,13 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           />
           <Label
             name="trailer"
-            className="rw-label ml-3"
+            className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
             Trailer
           </Label>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-2">
         <div>
           <Label
             name="factor"
@@ -431,6 +429,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
         trips={trips}
         tripId={expense?.tripId}
         description={expense?.description}
+        formMethods={formMethods}
       />
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">

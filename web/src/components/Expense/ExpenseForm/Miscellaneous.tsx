@@ -414,6 +414,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
         trips={props.trips}
         tripId={props.expense?.tripId}
         description={props.expense?.description}
+        formMethods={formMethods}
       />
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">

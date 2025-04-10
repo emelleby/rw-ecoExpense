@@ -60,7 +60,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
   trips,
   onSave,
 }) => {
-  const formMethods = useForm({
+  const formMethods = useForm<FuelExpenseFormValues>({
     defaultValues: {
       fuelType: expense?.fuelType || FUEL_TYPE_LIST[0].value,
       fuelAmountLiters: expense?.fuelAmountLiters,
@@ -70,6 +70,8 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
       nokAmount: expense?.nokAmount || 0,
       merchant: expense?.merchant || '',
       date: expense?.date ? new Date(expense.date) : new Date(),
+      tripId: expense?.tripId || (trips.length > 0 ? trips[0].id : 0),
+      description: expense?.description || '',
     },
   })
 
@@ -173,7 +175,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
   }
   return (
     <Form<FuelExpenseFormValues> formMethods={formMethods} onSubmit={onSubmit}>
-      <div className=" grid grid-cols-2 gap-3 sm:gap-4">
+      <div className=" grid grid-cols-1 gap-x-3 sm:grid-cols-2 sm:gap-x-4">
         <div>
           <Label
             name="fuelType"
@@ -241,7 +243,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4">
         <div>
           <Label
             name="amount"
@@ -372,7 +374,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
         <div>
           <Label
             name="merchant"
@@ -414,10 +416,11 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
         </div>
       </div>
 
-      <CommonFields
+      <CommonFields<FuelExpenseFormValues>
         trips={trips}
         tripId={expense?.tripId}
         description={expense?.description}
+        formMethods={formMethods}
       />
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
