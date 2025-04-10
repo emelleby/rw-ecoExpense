@@ -39,9 +39,10 @@ const Routes = () => {
 
         <PrivateSet unauthenticated="login" roles={['admin', 'member']}>
           <Set wrap={(props) => <AppshellLayout {...props} title="Trips" titleTo="trips" />}>
-            <Route path="/trips/new" page={TripNewTripPage} name="newTrip" />
-            <Route path="/trips/{id:Int}/edit" page={TripEditTripPage} name="editTrip" />
-            <Route path="/trips/{id:Int}" page={TripTripPage} name="trip" />
+            <Route path="/trip/new" page={TripNewTripPage} name="newTrip" />
+            <Route path="/trip/{id:Int}/edit" page={TripEditTripPage} name="editTrip" />
+            <Route path="/trip/{id:Int}" page={TripTripPage} name="trip" />
+            <Route path="/trip/{id:Int}/report" page={TripReportPage} name="tripReport" />
             <Route path="/trips" page={TripTripsPage} name="trips" />
           </Set>
 
