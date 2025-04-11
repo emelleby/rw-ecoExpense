@@ -28,6 +28,15 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
           id
           name
         }
+        user {
+          id
+          firstName
+          lastName
+          email
+          homeAddress
+          workAddress
+          bankAccount
+        }
         expenses {
           id
           scope1Co2Emissions

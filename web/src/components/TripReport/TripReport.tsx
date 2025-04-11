@@ -8,6 +8,11 @@ import {
   DollarSign,
   BarChart,
   Plane,
+  User,
+  Home,
+  Building,
+  CreditCard,
+  Mail,
 } from 'lucide-react'
 
 import {
@@ -34,6 +39,15 @@ interface TripReportProps {
     project?: {
       id: number
       name: string
+    } | null
+    user?: {
+      id: number
+      firstName?: string
+      lastName?: string
+      email: string
+      homeAddress?: string
+      workAddress?: string
+      bankAccount?: string
     } | null
     expenses: {
       id: number | string
@@ -95,6 +109,47 @@ const TripReport = ({ trip }: TripReportProps) => {
                 Description
               </h3>
               <p className="mt-1 text-slate-600">{trip.description}</p>
+            </div>
+          )}
+
+          {/* User Information */}
+          {trip.user && (
+            <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <h3 className="mb-2 text-lg font-medium text-slate-900">
+                Employee Information
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 print:grid-cols-2">
+                <div>
+                  <p className="flex items-center text-sm font-medium text-slate-700">
+                    <User className="mr-2 h-4 w-4 text-slate-500" />
+                    Name: {trip.user.firstName || ''} {trip.user.lastName || ''}
+                  </p>
+                  <p className="mt-2 flex items-center text-sm font-medium text-slate-700">
+                    <Mail className="mr-2 h-4 w-4 text-slate-500" />
+                    Email: {trip.user.email}
+                  </p>
+                  {trip.user.bankAccount && (
+                    <p className="mt-2 flex items-center text-sm font-medium text-slate-700">
+                      <CreditCard className="mr-2 h-4 w-4 text-slate-500" />
+                      Bank Account: {trip.user.bankAccount}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  {trip.user.homeAddress && (
+                    <p className="flex items-center text-sm font-medium text-slate-700">
+                      <Home className="mr-2 h-4 w-4 text-slate-500" />
+                      Home Address: {trip.user.homeAddress}
+                    </p>
+                  )}
+                  {trip.user.workAddress && (
+                    <p className="mt-2 flex items-center text-sm font-medium text-slate-700">
+                      <Building className="mr-2 h-4 w-4 text-slate-500" />
+                      Work Address: {trip.user.workAddress}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
