@@ -5,6 +5,15 @@ import {
   AlertCircle,
   DollarSign,
   LucideIcon,
+  Calendar,
+  Building2,
+  Globe,
+  Receipt,
+  Clock,
+  BadgeCheck,
+  BadgeAlert,
+  BadgeHelp,
+  CalendarRange,
 } from 'lucide-react'
 
 import { Link, routes } from '@redwoodjs/router'
@@ -13,7 +22,6 @@ import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { GlowEffect } from '@/components/ui/glow-effect'
-import { Progress } from '@/components/ui/Progress'
 import { formatCurrency } from '@/lib/formatters'
 
 export const QUERY = gql`
@@ -169,69 +177,181 @@ interface RecentTrip {
   reimbursementStatus: string
   expenseCount: number
   expenseAmount: number
+  // These fields will be mocked until backend is updated
+  emissions?: number
+  startDate?: string
+  endDate?: string
 }
 
-const RecentTripsList = ({ trips }: { trips: RecentTrip[] }) => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Recent Trips</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-4">
-        {trips.map((trip) => (
-          <Link
-            key={trip.id}
-            to={routes.trip({ id: trip.id })}
-            className="-mx-6 flex items-center justify-between border-b px-6 py-2 pb-4 transition-colors last:border-0 last:pb-0 hover:bg-muted/50"
-          >
-            <div>
-              <div className="font-medium">{trip.name}</div>
-              <div className="text-sm text-muted-foreground">
-                {trip.description}
-              </div>
-              {trip.project && (
-                <div className="text-sm text-muted-foreground">
-                  {trip.project}
+const RecentTripsList = ({ trips }: { trips: RecentTrip[] }) => {
+  // Helper function to get status icon
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'REIMBURSED':
+        return <BadgeCheck className="h-4 w-4 text-green-500" />
+      case 'PENDING':
+        return <BadgeAlert className="h-4 w-4 text-orange-500" />
+      default:
+        return <BadgeHelp className="h-4 w-4 text-red-500" />
+    }
+  }
+
+  // Helper function to format date range
+  const formatDateRange = (startDate?: string, endDate?: string) => {
+    if (!startDate) return 'No dates specified'
+
+    const start = new Date(startDate)
+    const formattedStart = start.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+    })
+
+    if (!endDate) return formattedStart
+
+    const end = new Date(endDate)
+    const formattedEnd = end.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+    })
+
+    return `${formattedStart} - ${formattedEnd}`
+  }
+
+  // Mock data for emissions and dates until backend is updated
+  const mockEmissionsAndDates = (tripId: number) => {
+    const mockData: Record<
+      number,
+      { emissions: number; startDate: string; endDate: string }
+    > = {
+      1: { emissions: 156, startDate: '2023-11-15', endDate: '2023-11-18' },
+      2: { emissions: 245, startDate: '2023-12-01', endDate: '2023-12-10' },
+      3: { emissions: 89, startDate: '2024-01-05', endDate: '2024-01-07' },
+      4: { emissions: 120, startDate: '2024-02-20', endDate: '2024-02-25' },
+      5: { emissions: 75, startDate: '2024-03-10', endDate: '2024-03-12' },
+    }
+
+    return (
+      mockData[tripId] || {
+        emissions: Math.floor(Math.random() * 200) + 50,
+        startDate: '2024-01-01',
+        endDate: '2024-01-05',
+      }
+    )
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent Trips</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {trips.map((trip) => {
+            // Get mock data for emissions and dates
+            const mockData = mockEmissionsAndDates(trip.id)
+            const emissions = trip.emissions || mockData.emissions
+            const startDate = trip.startDate || mockData.startDate
+            const endDate = trip.endDate || mockData.endDate
+
+            return (
+              <Link
+                key={trip.id}
+                to={routes.trip({ id: trip.id })}
+                className="-mx-6 flex items-center justify-between border-b px-6 py-3 pb-4 transition-colors last:border-0 last:pb-0 hover:bg-muted/50"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium">{trip.name}</div>
+                  </div>
+
+                  <div className="mt-2 flex flex-col gap-1">
+                    {trip.description && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span>{trip.description}</span>
+                      </div>
+                    )}
+
+                    {trip.project && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span>{trip.project}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CalendarRange className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>{formatDateRange(startDate, endDate)}</span>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="space-y-1 text-right">
-                <div className="text-sm text-muted-foreground">
-                  {trip.expenseCount}{' '}
-                  {trip.expenseCount === 1 ? 'expense' : 'expenses'}
+
+                <div className="ml-4 flex flex-col items-end gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      {trip.expenseCount}{' '}
+                      {trip.expenseCount === 1 ? 'expense' : 'expenses'}
+                    </span>
+                    <Receipt className="h-4 w-4 text-muted-foreground" />
+                  </div>
+
+                  <div className="flex items-center gap-2 font-medium">
+                    <span>NOK {formatCurrency(trip.expenseAmount)}</span>
+                    <DollarSign className="h-4 w-4 text-primary" />
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm">
+                    <span>{emissions} kg CO₂e</span>
+                    <Globe className="h-4 w-4 text-emerald-600" />
+                  </div>
+
+                  <div
+                    className={`mt-1 flex items-center gap-1 text-sm ${
+                      trip.reimbursementStatus === 'REIMBURSED'
+                        ? 'text-green-500'
+                        : trip.reimbursementStatus === 'PENDING'
+                          ? 'text-orange-500'
+                          : 'text-red-500'
+                    }`}
+                  >
+                    {getStatusIcon(trip.reimbursementStatus)}
+                    <span>
+                      {trip.reimbursementStatus
+                        .split('_')
+                        .map(
+                          (word) => word.charAt(0) + word.slice(1).toLowerCase()
+                        )
+                        .join(' ')}
+                    </span>
+                  </div>
                 </div>
-                <div className="font-medium">
-                  NOK {formatCurrency(trip.expenseAmount)}
-                </div>
-                <div
-                  className={`text-sm ${
-                    trip.reimbursementStatus === 'REIMBURSED'
-                      ? 'text-green-500'
-                      : trip.reimbursementStatus === 'PENDING'
-                        ? 'text-orange-500'
-                        : 'text-red-500'
-                  }`}
-                >
-                  {trip.reimbursementStatus
-                    .split('_')
-                    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
-                    .join(' ')}
-                </div>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </CardContent>
-  </Card>
-)
+              </Link>
+            )
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
 interface CarbonCategory {
   category: string
   amount: number
   unit: string
 }
+
+// Color mapping for carbon categories, using the same colors as PieChart
+const CATEGORY_COLORS = {
+  'Car - distance-based': 'hsl(var(--chart-1))', // Blue
+  Accommodation: 'hsl(var(--chart-2))', // Red
+  'Fuel Expenses': 'hsl(var(--chart-3))', // Green
+  Flights: 'hsl(var(--chart-4))', // Orange
+  'Other miscellaneous': 'hsl(var(--chart-5))', // Purple
+  Groceries: 'hsl(var(--chart-6))', // Teal
+} as const
+
+// Default color for categories not in the mapping
+const DEFAULT_COLOR = 'hsl(var(--primary))'
 
 const CarbonImpactChart = ({
   categories,
@@ -243,23 +363,30 @@ const CarbonImpactChart = ({
       <CardTitle>Carbon Impact by Category</CardTitle>
     </CardHeader>
     <CardContent className="space-y-4">
-      {categories.map((category) => (
-        <div key={category.category}>
-          <div className="mb-2 flex items-center justify-between text-sm">
-            <div>{category.category}</div>
-            <div>
-              {category.amount} {category.unit}
+      {categories.map((category) => {
+        const categoryColor =
+          CATEGORY_COLORS[category.category as keyof typeof CATEGORY_COLORS] ||
+          DEFAULT_COLOR
+        return (
+          <div key={category.category}>
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <div>{category.category}</div>
+              <div>
+                {category.amount} {category.unit}
+              </div>
+            </div>
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200">
+              <div
+                className="absolute h-full transition-all"
+                style={{
+                  width: `${(category.amount / categories.reduce((acc, cat) => acc + cat.amount, 0)) * 100}%`,
+                  backgroundColor: categoryColor,
+                }}
+              />
             </div>
           </div>
-          <Progress
-            value={
-              (category.amount /
-                categories.reduce((acc, cat) => acc + cat.amount, 0)) *
-              100
-            }
-          />
-        </div>
-      ))}
+        )
+      })}
     </CardContent>
   </Card>
 )
