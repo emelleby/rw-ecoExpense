@@ -128,12 +128,6 @@ const TripReport = ({ trip }: TripReportProps) => {
                     <Mail className="mr-2 h-4 w-4 text-slate-500" />
                     Email: {trip.user.email}
                   </p>
-                  {trip.user.bankAccount && (
-                    <p className="mt-2 flex items-center text-sm font-medium text-slate-700">
-                      <CreditCard className="mr-2 h-4 w-4 text-slate-500" />
-                      Bank Account: {trip.user.bankAccount}
-                    </p>
-                  )}
                 </div>
                 <div>
                   {trip.user.homeAddress && (
@@ -142,10 +136,10 @@ const TripReport = ({ trip }: TripReportProps) => {
                       Home Address: {trip.user.homeAddress}
                     </p>
                   )}
-                  {trip.user.workAddress && (
+                  {trip.user.bankAccount && (
                     <p className="mt-2 flex items-center text-sm font-medium text-slate-700">
-                      <Building className="mr-2 h-4 w-4 text-slate-500" />
-                      Work Address: {trip.user.workAddress}
+                      <CreditCard className="mr-2 h-4 w-4 text-slate-500" />
+                      Bank Account: {trip.user.bankAccount}
                     </p>
                   )}
                 </div>
@@ -228,13 +222,13 @@ const TripReport = ({ trip }: TripReportProps) => {
                         </p>
                       </div>
 
-                      <div className="mt-3 flex items-center">
+                      <div className="mt-3 flex items-baseline">
                         <Store className="mr-1.5 h-4 w-4 flex-shrink-0 text-slate-500" />
                         <p className="mb-1 text-sm font-medium text-slate-700">
                           {expense.merchant || 'No merchant provided'}
                         </p>
                       </div>
-                      <div className="flex items-start">
+                      <div className="flex items-baseline">
                         <FileText className="mr-1.5 mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" />
                         <p className="text-sm text-slate-600">
                           {expense.description || 'No description provided'}
