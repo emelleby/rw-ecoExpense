@@ -6,8 +6,9 @@ import type {
   TypedDocumentNode,
 } from '@redwoodjs/web'
 
-import Trip from 'src/components/Trip/Trip'
 import Spinner from 'src/components/ui/Spinner'
+
+import TripReport from '../TripReport/TripReport'
 
 export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
   gql`
@@ -22,6 +23,20 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
         approvedDate
         reimbursementStatus
         transactionId
+        projectId
+        project {
+          id
+          name
+        }
+        user {
+          id
+          firstName
+          lastName
+          email
+          homeAddress
+          workAddress
+          bankAccount
+        }
         expenses {
           id
           scope1Co2Emissions
@@ -29,6 +44,7 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
           scope3Co2Emissions
           totalCo2Emissions
           description
+          merchant
           receipt {
             url
           }
@@ -59,6 +75,5 @@ export const Failure = ({ error }: CellFailureProps<FindTripByIdVariables>) => (
 export const Success = ({
   trip,
 }: CellSuccessProps<FindTripById, FindTripByIdVariables>) => {
-  console.log('trip', trip)
-  return <Trip trip={trip} />
+  return <TripReport trip={trip} />
 }

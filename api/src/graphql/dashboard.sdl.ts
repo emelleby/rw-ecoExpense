@@ -39,6 +39,9 @@ export const schema = gql`
     reimbursementStatus: String!
     expenseCount: Int!
     expenseAmount: Float!
+    emissions: Float!
+    startDate: DateTime!
+    endDate: DateTime!
   }
 
   type DashboardData {

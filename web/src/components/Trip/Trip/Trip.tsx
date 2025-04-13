@@ -41,7 +41,7 @@ const Trip = ({ trip }: Props) => {
     const data = trip.expenses.map((expense) => {
       return {
         category: expense.category.name,
-        emissions: expense.scope3Co2Emissions,
+        emissions: expense.totalCo2Emissions,
         amount: expense.nokAmount,
         id: expense.id,
         description: expense.description,

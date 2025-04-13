@@ -315,7 +315,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
             placeholder="0"
             defaultValue={props?.expense?.amount || undefined}
             className="rw-input"
-            step="1.00"
+            step="0.01"
             onChange={(e) => {
               const value = Number(e.target.value)
               const nokAmount = (value * exchangeRate).toFixed(2)
