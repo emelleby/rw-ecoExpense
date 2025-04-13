@@ -240,6 +240,9 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
       Expense: {
         select: {
           nokAmount: true,
+          scope1Co2Emissions: true,
+          scope2Co2Emissions: true,
+          scope3Co2Emissions: true,
         },
       },
     },
@@ -259,18 +262,32 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
         count: pendingTrips.length,
       },
     },
-    trips: recentTrips.map((trip) => ({
-      id: trip.id,
-      name: trip.name,
-      description: trip.description,
-      project: trip.Project?.name,
-      reimbursementStatus: trip.reimbursementStatus,
-      expenseCount: trip.Expense.length,
-      expenseAmount: trip.Expense.reduce(
-        (sum, exp) => sum + Number(exp.nokAmount),
-        0
-      ),
-    })),
+    trips: recentTrips.map((trip) => {
+      // Calculate total emissions for this trip
+      const tripEmissions = trip.Expense.reduce((sum, expense) => {
+        return sum + (
+          (expense.scope1Co2Emissions || 0) +
+          (expense.scope2Co2Emissions || 0) +
+          (expense.scope3Co2Emissions || 0)
+        );
+      }, 0);
+
+      return {
+        id: trip.id,
+        name: trip.name,
+        description: trip.description,
+        project: trip.Project?.name,
+        reimbursementStatus: trip.reimbursementStatus,
+        expenseCount: trip.Expense.length,
+        expenseAmount: trip.Expense.reduce(
+          (sum, exp) => sum + Number(exp.nokAmount),
+          0
+        ),
+        emissions: Math.round(tripEmissions),
+        startDate: trip.startDate,
+        endDate: trip.endDate
+      };
+    }),
     carbonFootprint: {
       total: Math.round(totalCarbon),
       percentageChange: carbonPercentageChange,

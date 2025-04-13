@@ -43,6 +43,9 @@ export const QUERY = gql`
         reimbursementStatus
         expenseCount
         expenseAmount
+        emissions
+        startDate
+        endDate
       }
       carbonFootprint {
         total
@@ -177,10 +180,9 @@ interface RecentTrip {
   reimbursementStatus: string
   expenseCount: number
   expenseAmount: number
-  // These fields will be mocked until backend is updated
-  emissions?: number
-  startDate?: string
-  endDate?: string
+  emissions: number
+  startDate: string
+  endDate: string
 }
 
 const RecentTripsList = ({ trips }: { trips: RecentTrip[] }) => {
@@ -217,27 +219,7 @@ const RecentTripsList = ({ trips }: { trips: RecentTrip[] }) => {
     return `${formattedStart} - ${formattedEnd}`
   }
 
-  // Mock data for emissions and dates until backend is updated
-  const mockEmissionsAndDates = (tripId: number) => {
-    const mockData: Record<
-      number,
-      { emissions: number; startDate: string; endDate: string }
-    > = {
-      1: { emissions: 156, startDate: '2023-11-15', endDate: '2023-11-18' },
-      2: { emissions: 245, startDate: '2023-12-01', endDate: '2023-12-10' },
-      3: { emissions: 89, startDate: '2024-01-05', endDate: '2024-01-07' },
-      4: { emissions: 120, startDate: '2024-02-20', endDate: '2024-02-25' },
-      5: { emissions: 75, startDate: '2024-03-10', endDate: '2024-03-12' },
-    }
-
-    return (
-      mockData[tripId] || {
-        emissions: Math.floor(Math.random() * 200) + 50,
-        startDate: '2024-01-01',
-        endDate: '2024-01-05',
-      }
-    )
-  }
+  // No mock data needed anymore as we get real data from the backend
 
   return (
     <Card>
@@ -247,12 +229,7 @@ const RecentTripsList = ({ trips }: { trips: RecentTrip[] }) => {
       <CardContent>
         <div className="space-y-4">
           {trips.map((trip) => {
-            // Get mock data for emissions and dates
-            const mockData = mockEmissionsAndDates(trip.id)
-            const emissions = trip.emissions || mockData.emissions
-            const startDate = trip.startDate || mockData.startDate
-            const endDate = trip.endDate || mockData.endDate
-
+            // Use real data from the backend
             return (
               <Link
                 key={trip.id}
@@ -281,7 +258,9 @@ const RecentTripsList = ({ trips }: { trips: RecentTrip[] }) => {
 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CalendarRange className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span>{formatDateRange(startDate, endDate)}</span>
+                      <span>
+                        {formatDateRange(trip.startDate, trip.endDate)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -301,7 +280,7 @@ const RecentTripsList = ({ trips }: { trips: RecentTrip[] }) => {
                   </div>
 
                   <div className="flex items-center gap-2 text-sm">
-                    <span>{emissions} kg CO₂e</span>
+                    <span>{trip.emissions} kg CO₂e</span>
                     <Globe className="h-4 w-4 text-emerald-600" />
                   </div>
 
