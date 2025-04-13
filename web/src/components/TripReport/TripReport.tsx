@@ -267,7 +267,7 @@ const TripReport = ({ trip }: TripReportProps) => {
       </Card>
 
       {/* Signature section */}
-      <Card className="bg-white text-black print:mt-0 print:break-before-page">
+      <Card className="bg-white text-black print:mt-0">
         <CardHeader>
           <CardTitle className="text-xl text-slate-900">Signatures</CardTitle>
         </CardHeader>
