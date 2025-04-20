@@ -43,7 +43,7 @@ const Routes = () => {
             <Route path="/trip/{id:Int}/report" page={TripReportPage} name="tripReport" />
           </Set>
 
-          <Set wrap={(props) => <AppshellLayout {...props} title="Trips" titleTo="trips" />}>
+          <Set wrap={(props) => <AppshellLayout {...props} title="Trips" />}>
             <Route path="/trip/new" page={TripNewTripPage} name="newTrip" />
             <Route path="/trip/{id:Int}/edit" page={TripEditTripPage} name="editTrip" />
             <Route path="/trip/{id:Int}" page={TripTripPage} name="trip" />

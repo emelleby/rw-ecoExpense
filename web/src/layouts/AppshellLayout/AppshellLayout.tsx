@@ -1,7 +1,7 @@
 import { UserButton } from '@clerk/clerk-react'
 import { Moon, Sun } from 'lucide-react'
 
-import { Link, routes } from '@redwoodjs/router'
+import { Link, routes, useLocation } from '@redwoodjs/router'
 import { Toaster } from '@redwoodjs/web/toast'
 
 import { Button } from '@/components/ui/Button'
@@ -30,28 +30,55 @@ type AppshellLayoutProps = {
   children?: React.ReactNode
 }
 
+// Map of route names to page titles
+const pageTitles: Record<string, string> = {
+  homey: 'Home Dashboard',
+  profile: 'My Profile',
+  test: 'Test Page',
+  newExpense: 'Add Expense',
+  expenses: 'Expenses',
+  projects: 'Projects',
+  newProject: 'New Project',
+  // Add more routes as needed
+}
+
 const AppshellLayout = ({ title, titleTo, children }: AppshellLayoutProps) => {
+  // Get the current location to determine the route name
+  const { pathname } = useLocation()
+
+  // Find the route name based on the current pathname
+  const currentRouteName = Object.keys(routes).find((routeName) => {
+    try {
+      // This will throw an error if the route requires parameters
+      const routePath = routes[routeName as keyof typeof routes]()
+      return pathname === routePath
+    } catch {
+      return false
+    }
+  }) as keyof typeof routes | undefined
+
+  // Get the page title from the map, or use the default title
+  const pageTitle = currentRouteName
+    ? pageTitles[currentRouteName] || title
+    : title
+
   return (
     <SidebarProvider>
       <AppSidebar />
       <div className="flex min-h-screen w-full flex-col">
         <header className="flex h-14 items-center justify-between border-b pr-4">
           <div className="flex items-center">
-            <SidebarTrigger
-              aria-label="Toggle Sidebar"
-              title="Meny"
-              buttonText="Menu"
-            />
+            <SidebarTrigger aria-label="Toggle Sidebar" title="Menu" />
           </div>
 
           {/* titleTo is passed from Routes */}
           <h1 className="rw-heading rw-heading-primary">
             {titleTo ? (
               <Link to={routes[titleTo]()} className="rw-link underline">
-                {title}
+                {pageTitle}
               </Link>
             ) : (
-              title
+              pageTitle
             )}
           </h1>
 

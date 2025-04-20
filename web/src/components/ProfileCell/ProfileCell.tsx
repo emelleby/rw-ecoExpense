@@ -5,6 +5,12 @@ import type { FindUserById } from 'types/graphql'
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 
 import Address from 'src/components/Profile/Address/Address'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from 'src/components/ui/Card'
 
 import Customers from '@/components/Profile/Customers/Customers'
 
@@ -78,8 +84,22 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">My profile</h2>
-      <Address user={user} isLoaded={isLoaded} mapError={mapError} />
-      <Customers />
+      <Card>
+        <CardHeader>
+          <CardTitle>Address Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Address user={user} isLoaded={isLoaded} mapError={mapError} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Customers</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Customers />
+        </CardContent>
+      </Card>
     </div>
   )
 }

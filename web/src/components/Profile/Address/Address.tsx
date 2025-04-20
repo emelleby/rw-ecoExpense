@@ -291,7 +291,7 @@ const Address = ({ user, isLoaded, mapError }: AddressProps) => {
 
   if (mapError) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="rounded-md border border-red-300 bg-red-50 p-4">
           <h3 className="text-lg font-medium text-red-800">Maps API Error</h3>
           <p className="mt-2 text-sm text-red-700">{mapError}</p>
@@ -300,7 +300,7 @@ const Address = ({ user, isLoaded, mapError }: AddressProps) => {
             unavailable.
           </p>
         </div>
-        <div>
+        <div className="space-y-2">
           <Label htmlFor="homeAddress">Home Address</Label>
           <Input
             id="homeAddress"
@@ -323,7 +323,7 @@ const Address = ({ user, isLoaded, mapError }: AddressProps) => {
             }}
           />
         </div>
-        <div>
+        <div className="space-y-2">
           <Label htmlFor="workAddress">Work Address</Label>
           <Input
             id="workAddress"
@@ -353,44 +353,42 @@ const Address = ({ user, isLoaded, mapError }: AddressProps) => {
   if (!isLoaded) return <div>Loading maps...</div>
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="homeAddress" className="rw-label">
-          Home Address
-        </Label>
+        <Label htmlFor="homeAddress">Home Address</Label>
         <Input
           id="homeAddress"
           defaultValue={user.homeAddress || ''}
           placeholder="Start typing to search for an address"
-          className="rw-input"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="workAddress" className="rw-label">
-          Work Address
-        </Label>
+        <Label htmlFor="workAddress">Work Address</Label>
         <Input
           id="workAddress"
           defaultValue={user.workAddress || ''}
           placeholder="Start typing to search for an address"
-          className="rw-input"
         />
       </div>
 
       {isLoaded &&
         ((user.homeLatitude && user.homeLongitude) ||
           (user.workLatitude && user.workLongitude)) && (
-          <div className="space-y-4">
-            <div id="map" className="h-64 w-full" ref={mapRef} />
+          <div className="space-y-4 pt-2">
+            <div
+              id="map"
+              className="h-64 w-full overflow-hidden rounded-md border"
+              ref={mapRef}
+            />
 
             {/* Distance calculation */}
             {user.homeLatitude &&
               user.homeLongitude &&
               user.workLatitude &&
               user.workLongitude && (
-                <div className="rw-segment p-4">
-                  <h3 className="rw-heading mb-2">Distance Information</h3>
+                <div className="rounded-md border p-4">
+                  <h3 className="mb-2 font-medium">Distance Information</h3>
                   <DistanceCalculation
                     homeLocation={{
                       lat: user.homeLatitude,
