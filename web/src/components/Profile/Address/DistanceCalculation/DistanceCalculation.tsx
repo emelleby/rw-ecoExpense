@@ -233,9 +233,9 @@ const DistanceCalculation = ({
           <Button
             key={mode}
             onClick={() => setSelectedMode(mode)}
-            className={`flex items-center rounded-md px-3 py-2 transition-colors ${
+            className={`flex items-center rounded-md px-3 py-2 transition-colors hover:bg-accent ${
               selectedMode === mode
-                ? 'bg-primary text-primary-foreground'
+                ? 'bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground'
                 : 'bg-secondary text-secondary-foreground'
             }`}
             disabled={routeInfo[mode].loading}

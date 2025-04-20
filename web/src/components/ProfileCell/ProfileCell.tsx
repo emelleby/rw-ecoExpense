@@ -85,7 +85,9 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Address Information</CardTitle>
+          <CardTitle className="text-gradient-blue-green w-fit">
+            Address Information
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Address user={user} isLoaded={isLoaded} mapError={mapError} />
@@ -93,7 +95,9 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Customers</CardTitle>
+          <CardTitle className="text-gradient-blue-green w-fit">
+            Customers
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Customers />

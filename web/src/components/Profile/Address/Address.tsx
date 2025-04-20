@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import DistanceCalculation from 'src/components/DistanceCalculation/DistanceCalculation'
+import DistanceCalculation from 'src/components/Profile/Address/DistanceCalculation/DistanceCalculation'
 import { Input } from 'src/components/ui/Input'
 import { Label } from 'src/components/ui/Label'
 
