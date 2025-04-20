@@ -82,8 +82,7 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
   }, [])
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">My profile</h2>
+    <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Address Information</CardTitle>

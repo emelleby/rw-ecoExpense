@@ -35,6 +35,12 @@ enum USER_STATUS {
   INACTIVE
 }
 
+// Enum for rate_type
+enum RateType {
+  hourly
+  daily
+}
+
 model Organization {
   id          Int        @id @default(autoincrement())
   regnr       String     @unique @db.VarChar(9)
@@ -65,6 +71,8 @@ model User {
   Organization    Organization @relation(fields: [organizationId], references: [id])
   Expense         Expense[]
   Trip            Trip[]
+  customers       Customer[] // One-to-many relation to Customer
+  workEntries     WorkEntry[] // One-to-many relation to WorkEntry
   createdProjects Project[]    @relation("CreatedBy")
 
   @@index([username], name: "idx_user_username")
@@ -77,6 +85,39 @@ model Supplier {
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id])
   Expense        Expense[]
+}
+
+// Customer model
+model Customer {
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id]) // Foreign key to User
+  userId Int
+  name   String
+  rates  Rate[] // One-to-many relation to Rate
+}
+
+// Rate model
+model Rate {
+  id          Int         @id @default(autoincrement())
+  customer    Customer    @relation(fields: [customerId], references: [id]) // Foreign key to Customer
+  customerId  Int
+  rateType    RateType
+  rateAmount  Decimal     @db.Decimal(10, 2) // Numeric field with precision 10, scale 2
+  description String? // Optional text field
+  workEntries WorkEntry[] // One-to-many relation to WorkEntry
+}
+
+// WorkEntry model
+model WorkEntry {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id]) // Foreign key to User
+  userId    Int
+  date      DateTime  @db.Date // Date-only field
+  startTime DateTime? @db.Time // Optional time field
+  endTime   DateTime? @db.Time // Optional time field
+  duration  Decimal   @db.Decimal(5, 2) // Numeric field with precision 5, scale 2
+  rate      Rate      @relation(fields: [rateId], references: [id]) // Foreign key to Rate
+  rateId    Int
 }
 
 model Trip {
