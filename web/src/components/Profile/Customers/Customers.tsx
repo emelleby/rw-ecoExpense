@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { PlusCircle, Users } from 'lucide-react'
+import { Edit, PlusCircle, Users } from 'lucide-react'
 
 import { useForm } from '@redwoodjs/forms'
 import { useMutation, useQuery } from '@redwoodjs/web'
@@ -54,8 +54,19 @@ const CREATE_CUSTOMER_MUTATION = gql`
   }
 `
 
+const UPDATE_CUSTOMER_MUTATION = gql`
+  mutation UpdateCustomerMutation($id: Int!, $input: UpdateCustomerInput!) {
+    updateCustomer(id: $id, input: $input) {
+      id
+      name
+    }
+  }
+`
+
 const Customers = () => {
   const [open, setOpen] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null)
 
   const formMethods = useForm<CustomerFormValues>({
     defaultValues: {
@@ -65,7 +76,7 @@ const Customers = () => {
 
   const { data, loading: queryLoading, refetch } = useQuery(CUSTOMERS_QUERY)
 
-  const [createCustomer, { loading: mutationLoading }] = useMutation(
+  const [createCustomer, { loading: createLoading }] = useMutation(
     CREATE_CUSTOMER_MUTATION,
     {
       onCompleted: () => {
@@ -80,11 +91,54 @@ const Customers = () => {
     }
   )
 
+  const [updateCustomer, { loading: updateLoading }] = useMutation(
+    UPDATE_CUSTOMER_MUTATION,
+    {
+      onCompleted: () => {
+        toast.success('Customer updated successfully')
+        setOpen(false)
+        formMethods.reset()
+        setIsEditMode(false)
+        setCurrentCustomer(null)
+        refetch() // Refresh the customer list
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    }
+  )
+
   const onSubmit = (data: CustomerFormValues) => {
-    createCustomer({ variables: { input: data } })
+    if (isEditMode && currentCustomer) {
+      updateCustomer({
+        variables: {
+          id: currentCustomer.id,
+          input: data,
+        },
+      })
+    } else {
+      createCustomer({ variables: { input: data } })
+    }
   }
 
-  const loading = queryLoading || mutationLoading
+  const handleEditCustomer = (customer: Customer) => {
+    setIsEditMode(true)
+    setCurrentCustomer(customer)
+    formMethods.reset({ name: customer.name })
+    setOpen(true)
+  }
+
+  const handleDialogClose = (open: boolean) => {
+    setOpen(open)
+    if (!open) {
+      // Reset form when dialog is closed
+      formMethods.reset({ name: '' })
+      setIsEditMode(false)
+      setCurrentCustomer(null)
+    }
+  }
+
+  const loading = queryLoading || createLoading || updateLoading
 
   return (
     <div className="space-y-4">
@@ -93,7 +147,7 @@ const Customers = () => {
           <Users className="h-5 w-5" />
           <span className="text-lg font-medium">Your Customers</span>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleDialogClose}>
           <DialogTrigger asChild>
             <Button size="sm">
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -102,10 +156,13 @@ const Customers = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Customer</DialogTitle>
+              <DialogTitle>
+                {isEditMode ? 'Edit Customer' : 'Add New Customer'}
+              </DialogTitle>
               <DialogDescription>
-                Add a new customer to your list. You can add rates for this
-                customer later.
+                {isEditMode
+                  ? 'Edit the customer name below.'
+                  : 'Add a new customer to your list. You can add rates for this customer later.'}
               </DialogDescription>
             </DialogHeader>
             <form
@@ -137,7 +194,11 @@ const Customers = () => {
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save Customer'}
+                  {loading
+                    ? 'Saving...'
+                    : isEditMode
+                      ? 'Update Customer'
+                      : 'Save Customer'}
                 </Button>
               </DialogFooter>
             </form>
@@ -160,9 +221,19 @@ const Customers = () => {
               <TableRow key={customer.id}>
                 <TableCell>{customer.name}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="outline" size="sm">
-                    View Rates
-                  </Button>
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditCustomer(customer)}
+                    >
+                      <Edit className="mr-1 h-4 w-4" />
+                      Edit
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      View Rates
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
