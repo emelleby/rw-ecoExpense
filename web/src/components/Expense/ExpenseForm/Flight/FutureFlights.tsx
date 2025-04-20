@@ -13,6 +13,7 @@ import {
   useForm,
 } from '@redwoodjs/forms'
 import { useMutation } from '@redwoodjs/web'
+import { toast } from '@redwoodjs/web/toast'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
 import {
@@ -79,12 +80,28 @@ export const FutureFlights: FC<ExpenseFormProps> = (
   props: ExpenseFormProps
 ) => {
   const [submitFlights] = useMutation(SUBMIT_FLIGHTS_MUTATION, {
-    onCompleted: () => {
-      //toast.success('Flight emissions calculated successfully')
+    onCompleted: (data) => {
+      if (data?.submitFutureFlights?.length > 0) {
+        toast.success('Flight emissions calculated successfully')
+      }
     },
     onError: (error) => {
-      console.log(error)
-      // toast.error(error.message)
+      console.error('Flight emission calculation error:', error)
+      const errorMessage = error.message?.toLowerCase() || ''
+
+      if (errorMessage.includes('api key')) {
+        toast.error('System configuration error. Please contact support.')
+      } else if (errorMessage.includes('no flight emissions data')) {
+        toast.error(
+          'Could not find this flight. Please check the flight number and date.'
+        )
+      } else if (errorMessage.includes('invalid input')) {
+        toast.error('Please check your flight details and try again.')
+      } else {
+        toast.error(
+          'Failed to calculate flight emissions. Please try again later.'
+        )
+      }
     },
   })
 
@@ -136,41 +153,99 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       return acc + emissionsGramsPerPax[classes[i]]
     }, 0)
 
-    return emission / 1000
+    const passengers = formMethods.getValues('passengers') || 1
+    // Convert to kg and multiply by number of passengers
+    return (emission / 1000) * passengers
   }
 
   const getEmission = async (data) => {
-    const { to, from, airline, flightNumber, flightClass } = data
+    try {
+      const { to, from, airline, flightNumber, flightClass } = data
+      const passengers = formMethods.getValues('passengers') || 1
 
-    const payload = {
-      origin: from,
-      destination: to,
-      operatingCarrierCode: airline,
-      flightNumber: flightNumber.toString(),
-      class: flightClass || 'economy', // Ensure we always have a class value
-      departureDate: selectedDate.toISOString().split('T')[0],
-    }
+      if (passengers < 1) {
+        toast.error('Number of passengers must be at least 1')
+        return {
+          scope1Co2Emissions: 0,
+          scope2Co2Emissions: 0,
+          scope3Co2Emissions: 0,
+        }
+      }
 
-    const dataToSend = [...flights, payload]
+      // Validate date is in the future
+      if (selectedDate < new Date()) {
+        toast.error('Please select a future date for the flight')
+        return {
+          scope1Co2Emissions: 0,
+          scope2Co2Emissions: 0,
+          scope3Co2Emissions: 0,
+        }
+      }
 
-    const result = await submitFlights({
-      variables: {
-        input: [...dataToSend],
-      },
-    })
+      const payload = {
+        origin: from,
+        destination: to,
+        operatingCarrierCode: airline,
+        flightNumber: flightNumber.toString(),
+        class: flightClass || 'economy',
+        departureDate: selectedDate.toISOString().split('T')[0],
+      }
 
-    if (result.data.submitFutureFlights) {
+      const dataToSend = [...flights, payload]
+
+      const result = await submitFlights({
+        variables: {
+          input: [...dataToSend],
+        },
+      })
+
+      if (!result?.data?.submitFutureFlights) {
+        toast.error(
+          'Could not find flight information. Please verify your flight details.'
+        )
+        return {
+          scope1Co2Emissions: 0,
+          scope2Co2Emissions: 0,
+          scope3Co2Emissions: 0,
+        }
+      }
+
       const emission = getEmissionInKgs(result.data.submitFutureFlights)
+      if (emission === 0) {
+        toast.error('No emissions data available for this flight combination')
+      }
+
       return {
         scope1Co2Emissions: 0,
         scope2Co2Emissions: 0,
         scope3Co2Emissions: emission,
       }
-    }
-    return {
-      scope1Co2Emissions: 0,
-      scope2Co2Emissions: 0,
-      scope3Co2Emissions: 0,
+    } catch (error) {
+      console.error('Error calculating emissions:', error)
+
+      // More specific error messages based on error type
+      if (error.networkError) {
+        toast.error(
+          'Network error. Please check your connection and try again.'
+        )
+      } else if (error.graphQLErrors?.length > 0) {
+        const graphQLError = error.graphQLErrors[0]
+        if (graphQLError.message.includes('validation')) {
+          toast.error(
+            'Invalid flight details. Please check all fields and try again.'
+          )
+        } else {
+          toast.error(graphQLError.message)
+        }
+      } else {
+        toast.error('Failed to calculate flight emissions. Please try again.')
+      }
+
+      return {
+        scope1Co2Emissions: 0,
+        scope2Co2Emissions: 0,
+        scope3Co2Emissions: 0,
+      }
     }
   }
 
