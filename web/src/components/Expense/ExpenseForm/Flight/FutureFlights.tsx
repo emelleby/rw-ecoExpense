@@ -715,6 +715,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           <Button
             variant="link"
             onClick={addAnotherFlight}
+            type="button"
             className="font-normal underline"
           >
             Add another flight
