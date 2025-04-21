@@ -1,5 +1,6 @@
 import type { UpdateReimbursementStatusInput } from 'types/graphql'
 
+import { Link, routes } from '@redwoodjs/router'
 import { TypedDocumentNode, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
@@ -64,7 +65,7 @@ export function ExpenseTable({
   tripId,
   tripStatus,
 }: ExpenseChartProps) {
-  console.log('Data in Table; ', data)
+  // console.log('Data in Table; ', data)
   const [updateReimbursementStatus] = useMutation(Update_Reimbursement_Status, {
     onCompleted: () => {
       toast.success('Trip updated')
@@ -132,11 +133,12 @@ export function ExpenseTable({
               </TableCell>
             </TableRow>
           ))}
-        </TableBody>{' '}
-        {showReimburseButton && (
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={1000} className="text-center">
+        </TableBody>
+
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={1000} className="space-x-6 text-center">
+              {showReimburseButton && (
                 <Button
                   variant="default"
                   size="sm"
@@ -144,10 +146,13 @@ export function ExpenseTable({
                 >
                   Reimburse
                 </Button>
-              </TableCell>
-            </TableRow>
-          </TableFooter>
-        )}
+              )}
+              <Button variant="link" size="sm" asChild>
+                <Link to={routes.tripReport({ id: tripId })}>View report</Link>
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
       </Table>
     </div>
   )

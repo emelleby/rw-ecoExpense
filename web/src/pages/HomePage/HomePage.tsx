@@ -43,7 +43,7 @@ const features = [
     url: 'projects',
   },
 ]
-const HomePage = () => {
+const HomePage = ({ title = 'Dashboard' }) => {
   return (
     <>
       <Metadata title="Home" description="Home page" />

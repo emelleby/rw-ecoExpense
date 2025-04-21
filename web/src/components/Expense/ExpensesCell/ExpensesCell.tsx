@@ -37,6 +37,7 @@ export const QUERY: TypedDocumentNode<FindExpenses, FindExpensesVariables> =
         scope1Co2Emissions
         scope2Co2Emissions
         scope3Co2Emissions
+        totalCo2Emissions
         kwh
         scope3CategoryId
         receipt {

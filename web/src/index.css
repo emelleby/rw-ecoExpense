@@ -26,8 +26,15 @@
     --border: 214.3 31.8% 81.4%;
     --input: 214.3 31.8% 91.4%;
 
-    --card: 0 0% 100%;
+    --card: 196 60% 99%;
     --card-foreground: 222.2 47.4% 11.2%;
+
+    --card-gradient-from: 196 80% 99%;
+    --card-gradient-to: 196 60% 95%;
+
+    /* Blue to green gradient variables */
+    --gradient-blue: 210 100% 50%;
+    --gradient-green: 130 90% 45%;
 
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
@@ -82,13 +89,13 @@
     --sidebar-ring: 180 50% 40%; /* Vibrant teal ring for focus indicators
   */
 
-    --sidebar-background: 210 16% 97%; /* Light grayish-blue, very close to slate-100 */
+    --sidebar-background: 196 80% 96%; /* Light grayish-blue, very close to slate-100 */
     --sidebar-foreground: 220 9% 20%; /* Dark slate-gray for readable text */
 
     --sidebar-primary: 220 14% 90%; /* Slightly darker grayish-blue for primary elements */
     --sidebar-primary-foreground: 220 9% 15%; /* Darker slate-gray for strong contrast */
 
-    --sidebar-accent: 210 10% 95%; /* Soft grayish-blue accent color */
+    --sidebar-accent: 190 80% 90%; /* Soft grayish-blue accent color */
     --sidebar-accent-foreground: 220 9% 20%; /* Deep slate-gray for accent text */
 
     --sidebar-border: 220 10% 85%; /* Light slate-gray for borders */
@@ -116,6 +123,13 @@
     --card: 224 71% 4%;
     --card-foreground: 213 31% 91%;
 
+    --card-gradient-from: 224 71% 4%;
+    --card-gradient-to: 224 71% 8%;
+
+    /* Blue to green gradient variables (dark mode) */
+    --gradient-blue: 210 100% 60%;
+    --gradient-green: 130 90% 50%;
+
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 1.2%;
 
@@ -132,7 +146,8 @@
 
     --radius: 0.5rem;
 
-    --sidebar-background: 240 5.9% 10%;
+
+    --sidebar-background: 224 80% 8%;;
 
     --sidebar-foreground: 240 4.8% 95.9%;
 
@@ -158,5 +173,54 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+@layer components {
+  .gradient-card {
+    background: linear-gradient(
+      to bottom right,
+      hsl(var(--card-gradient-from)),
+      hsl(var(--card-gradient-to))
+    );
+  }
+
+  /* Blue to green gradient classes */
+  .gradient-blue-green {
+    background: linear-gradient(
+      to right,
+      hsl(var(--gradient-blue)),
+      hsl(var(--gradient-green))
+    );
+  }
+
+  /* Text gradient class */
+  .text-gradient-blue-green {
+    background: linear-gradient(
+      to right,
+      hsl(var(--gradient-blue)),
+      hsl(var(--gradient-green))
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 600; /* Make the text slightly bolder */
+    text-shadow: 0 0 1px rgba(0,0,0,0.05); /* Subtle shadow for better definition */
+  }
+
+  /* Card header with gradient background */
+  .card-header-gradient {
+    background: linear-gradient(
+      to right,
+      hsl(var(--gradient-blue) / 0.1),
+      hsl(var(--gradient-green) / 0.1)
+    );
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(
+      to right,
+      hsl(var(--gradient-blue) / 0.2),
+      hsl(var(--gradient-green) / 0.2)
+    );
+    border-image-slice: 1;
   }
 }

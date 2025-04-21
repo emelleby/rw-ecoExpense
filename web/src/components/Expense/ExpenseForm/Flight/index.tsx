@@ -37,7 +37,7 @@ export const Flight: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           <p>
             If you have a future flight and its flight number we can provide a
             bit better emissions estimate as we will also take airplane model
-            into account. Add all your segmants.
+            into account. Add all your segments.
           </p>
         </AlertDescription>
       </Alert>

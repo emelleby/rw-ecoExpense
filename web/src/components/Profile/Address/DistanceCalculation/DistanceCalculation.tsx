@@ -233,10 +233,10 @@ const DistanceCalculation = ({
           <Button
             key={mode}
             onClick={() => setSelectedMode(mode)}
-            className={`flex items-center rounded-md px-3 py-2 transition-colors ${
+            className={`flex items-center rounded-md px-3 py-2 transition-colors hover:bg-accent ${
               selectedMode === mode
-                ? 'rw-button rw-button-blue'
-                : 'bg-slate-500'
+                ? 'bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground'
+                : 'bg-secondary text-secondary-foreground'
             }`}
             disabled={routeInfo[mode].loading}
           >
@@ -249,11 +249,11 @@ const DistanceCalculation = ({
         ))}
       </div>
 
-      <div className="rw-segment space-y-2 p-4">
+      <div className="space-y-2">
         <div className="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="rw-text-gray mr-2 h-5 w-5"
+            className="mr-2 h-5 w-5 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -271,7 +271,7 @@ const DistanceCalculation = ({
         <div className="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="rw-text-gray mr-2 h-5 w-5"
+            className="mr-2 h-5 w-5 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

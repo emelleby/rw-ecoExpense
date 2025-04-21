@@ -123,4 +123,7 @@ export const Trip: TripRelationResolvers = {
   expenses: (_obj, { root }) => {
     return db.trip.findUnique({ where: { id: root?.id } }).Expense()
   },
+  project: (_obj, { root }) => {
+    return db.trip.findUnique({ where: { id: root?.id } }).Project()
+  },
 }

@@ -24,7 +24,10 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
         transactionId
         expenses {
           id
+          scope1Co2Emissions
+          scope2Co2Emissions
           scope3Co2Emissions
+          totalCo2Emissions
           description
           receipt {
             url
@@ -56,5 +59,6 @@ export const Failure = ({ error }: CellFailureProps<FindTripByIdVariables>) => (
 export const Success = ({
   trip,
 }: CellSuccessProps<FindTripById, FindTripByIdVariables>) => {
+  console.log('trip', trip)
   return <Trip trip={trip} />
 }

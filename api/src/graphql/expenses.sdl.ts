@@ -31,6 +31,7 @@ export const schema = gql`
     scope1Co2Emissions: Float!
     scope2Co2Emissions: Float!
     scope3Co2Emissions: Float!
+    totalCo2Emissions: Float! # New computed field
     kwh: Float!
     scope3CategoryId: Int!
     receipt: Receipt
