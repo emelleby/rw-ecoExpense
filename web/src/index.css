@@ -32,6 +32,10 @@
     --card-gradient-from: 196 80% 99%;
     --card-gradient-to: 196 60% 95%;
 
+    /* Blue to green gradient variables */
+    --gradient-blue: 210 100% 50%;
+    --gradient-green: 130 90% 45%;
+
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
 
@@ -122,6 +126,10 @@
     --card-gradient-from: 224 71% 4%;
     --card-gradient-to: 224 71% 8%;
 
+    /* Blue to green gradient variables (dark mode) */
+    --gradient-blue: 210 100% 60%;
+    --gradient-green: 130 90% 50%;
+
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 1.2%;
 
@@ -175,5 +183,44 @@
       hsl(var(--card-gradient-from)),
       hsl(var(--card-gradient-to))
     );
+  }
+
+  /* Blue to green gradient classes */
+  .gradient-blue-green {
+    background: linear-gradient(
+      to right,
+      hsl(var(--gradient-blue)),
+      hsl(var(--gradient-green))
+    );
+  }
+
+  /* Text gradient class */
+  .text-gradient-blue-green {
+    background: linear-gradient(
+      to right,
+      hsl(var(--gradient-blue)),
+      hsl(var(--gradient-green))
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 600; /* Make the text slightly bolder */
+    text-shadow: 0 0 1px rgba(0,0,0,0.05); /* Subtle shadow for better definition */
+  }
+
+  /* Card header with gradient background */
+  .card-header-gradient {
+    background: linear-gradient(
+      to right,
+      hsl(var(--gradient-blue) / 0.1),
+      hsl(var(--gradient-green) / 0.1)
+    );
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(
+      to right,
+      hsl(var(--gradient-blue) / 0.2),
+      hsl(var(--gradient-green) / 0.2)
+    );
+    border-image-slice: 1;
   }
 }

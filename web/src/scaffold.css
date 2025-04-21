@@ -125,7 +125,7 @@
   @apply mx-2 my-3 flex justify-center;
 }
 .rw-button-group .rw-button {
-  @apply mx-1;
+  @apply mx-1.5;
 }
 .rw-form-wrapper .rw-button-group {
   @apply mt-8;

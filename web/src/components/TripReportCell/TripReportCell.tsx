@@ -12,7 +12,7 @@ import TripReport from '../TripReport/TripReport'
 
 export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
   gql`
-    query FindTripById($id: Int!) {
+    query FindTripByIdForReport($id: Int!) {
       trip: trip(id: $id) {
         id
         name
