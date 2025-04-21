@@ -2,14 +2,21 @@ import { useState } from 'react'
 
 import { Edit, PlusCircle, Users } from 'lucide-react'
 
-import { useForm, Label } from '@redwoodjs/forms'
+import {
+  Form,
+  Label,
+  TextField,
+  FieldError,
+  Submit,
+  FormError,
+  useForm,
+} from '@redwoodjs/forms'
 import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import CustomerRatesCell, {
-  Rate,
-} from 'src/components/CustomerRatesCell/CustomerRatesCell'
-import RatesDialog from 'src/components/RatesDialog/RatesDialog'
+import CustomerRatesCell from 'src/components/Profile/Customers/CustomerRatesCell/CustomerRatesCell'
+import { Rate } from 'src/components/Profile/Customers/CustomerRatesCell/CustomerRatesCell'
+import RatesDialog from 'src/components/Profile/Customers/RatesDialog/RatesDialog'
 
 import { Button } from '@/components/ui/Button'
 import {
@@ -21,7 +28,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/Dialog'
-import { Input } from '@/components/ui/Input'
+// Import removed
 import {
   Table,
   TableBody,
@@ -82,11 +89,7 @@ const Customers = () => {
   )
   const [selectedRate, setSelectedRate] = useState<Rate | null>(null)
 
-  const formMethods = useForm<CustomerFormValues>({
-    defaultValues: {
-      name: '',
-    },
-  })
+  const formMethods = useForm()
 
   const { data, loading: queryLoading, refetch } = useQuery(CUSTOMERS_QUERY)
 
@@ -96,7 +99,7 @@ const Customers = () => {
       onCompleted: () => {
         toast.success('Customer created successfully')
         setOpen(false)
-        formMethods.reset()
+        // Form will be reset when dialog is closed
         refetch() // Refresh the customer list
       },
       onError: (error) => {
@@ -111,7 +114,7 @@ const Customers = () => {
       onCompleted: () => {
         toast.success('Customer updated successfully')
         setOpen(false)
-        formMethods.reset()
+        // Form will be reset when dialog is closed
         setIsEditMode(false)
         setCurrentCustomer(null)
         refetch() // Refresh the customer list
@@ -138,15 +141,13 @@ const Customers = () => {
   const handleEditCustomer = (customer: Customer) => {
     setIsEditMode(true)
     setCurrentCustomer(customer)
-    formMethods.reset({ name: customer.name })
     setOpen(true)
   }
 
   const handleDialogClose = (open: boolean) => {
     setOpen(open)
     if (!open) {
-      // Reset form when dialog is closed
-      formMethods.reset({ name: '' })
+      // Reset state when dialog is closed
       setIsEditMode(false)
       setCurrentCustomer(null)
     }
@@ -179,7 +180,13 @@ const Customers = () => {
         </div>
         <Dialog open={open} onOpenChange={handleDialogClose}>
           <DialogTrigger asChild>
-            <Button size="sm">
+            <Button
+              size="sm"
+              onClick={() => {
+                setIsEditMode(false)
+                setCurrentCustomer(null)
+              }}
+            >
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Customer
             </Button>
@@ -195,45 +202,56 @@ const Customers = () => {
                   : 'Add a new customer to your list. You can add rates for this customer later.'}
               </DialogDescription>
             </DialogHeader>
-            <form
-              onSubmit={formMethods.handleSubmit(onSubmit)}
-              className="space-y-4"
-            >
-              <div className="space-y-2">
-                <Label name="name" className="rw-label">
-                  Customer Name
-                </Label>
-                <Input
-                  id="name"
-                  {...formMethods.register('name', {
-                    required: 'Customer name is required',
-                  })}
-                  placeholder="Enter customer name"
+            <div className="rw-form-wrapper">
+              <Form
+                onSubmit={onSubmit}
+                error={null}
+                className="space-y-4"
+                formMethods={formMethods}
+              >
+                <FormError
+                  error={null}
+                  wrapperClassName="rw-form-error-wrapper"
+                  titleClassName="rw-form-error-title"
+                  listClassName="rw-form-error-list"
                 />
-                {formMethods.formState.errors.name && (
-                  <p className="text-sm text-destructive">
-                    {formMethods.formState.errors.name.message}
-                  </p>
-                )}
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                  disabled={loading}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading
-                    ? 'Saving...'
-                    : isEditMode
-                      ? 'Update Customer'
-                      : 'Save Customer'}
-                </Button>
-              </DialogFooter>
-            </form>
+                <div className="space-y-2">
+                  <Label
+                    name="name"
+                    className="rw-label"
+                    errorClassName="rw-label rw-label-error"
+                  >
+                    Customer Name
+                  </Label>
+                  <TextField
+                    name="name"
+                    className="rw-input"
+                    errorClassName="rw-input rw-input-error"
+                    validation={{ required: true }}
+                    placeholder="Enter customer name"
+                    defaultValue={currentCustomer?.name || ''}
+                  />
+                  <FieldError name="name" className="rw-field-error" />
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setOpen(false)}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </Button>
+                  <Submit disabled={loading} className="rw-button">
+                    {loading
+                      ? 'Saving...'
+                      : isEditMode
+                        ? 'Update Customer'
+                        : 'Save Customer'}
+                  </Submit>
+                </DialogFooter>
+              </Form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

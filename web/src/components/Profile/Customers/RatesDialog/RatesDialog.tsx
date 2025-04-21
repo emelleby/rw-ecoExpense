@@ -14,7 +14,7 @@ import {
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import { QUERY as RATES_QUERY } from 'src/components/CustomerRatesCell/CustomerRatesCell'
+import { QUERY as RATES_QUERY } from 'src/components/Profile/Customers/CustomerRatesCell/CustomerRatesCell'
 
 import { Button } from '@/components/ui/Button'
 import {
@@ -263,7 +263,7 @@ const RatesDialog = ({
               >
                 Cancel
               </Button>
-              <Submit disabled={loading} className="rw-button rw-button-blue">
+              <Submit disabled={loading} className="rw-button">
                 {loading
                   ? 'Saving...'
                   : isEditMode
