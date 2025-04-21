@@ -28,15 +28,24 @@ export const searchAirports = (query: string): Airport[] => {
     const searchTerm = query.toLowerCase().trim()
     const airports = getAirports()
 
-    return airports
-      .filter(
-        (airport) =>
-          airport.airport_code.toLowerCase().includes(searchTerm) ||
+    // First find exact matches on airport code
+    const exactCodeMatches = airports.filter(
+      (airport) => airport.airport_code.toLowerCase() === searchTerm
+    )
+
+    // Then find partial matches
+    const partialMatches = airports.filter(
+      (airport) =>
+        // Exclude exact matches to avoid duplicates
+        airport.airport_code.toLowerCase() !== searchTerm &&
+        (airport.airport_code.toLowerCase().includes(searchTerm) ||
           airport.airport_name.toLowerCase().includes(searchTerm) ||
           airport.town.toLowerCase().includes(searchTerm) ||
-          airport.country.toLowerCase().includes(searchTerm)
-      )
-      .slice(0, 10) // Limit to 10 results for performance
+          airport.country.toLowerCase().includes(searchTerm))
+    )
+
+    // Combine exact matches first, then partial matches
+    return [...exactCodeMatches, ...partialMatches].slice(0, 10)
   } catch (error) {
     console.error('Error searching airports:', error)
     return []
@@ -77,9 +86,11 @@ export const calculateEmissions = async (
       ...data,
       route: data.route.filter(Boolean),
     }
+    console.log('Sending data to API:', cleanedData)
 
+    // Call our serverless function proxy
     const response = await axios.post(
-      `https://flights-by-scope321.replit.app/api/v1/calculate-emissions`,
+      `/.netlify/functions/flightEmissions`,
       cleanedData,
       {
         headers: {

@@ -440,7 +440,8 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           </Label>
           <TextField
             name="amount"
-            defaultValue={props?.expense?.amount || 0}
+            defaultValue={props?.expense?.amount}
+            placeholder="amount"
             className="rw-input"
             onChange={(e) => {
               const rawValue = e.target.value

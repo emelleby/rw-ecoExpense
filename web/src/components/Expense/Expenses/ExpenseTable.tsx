@@ -65,7 +65,7 @@ export function ExpenseTable({
   tripId,
   tripStatus,
 }: ExpenseChartProps) {
-  console.log('Data in Table; ', data)
+  // console.log('Data in Table; ', data)
   const [updateReimbursementStatus] = useMutation(Update_Reimbursement_Status, {
     onCompleted: () => {
       toast.success('Trip updated')

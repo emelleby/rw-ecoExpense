@@ -192,12 +192,14 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       }
 
       const dataToSend = [...flights, payload]
+      console.log('Data to send:', dataToSend)
 
       const result = await submitFlights({
         variables: {
           input: [...dataToSend],
         },
       })
+      console.log('Result from API:', result)
 
       if (!result?.data?.submitFutureFlights) {
         toast.error(
@@ -586,7 +588,8 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             </Label>
             <TextField
               name="amount"
-              defaultValue={props?.expense?.amount || 0}
+              defaultValue={props?.expense?.amount}
+              placeholder="amount"
               className="rw-input"
               onChange={(e) => {
                 const rawValue = e.target.value
@@ -712,6 +715,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           <Button
             variant="link"
             onClick={addAnotherFlight}
+            type="button"
             className="font-normal underline"
           >
             Add another flight
