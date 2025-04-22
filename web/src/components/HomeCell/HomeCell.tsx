@@ -93,7 +93,7 @@ export const Empty = () => (
         icon={Plane}
         title="New Project"
         description="Create a project to associate with trips or groups."
-        href={routes.newTrip()}
+        href={routes.newProject()}
       />
       <ActionCard
         icon={Plane}
