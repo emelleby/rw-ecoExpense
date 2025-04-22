@@ -41,7 +41,7 @@ const OrganizationForm = (props: OrganizationFormProps) => {
           className="rw-label"
           errorClassName="rw-label rw-label-error"
         >
-          Regnr
+          Registration Number
         </Label>
 
         <TextField

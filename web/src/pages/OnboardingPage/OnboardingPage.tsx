@@ -5,15 +5,15 @@ import { Redirect, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
-import OrganizationCell from 'src/components/OrganizationCell'
+import OnboardingCell from 'src/components/OnboardingCell'
 
 const UserRole = () => {
   const { user } = useUser()
   const { currentUser } = useAuth()
 
   return (
-    <div className="text-slate-50">
-      <h1>Welcome, {user.username}</h1>
+    <div className="text-foreground">
+      <h1 className="text-2xl">Welcome, {user.username}</h1>
       <p>Your role: {(currentUser.roles as string) || 'No role assigned'}</p>
     </div>
   )
@@ -34,19 +34,17 @@ const OnboardingPage = () => {
   return (
     <>
       <Metadata title="Onboarding" description="Onboarding page" />
-      <div className="flex min-h-screen flex-col items-center bg-slate-800">
+      <div className="flex min-h-screen flex-col items-center">
         <UserButton />
-        <h1 className="mt-6 text-2xl font-bold text-slate-100">
-          Complete Your Profile
-        </h1>
+        <h1 className="mt-6 text-2xl font-bold">Complete Your Profile</h1>
 
         <div className="mt-8 w-full max-w-md rounded-lg p-6">
           <h2 className="text-yellow-100">Current User Role:</h2>
           <UserRole />
-          <OrganizationCell />
+          <OnboardingCell />
         </div>
-        <div className="mt-8 w-full max-w-lg rounded-lg p-6 text-white">
-          <h2 className="text-white">Current userMetadata Information</h2>
+        <div className="mt-8 w-full max-w-lg rounded-lg p-6">
+          <h2 className="text-yellow-100">Current userMetadata Information</h2>
           <pre>{JSON.stringify(userMetadata.username, null, 2)}</pre>
           <pre>
             {JSON.stringify(
