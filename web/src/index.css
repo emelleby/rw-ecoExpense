@@ -224,3 +224,28 @@
     border-image-slice: 1;
   }
 }
+
+/* Dark mode styles for Google Place Picker */
+.dark gmpx-place-picker,
+.dark PlacePicker /* Adjust selector if PlacePicker wrapper adds a class */ {
+  /* Darker background - Use your theme's dark input background color */
+  /* Example: Using Tailwind's gray-800 or a specific HSL value */
+  --gmpx-color-surface: hsl(var(--input)); /* Try using your existing input var */
+  /* Or fallback to a specific dark color: e.g., #1f2937; */
+
+  /* Near-white text color - Use your theme's dark mode text color */
+  --gmpx-color-on-surface: hsl(var(--foreground)); /* Try using your existing foreground var */
+   /* Or fallback to a specific light color: e.g., #f9fafb; */
+
+  /* Lighter placeholder text for dark background */
+   --gmpx-color-on-surface-variant: hsl(var(--secondary-foreground)); /* Try existing muted var */
+  /* Or fallback to a specific light gray: e.g., #9ca3af; */
+
+  /* Optional: Adjust focus ring color for dark mode if needed */
+  /* --gmpx-color-primary: hsl(var(--ring)); */
+}
+
+/* You might need to ensure the component takes full width */
+gmpx-place-picker, PlacePicker {
+    width: 100%;
+}
