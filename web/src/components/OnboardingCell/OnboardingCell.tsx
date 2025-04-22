@@ -18,7 +18,7 @@ import { toast } from '@redwoodjs/web/toast'
 
 import NewOrganization from '../Organization/NewOrganization/NewOrganization'
 
-import { useAuth } from '@/auth'
+// import { useAuth } from '@/auth'
 import { Button } from '@/components/ui/Button'
 import {
   Command,
@@ -73,7 +73,7 @@ const CREATE_USER = gql`
 export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => (
-  <div className="rounded-lg bg-slate-800 p-6 text-white">
+  <div className="rounded-lg bg-primary p-6 text-white">
     <h3 className="text-xl font-semibold">No Organizations Found</h3>
     <p className="mt-2">Create your first organization to get started!</p>
     {/* We'll add the CreateOrganization component here later */}
@@ -92,7 +92,6 @@ export const Success = ({
 }: CellSuccessProps<FindOrganizationsQuery>) => {
   const [open, setOpen] = useState(false)
   const [selectedOrg, setSelectedOrg] = useState<string>('')
-  // const { currentUser, userMetadata } = useAuth()
   const { user } = useUser()
   const [updateUserRole] = useMutation(UPDATE_USER_ROLE)
   const [createUser] = useMutation(CREATE_USER)
@@ -145,7 +144,7 @@ export const Success = ({
 
   const orgList = Array.isArray(organizations) ? organizations : []
   return (
-    <div className="rounded-lg bg-slate-800 p-0 text-white">
+    <div className="rounded-lg bg-muted p-4">
       <h3 className="mb-4 text-xl font-semibold">Organization Setup</h3>
 
       <Tabs defaultValue="join" className="w-full">

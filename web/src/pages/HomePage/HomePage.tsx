@@ -14,41 +14,12 @@ import {
 
 import HomeCell from '@/components/HomeCell/HomeCell'
 
-const features = [
-  {
-    title: 'Add New Expense',
-    description:
-      'Record a new expense with details such as amount, date, and category.',
-    buttonText: 'Add Expense',
-    url: 'newExpense',
-  },
-  {
-    title: 'View Expenses',
-    description: 'See a list of all recorded expenses and their details.',
-    buttonText: 'View Expenses',
-    url: 'expenses',
-  },
-
-  {
-    title: 'Manage Trips',
-    description:
-      'Create or view trips to associate with expenses. Trips will belong to projects.',
-    buttonText: 'Manage Trips',
-    url: 'trips',
-  },
-  {
-    title: 'Manage Projects',
-    description: 'Create or view projects to associate with expenses.',
-    buttonText: 'Manage Projects',
-    url: 'projects',
-  },
-]
 const HomePage = ({ title = 'Dashboard' }) => {
   return (
     <>
       <Metadata title="Home" description="Home page" />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-center text-2xl font-bold">
+        <h1 className="text-gradient-blue-green mb-6 w-fit text-center text-2xl font-bold">
           Welcome to Expense Tracker
         </h1>
         <HomeCell />

@@ -79,21 +79,42 @@ export const Loading = () => (
 )
 
 export const Empty = () => (
-  <div className="space-y-6">
-    <Alert variant="warning">
-      <AlertCircle className="h-5 w-5" />
-      <AlertTitle>No Data Available</AlertTitle>
+  <div className="space-y-8">
+    <Alert variant="info">
+      <AlertCircle className="h-6 w-6" />
+      <AlertTitle>No Data Yet</AlertTitle>
       <AlertDescription>
-        Start by adding your first expense to see your dashboard come to life.
+        Welcome! Start to add data to get started. Expenses are grouped into
+        trips and trips belong to projects.
       </AlertDescription>
     </Alert>
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <ActionCard
+        icon={Plane}
+        title="New Project"
+        description="Create a project to associate with trips or groups."
+        href={routes.newTrip()}
+      />
+      <ActionCard
+        icon={Plane}
+        title="New Trip"
+        description="Create a new business trip or group"
+        href={routes.newTrip()}
+      />
+      <ActionCard
+        icon={PlusCircle}
+        title="New Expense"
+        description="Add a new expense"
+        href={routes.newExpense()}
+      />
+    </div>
   </div>
 )
 
 export const Failure = ({ error }: CellFailureProps) => (
   <Alert variant="destructive">
     <AlertCircle className="h-5 w-5" />
-    <AlertTitle>Error</AlertTitle>
+    <AlertTitle>Error - Failure</AlertTitle>
     <AlertDescription>{error?.message}</AlertDescription>
   </Alert>
 )
@@ -116,7 +137,7 @@ const ActionCard = ({
       <GlowEffect
         colors={['#FF5733', '#33FF57', '#3357FF', '#F1C40F']}
         mode="colorShift"
-        blur="strong"
+        blur="medium"
         duration={3}
         scale={0.98}
       />
@@ -140,7 +161,7 @@ interface MetricCardProps {
   value: string
   subValue?: string
   icon: LucideIcon
-  percentageChange?: number
+  percentageChange?: number | null
 }
 
 const MetricCard = ({
@@ -157,7 +178,7 @@ const MetricCard = ({
     </CardHeader>
     <CardContent>
       <div className="text-2xl font-bold">{value}</div>
-      {percentageChange !== undefined && (
+      {percentageChange !== undefined && percentageChange !== null && (
         <p
           className={`text-xs ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}
         >
@@ -373,7 +394,7 @@ const CarbonImpactChart = ({
 interface DashboardData {
   expenses: {
     total: number
-    percentageChange: number
+    percentageChange: number | null
     pending: {
       amount: number
       count: number
@@ -382,7 +403,7 @@ interface DashboardData {
   trips: RecentTrip[]
   carbonFootprint: {
     total: number
-    percentageChange: number
+    percentageChange: number | null
     byCategory: CarbonCategory[]
   }
 }
@@ -392,6 +413,7 @@ export const Success = ({
 }: CellSuccessProps<{
   dashboard: DashboardData
 }>) => {
+  // Render the full dashboard directly
   return (
     <div className="space-y-6">
       {/* Action Cards */}
@@ -402,7 +424,6 @@ export const Success = ({
           description="Add a new expense"
           href={routes.newExpense()}
         />
-
         <ActionCard
           icon={Plane}
           title="New Trip"
@@ -419,7 +440,6 @@ export const Success = ({
           percentageChange={dashboard.expenses.percentageChange}
           icon={DollarSign}
         />
-
         <MetricCard
           title="Carbon Footprint"
           value={`${dashboard.carbonFootprint.total} kg Co2e`}
@@ -434,11 +454,15 @@ export const Success = ({
         />
       </div>
 
-      {/* Recent Trips */}
-      <RecentTripsList trips={dashboard.trips} />
+      {/* Recent Trips - Only render if there are trips */}
+      {dashboard.trips.length > 0 && (
+        <RecentTripsList trips={dashboard.trips} />
+      )}
 
-      {/* Carbon Impact Chart */}
-      <CarbonImpactChart categories={dashboard.carbonFootprint.byCategory} />
+      {/* Carbon Impact Chart - Only render if there are categories */}
+      {dashboard.carbonFootprint.byCategory.length > 0 && (
+        <CarbonImpactChart categories={dashboard.carbonFootprint.byCategory} />
+      )}
     </div>
   )
 }

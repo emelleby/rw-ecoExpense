@@ -116,7 +116,7 @@ const NewTrip = ({ p }) => {
 
   return (
     <div className="rw-segment">
-      <div>
+      {/* <div>
         {queryLoading && <p>Loading...</p>}
         {queryError && <p>Error: {queryError.message}</p>}
         {projectsData && (
@@ -126,14 +126,16 @@ const NewTrip = ({ p }) => {
             ))}
           </ul>
         )}
-      </div>
+      </div> */}
 
       {
         // It is important to wait for the data to be loaded before rendering the TripForm component
         projectsData && (
           <div className="rw-segment">
             <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">New Trip</h2>
+              <h2 className="rw-heading rw-heading-primary text-gradient-blue-green w-fit">
+                New Trip
+              </h2>
             </header>
             <div className="rw-segment-main">
               <TripForm

@@ -7,6 +7,18 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
     throw new Error('User not authenticated')
   }
 
+  // Check if the user has ANY expenses. If not, return null to trigger Empty component.
+  const firstExpense = await db.expense.findFirst({
+    where: { userId: context.currentUser.dbUserId },
+    select: { id: true },
+  })
+
+  if (!firstExpense) {
+    // Now allowed by the schema change (dashboard: Dashboard)
+    return null
+  }
+
+  // Proceed with calculations as before
   const startOfYear = new Date(new Date().getFullYear(), 0, 1)
   const today = new Date()
 
@@ -54,13 +66,13 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
 
   const percentageChange = lastYearTotal
     ? ((total - lastYearTotal) / lastYearTotal) * 100
-    : undefined
+    : null
 
   console.log('Raw expense values:', {
     currentYearTotal: total,
     lastYearTotal: lastYearTotal,
     percentageChange:
-      percentageChange !== undefined
+      percentageChange !== null
         ? percentageChange.toFixed(1) + '%'
         : 'No last year data',
   })
@@ -76,7 +88,10 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
       startDate: lastYearStart.toISOString(),
       endDate: lastYearToday.toISOString(),
     },
-    percentageChange: `${percentageChange.toFixed(1)}%`,
+    percentageChange:
+      percentageChange !== null
+        ? `${percentageChange.toFixed(1)}%`
+        : 'No comparison available',
     calculation: lastYearTotal
       ? `((${total} - ${lastYearTotal}) / ${lastYearTotal}) * 100`
       : 'No last year data (defaulting to 0%)',
@@ -112,13 +127,13 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
   const carbonPercentageChange = lastYearCarbonTotal
     ? ((currentYearCarbonTotal - lastYearCarbonTotal) / lastYearCarbonTotal) *
       100
-    : undefined
+    : null
 
   console.log('Raw carbon values:', {
     currentYearTotal: currentYearCarbonTotal,
     lastYearTotal: lastYearCarbonTotal,
     percentageChange:
-      carbonPercentageChange !== undefined
+      carbonPercentageChange !== null
         ? carbonPercentageChange.toFixed(1) + '%'
         : 'No last year data',
   })
@@ -137,7 +152,7 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
         endDate: lastYearToday.toISOString(),
       },
       percentageChange:
-        percentageChange !== undefined
+        percentageChange !== null
           ? `${percentageChange.toFixed(1)}%`
           : 'No comparison available',
       calculation: lastYearTotal
@@ -162,7 +177,7 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
         endDate: lastYearToday.toISOString(),
       },
       percentageChange:
-        carbonPercentageChange !== undefined
+        carbonPercentageChange !== null
           ? `${carbonPercentageChange.toFixed(1)}%`
           : 'No comparison available',
       calculation: lastYearCarbonTotal
@@ -265,12 +280,13 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
     trips: recentTrips.map((trip) => {
       // Calculate total emissions for this trip
       const tripEmissions = trip.Expense.reduce((sum, expense) => {
-        return sum + (
-          (expense.scope1Co2Emissions || 0) +
-          (expense.scope2Co2Emissions || 0) +
-          (expense.scope3Co2Emissions || 0)
-        );
-      }, 0);
+        return (
+          sum +
+          ((expense.scope1Co2Emissions || 0) +
+            (expense.scope2Co2Emissions || 0) +
+            (expense.scope3Co2Emissions || 0))
+        )
+      }, 0)
 
       return {
         id: trip.id,
@@ -285,8 +301,8 @@ export const dashboard: QueryResolvers['dashboard'] = async () => {
         ),
         emissions: Math.round(tripEmissions),
         startDate: trip.startDate,
-        endDate: trip.endDate
-      };
+        endDate: trip.endDate,
+      }
     }),
     carbonFootprint: {
       total: Math.round(totalCarbon),
