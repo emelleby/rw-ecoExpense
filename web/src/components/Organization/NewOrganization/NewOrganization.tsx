@@ -89,11 +89,11 @@ const NewOrganization = () => {
   }
 
   return (
-    <div className="">
+    <div className="mt-6">
       <header className="">
-        <h2 className="font-bold">New Organization</h2>
+        <h2 className="mb-8 text-xl font-bold">New Organization</h2>
       </header>
-      <div className="mt-6">
+      <div className="">
         <OrganizationForm onSave={onSave} loading={loading} error={error} />
       </div>
     </div>

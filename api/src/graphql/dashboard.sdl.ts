@@ -51,6 +51,24 @@ export const schema = gql`
   }
 
   type Query {
-    dashboard: DashboardData! @requireAuth
+    dashboard: Dashboard @requireAuth
+  }
+
+  type Dashboard {
+    expenses: DashboardExpenses!
+    trips: [RecentTrip!]!
+    carbonFootprint: DashboardCarbonFootprint!
+  }
+
+  type DashboardCarbonFootprint {
+    total: Float!
+    percentageChange: Float
+    byCategory: [DashboardCarbonCategory!]!
+  }
+
+  type DashboardCarbonCategory {
+    category: String!
+    amount: Float!
+    unit: String!
   }
 `
