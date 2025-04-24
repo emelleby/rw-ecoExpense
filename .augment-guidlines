@@ -1,3 +1,8 @@
+# Context7
+- **Always use the context7 MCP server** to reference the latest documentation for libraries and frameworks like Redwood GraphQL, Prisma, and Clerk.
+- For the tokens, **start with 8000** but then increase to __20000__ if your first search didn't give relevant documentation.
+- **Only search three times maximum for any specific piece of documentation.** If you don't get what you need, use the Brave search MCP if you can to perform a wider search.
+
 # EcoExpense Project Intelligence
 
 ## EcoExpense Overview
@@ -38,7 +43,7 @@
 # RedwoodJS Project Context
 
 ## Technologies & Versions
-- **RedwoodJS** v8.5.0
+- **RedwoodJS** v8.6.1
 - **TypeScript** 5.x (strict mode)
 - **Prisma** 5.x
 - **Storybook** 7.x
