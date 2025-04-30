@@ -3,7 +3,7 @@
 ## Technology Stack
 
 ### Core Framework
-- **RedwoodJS** v8.5.0
+- **RedwoodJS** v8.6.1
   - Full-stack JavaScript/TypeScript framework
   - Integrated frontend and backend
   - API and web sides with clear separation
