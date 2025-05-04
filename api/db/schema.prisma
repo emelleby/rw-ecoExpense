@@ -67,6 +67,7 @@ model Organization {
   Project     Project[]
   User        User[]
   Product     Product[]
+  Rates       Rate[]
   Customer    Customer[]
   Department  Department[]
 }
@@ -99,6 +100,7 @@ model User {
   Organization   Organization @relation(fields: [organizationId], references: [id])
   Expense        Expense[]
   Trip           Trip[]
+  Rates          Rate[]
   WorkEntry      WorkEntry[] // One-to-many relation to WorkEntry
   UserProject    Project[]    @relation("CreatedBy")
   WorkReport     WorkReport[]
@@ -177,8 +179,13 @@ model Trip {
 // Rate model
 model Rate {
   id          Int         @id @default(autoincrement())
-  customerId  Int
-  customer    Customer    @relation(fields: [customerId], references: [id]) // Foreign key to Customer
+  customerId  Int?        // Make optional
+  customer    Customer?   @relation(fields: [customerId], references: [id]) // Optional relation
+  userId      Int?        // Add optional user relation for freelancer rates
+  user        User?       @relation(fields: [userId], references: [id])
+  internal    Boolean     @default(false) // Flag for internal organization rates
+  organizationId Int?     // Optional direct link to organization for internal rates
+  organization Organization? @relation(fields: [organizationId], references: [id])
   rateType    RATE_TYPE
   rateAmount  Decimal     @db.Decimal(10, 2) // Numeric field with precision 10, scale 2
   description String? // Optional text field
