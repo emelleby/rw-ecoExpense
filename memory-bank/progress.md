@@ -38,16 +38,20 @@
 - Expense recording with currency conversion
 - Receipt attachment
 - Basic reporting
+- Dark/light theme support
+- Admin tasks management with fallback data handling
 
 ## In Progress
 
 ### Current Work
-- Initial Memory Bank documentation
-- Understanding application architecture
-- Documenting core features and workflows
+- Enhancing Memory Bank documentation
+- Implementing theme support across all components
+- Improving file access patterns for external resources
+- Implementing admin tasks management
 
 ### Known Issues
-- None identified at this stage (as this is initial documentation)
+- External file access (like tasks.json) requires backend services for proper handling
+- Some components may not fully support dark/light theme switching
 
 ## Roadmap
 - Daily commute registration
@@ -60,6 +64,8 @@
 
 ### Short-term Priorities
 - Complete Memory Bank documentation
+- Ensure consistent theme support across all components
+- Standardize file access patterns for external resources
 - Explore flight emissions calculation implementation
 - Review currency conversion and exchange rate handling
 - Understand the reporting and analytics features

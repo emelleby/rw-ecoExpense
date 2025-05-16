@@ -49,12 +49,16 @@ EcoExpense
 
 ### UI Component Structure
 - Shadcn/UI components as the foundation
-- Tailwind CSS for styling
+- Tailwind CSS for styling with theme support
+  - Theme-aware color classes (bg-background, text-foreground)
+  - Dark/light mode toggle functionality
+  - CSS variables for theme colors in index.css
 - Redwood Cells for data fetching patterns
   - Loading states
   - Empty states
   - Error handling
   - Success rendering
+  - Fallback data with visual indicators
 
 ### Environmental Impact Calculation
 - CO2 emissions tracked across three scopes:
@@ -92,3 +96,9 @@ EcoExpense
 - Server state through GraphQL queries/mutations
 - Local UI state with React hooks
 - Form state with RedwoodJS Form components
+
+### File Access Patterns
+- External files (outside src directory) should be accessed via backend services
+- Use proper path resolution for files in non-standard locations
+- Implement fallback mechanisms for critical data with clear visual indicators
+- Configuration files should remain in their designated locations

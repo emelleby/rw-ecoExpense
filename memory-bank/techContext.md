@@ -12,6 +12,8 @@
 - **React** 18.x
 - **TypeScript** 5.x in strict mode
 - **Tailwind CSS** 3.x for styling
+  - Dark/light theme support via CSS variables
+  - Theme-aware color classes
 - **shadcn/ui** (via rw-shad v2.x) for UI components
 - **Storybook** 7.x for component development and testing
 
@@ -94,10 +96,20 @@
 
 ### UI Components
 - shadcn/ui integration through rw-shad
-- Tailwind-based styling
+- Tailwind-based styling with theme support
+  - Dark/light mode toggle via useTheme hook
+  - Theme-aware color classes (bg-background, text-foreground)
 - Redwood Cell pattern for data fetching
+  - Fallback mechanisms for critical data
+  - Visual indicators for fallback content
 
 ### Environment Configuration
 - `.env` file for local development
 - Environment variables for deployment
 - Different configurations for development and production
+
+### File Access Patterns
+- External files (outside src directory) accessed via backend services
+- Configuration files like tasks.json remain in their designated locations
+- Backend services provide proper path resolution for non-standard file locations
+- Fallback mechanisms implemented for critical data sources
