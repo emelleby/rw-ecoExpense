@@ -23,7 +23,7 @@
 - Ensure proper currency conversion for all expense amounts
 - Calculate and track emissions data for relevant expenses
 - Follow RedwoodJS conventions for cells, services, and components
-- Use shadcn/ui components with Tailwind styling
+- Use shadcn/ui components with Tailwind styling whereever possible. Always use the rw-shad cli to install new components.
 
 ## File Locations
 - GraphQL schemas in `api/src/graphql/*.sdl.ts`

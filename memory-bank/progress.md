@@ -38,16 +38,24 @@
 - Expense recording with currency conversion
 - Receipt attachment
 - Basic reporting
+- Dark/light theme support
+- Admin tasks management with fallback data handling
+- Expense edit restrictions based on trip status
+- Trip reimbursement workflow with status tracking
 
 ## In Progress
 
 ### Current Work
-- Initial Memory Bank documentation
-- Understanding application architecture
-- Documenting core features and workflows
+- Enhancing Memory Bank documentation
+- Testing expense edit restrictions feature
+- Implementing UI improvements for expense management
+- Exploring the trip reimbursement workflow in detail
 
 ### Known Issues
-- None identified at this stage (as this is initial documentation)
+- External file access (like tasks.json) requires backend services for proper handling
+- Some components may not fully support dark/light theme switching
+- Database configuration for testing needs to be properly set up
+- Need to follow best practices for testing with RedwoodJS GraphQL and Jest
 
 ## Roadmap
 - Daily commute registration
@@ -59,10 +67,12 @@
 ...
 
 ### Short-term Priorities
+- Complete testing for expense edit restrictions feature
+- Document the trip reimbursement workflow
+- Improve UI for expense management
+- Set up proper database configuration for testing
+- Follow best practices for testing with RedwoodJS GraphQL and Jest
 - Complete Memory Bank documentation
-- Explore flight emissions calculation implementation
-- Review currency conversion and exchange rate handling
-- Understand the reporting and analytics features
 
 ### Medium-term Goals
 - Enhance documentation of environmental impact calculation

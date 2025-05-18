@@ -1,7 +1,7 @@
 # EcoExpense - Project Brief
 
 ## Overview
-EcoExpense is a web application built with RedwoodJS (v8.5.0) that allows organizations to track both financial expenses and environmental impact in one platform. It features a multi-tenant architecture with organizations, projects, and users.
+EcoExpense is a web application built with RedwoodJS (v8.6.1) that allows organizations to track both financial expenses and environmental impact in one platform. It features a multi-tenant architecture with organizations, projects, and users.
 
 ## Core Objectives
 - Track expenses with accurate currency conversion (to NOK)
@@ -20,7 +20,7 @@ EcoExpense is a web application built with RedwoodJS (v8.5.0) that allows organi
 - **Reporting**: Generate insights on spending and emissions
 
 ## Technical Requirements
-- RedwoodJS v8.5.0 with TypeScript in strict mode
+- RedwoodJS v8.6.1 with TypeScript in strict mode
 - PostgreSQL database with Prisma ORM
 - Clerk for authentication
 - React 18 with shadcn/ui components and Tailwind CSS

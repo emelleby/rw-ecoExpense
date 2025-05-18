@@ -17,12 +17,13 @@ const ExpensesList = ({ expenses }: FindExpenses) => {
         description: expense.description,
         date: expense.date,
         imageUrl: expense.receipt?.url,
+        tripStatus: expense.trip.reimbursementStatus, // Include trip status for each expense
       }
     })
     setData(data)
-  }, [])
+  }, [expenses])
 
-  return <ExpenseTable data={data} showReimburseButton={false} tripId={0} />
+  return <ExpenseTable data={data} showReimburseButton={false} tripId={0} tripStatus="NOT_REQUESTED" />
 }
 
 export default ExpensesList

@@ -46,15 +46,27 @@ EcoExpense
 - Resolvers implemented in corresponding service files
 - Proper input validation and error handling
 - Data access filtered by organization context
+- Union types for handling operation results with potential errors
+- Custom error types for specific validation failures
+- Service-level validation functions for business rules
 
 ### UI Component Structure
 - Shadcn/UI components as the foundation
-- Tailwind CSS for styling
+- Tailwind CSS for styling with theme support
+  - Theme-aware color classes (bg-background, text-foreground)
+  - Dark/light mode toggle functionality
+  - CSS variables for theme colors in index.css
 - Redwood Cells for data fetching patterns
   - Loading states
   - Empty states
   - Error handling
   - Success rendering
+  - Fallback data with visual indicators
+- Interactive UI elements with status-based restrictions:
+  - Disabled buttons for restricted actions
+  - Tooltips to explain restrictions
+  - Visual indicators for non-editable items
+  - Status badges to show current state
 
 ### Environmental Impact Calculation
 - CO2 emissions tracked across three scopes:
@@ -87,8 +99,18 @@ EcoExpense
 - Jest for unit and integration tests
 - Storybook for component testing
 - MSW for mocking API responses
+- Scenario-based testing for service functions
+- Mocking GraphQL queries and mutations
+- Testing validation functions independently
+- Testing UI components with different data states
 
 ### State Management
 - Server state through GraphQL queries/mutations
 - Local UI state with React hooks
 - Form state with RedwoodJS Form components
+
+### File Access Patterns
+- External files (outside src directory) should be accessed via backend services
+- Use proper path resolution for files in non-standard locations
+- Implement fallback mechanisms for critical data with clear visual indicators
+- Configuration files should remain in their designated locations

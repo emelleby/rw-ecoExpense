@@ -40,6 +40,9 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        "gradient-green": {
+          DEFAULT: 'hsl(var(--gradient-green))',
+        },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',

@@ -1,14 +1,14 @@
 import { render } from '@redwoodjs/testing/web'
 
-import ExpensesPage from './ExpensesPage'
+import TasksLayout from './TasksLayout'
 
 //   Improve this test with help from the Redwood Testing Doc:
 //   https://redwoodjs.com/docs/testing#testing-pages-layouts
 
-describe('ExpensesPage', () => {
+describe('TasksLayout', () => {
   it('renders successfully', () => {
     expect(() => {
-      render(<ExpensesPage />)
+      render(<TasksLayout />)
     }).not.toThrow()
   })
 })
