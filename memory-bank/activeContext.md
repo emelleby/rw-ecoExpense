@@ -1,14 +1,15 @@
 # EcoExpense - Active Context
 
 ## Current Focus
-- Initial Memory Bank setup for the EcoExpense project
-- Understanding the application architecture and data models
-- Documenting key features and workflows
+- Implementing expense edit restrictions based on trip reimbursement status
+- Enhancing UI to provide clear visual feedback for non-editable expenses
+- Writing tests for the expense edit restrictions feature
 
 ## Recent Changes
-- Created the Memory Bank documentation structure
-- Analyzed the existing codebase structure
-- Documented system patterns and technical context
+- Implemented expense edit restrictions based on trip reimbursement status
+- Added visual indicators and tooltips for non-editable expenses
+- Updated the UI to disable edit/delete actions for expenses with restricted trip status
+- Added tests for the expense edit restrictions feature
 
 ## Key Files & Components
 - `api/db/schema.prisma`: Database schema with models for Organization, User, Project, Trip, Expense, etc.
@@ -34,6 +35,12 @@ The application revolves around these core models:
 5. Environmental impact tracking across three scopes of emissions
 6. Flight emissions calculation using the g-flightapi-318955611692.europe-north1.run.app API
 7. Reporting on both financial and emissions metrics
+8. Trip reimbursement workflow:
+   - Users create trips and add expenses
+   - Users request reimbursement (trip status changes to PENDING)
+   - Admins review and approve/reject reimbursement requests
+   - When approved, trip status changes to REIMBURSED
+   - Expenses cannot be modified when trip status is PENDING or REIMBURSED
 
 ## Current Decisions & Considerations
 - Multi-tenant architecture with clear data isolation
@@ -47,10 +54,15 @@ The application revolves around these core models:
   - Numeric validation with min/max values
   - Custom validation functions
 - UI components using shadcn/ui with subtle text gradients
+- Expense edit restrictions based on trip status:
+  - Backend validation in the expenses service
+  - Frontend UI indicators for non-editable expenses
+  - Tooltips to explain why expenses cannot be modified
+  - Clear visual distinction between editable and non-editable expenses
 
 ## Next Steps
-- Review application functionality in detail
-- Explore specific features like flight emissions calculation
-- Understand the currency conversion implementation
-- Review user onboarding and authentication flow
-- Document the reporting and analytics capabilities
+- Complete testing for the expense edit restrictions feature
+- Explore additional UI enhancements for the expense management workflow
+- Consider adding similar restrictions to other entities based on status
+- Review the trip reimbursement workflow in detail
+- Document the complete reimbursement process from request to payment

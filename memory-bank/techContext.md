@@ -32,6 +32,10 @@
 - **Jest** 29.x for unit and integration testing
 - **MSW** for mocking API responses
 - **Storybook** for component testing
+- Scenario-based testing for service functions
+- Mocking GraphQL queries and mutations
+- Testing validation functions independently
+- Testing UI components with different data states
 
 ### Deployment
 - Configuration for Netlify deployment
@@ -93,6 +97,10 @@
 - GraphQL SDL-first approach
 - Role-based access control through directives
 - Service-based resolver implementation
+- Union types for operation results with potential errors
+- Custom error types for specific validation failures
+- Service-level validation functions for business rules
+- Trip status validation for expense modifications
 
 ### UI Components
 - shadcn/ui integration through rw-shad
@@ -102,6 +110,11 @@
 - Redwood Cell pattern for data fetching
   - Fallback mechanisms for critical data
   - Visual indicators for fallback content
+- Interactive UI elements with status-based restrictions:
+  - Disabled buttons for restricted actions
+  - Tooltips to explain restrictions (using ShadcN Tooltip component)
+  - Visual indicators for non-editable items
+  - Status badges to show current state
 
 ### Environment Configuration
 - `.env` file for local development

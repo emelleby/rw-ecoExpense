@@ -96,11 +96,11 @@ export const Success = ({ tasks }: TasksQueryResponse) => {
   const getPriorityClass = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-destructive/10 text-destructive border-destructive/20 dark:bg-destructive/20'
+        return 'bg-destructive/50 text-primary/80 border-destructive/20'
       case 'medium':
-        return 'bg-warning/10 text-warning-foreground border-warning/20 dark:bg-warning/20'
+        return 'bg-warning/50 text-warning-foreground border-warning/20'
       case 'low':
-        return 'bg-primary/10 text-primary border-primary/20 dark:bg-primary/20'
+        return 'bg-primary/10 text-primary border-primary/20'
       default:
         return 'bg-muted text-muted-foreground border-muted/20'
     }
@@ -109,9 +109,11 @@ export const Success = ({ tasks }: TasksQueryResponse) => {
   const getStatusClass = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'bg-primary/10 text-primary border-primary/20 dark:bg-primary/20'
+        return 'bg-gradient-green/30 text-primary/90 border-primary/20'
+      case 'done':
+        return 'bg-teal-500/40 text-primary border-primary/20'
       case 'in-progress':
-        return 'bg-accent/50 text-accent-foreground border-accent/20 dark:bg-accent/30'
+        return 'bg-accent/50 text-accent-foreground border-accent/20'
       case 'pending':
       default:
         return 'bg-muted text-muted-foreground border-muted/20'
