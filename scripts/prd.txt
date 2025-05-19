@@ -1,57 +1,356 @@
-# Expense Edit Restrictions Plan
+# Product Requirements Document: Time Entry Functionality
 
 ## Overview
-Implement restrictions to prevent editing or deleting expenses when their associated trip has status PENDING or REIMBURSED.
+This document defines the scope, features, and user experience for the Time Entry functionality in the existing mobile-first web application. The app is built with RedwoodJS, GraphQL, and React, and already supports expense submission. This new functionality will enable users to record, manage, and report work hours efficiently, complementing the existing expense tracking capabilities.
 
-## Backend Changes
+## Objectives
+- Allow users to easily record time entries through an intuitive mobile-first interface
+- Support flexible rate structures that can be configured per user, project, or client
+- Enable submission of time sheets (Work Reports) for payment tracking
+- Provide comprehensive reporting tools for administrators to analyze hours and costs
+- Maintain consistency with existing expense submission workflows and UI patterns
 
-### 1. Service Layer (api/src/services/expenses)
-- Add validation function to check trip status before expense modifications
-- Implement in both updateExpense and deleteExpense services
-- Throw appropriate error if trip status is PENDING or REIMBURSED
+## Target Users
+- **Freelancers**: Paid by the hour/day based on varying rates
+- **Employees**: Salaried, using the tool to record billable and non-billable hours
+- **Administrators**: Manage users, rates, approvals, and reporting
 
-### 2. GraphQL SDL Updates (api/src/graphql/expenses.sdl.ts)
-- Update error handling for these specific cases
-- Add custom error type for better client feedback
+## Features
 
-## Frontend Changes
+### 1. Time Entry Management
 
-### 1. Expense Components
-- Update expense list/detail views to check trip status
-- Disable edit/delete buttons when appropriate
-- Add tooltips explaining why actions are disabled
+#### 1.1 Time Entry Creation
+**Input Fields:**
+- Date (with date picker, defaulting to current date)
+- Time Input Method (toggle between):
+  - Start/End Time (with time pickers)
+  - Duration (hours/minutes input)
+- Rate (dynamic dropdown showing applicable rates by effective date)
+- Client (optional dropdown, filtered by user access)
+- Project (optional dropdown, filtered by selected client)
+- Product (optional dropdown)
+- Department (optional dropdown)
+- Description (textarea, required)
+- Private Notes (textarea, optional, visible only to the entry creator)
+- Tags (optional, multiple selection)
 
-### 2. UI Feedback
-- Add clear visual indicators for non-editable expenses
-- Show informative messages about why modifications are restricted
-- Consider adding this information to the expense list view
+**Behavior:**
+- Automatically calculate duration when using start/end time input
+- Validate against overlapping entries for the same user
+- Pre-fill or suggest last-used values for frequent combinations
+- Support for quick entry mode with minimal required fields
+- Allow editing and deletion of entries before submission in a report
+
+#### 1.2 Time Entry List View
+- Calendar view (default) showing entries by day/week/month
+- List view with sorting and filtering options
+- Group by project, client, or date
+- Visual indicators for submitted vs. draft entries
+- Quick actions for edit, duplicate, and delete
+
+### 2. Rate Management
+
+#### 2.1 Rate Configuration
+- Rates are user-specific and time-effective (valid for specific date ranges)
+- Support for multiple rate types:
+  - Default rate (fallback)
+  - Client-specific rates
+  - Project-specific rates
+  - Special rates (overtime, weekend, holiday)
+
+#### 2.2 Rate Administration
+- Admin interface for managing rates across the organization
+- Bulk update capabilities
+- Historical rate tracking for accurate reporting
+- Rate templates for quick assignment to new users
+
+### 3. Work Reports
+
+#### 3.1 Report Creation
+- Users can group Time Entries into a report by period (week, month, custom)
+- Automatic detection of unbilled time entries
+- Preview of total hours and amounts before submission
+- Ability to exclude specific entries from a report
+
+#### 3.2 Report Workflow
+**Statuses:**
+```
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
+  RECEIVED
+}
+```
+
+**Process Flow:**
+1. User creates and submits report (DRAFT → SUBMITTED)
+2. Admin reviews and approves/rejects (SUBMITTED → APPROVED/REJECTED)
+3. Admin marks as paid after processing (APPROVED → PAID)
+4. User confirms receipt of payment (PAID → RECEIVED)
+
+#### 3.3 Report Details
+- Summary statistics (total hours, billable amount)
+- Breakdown by client, project, department
+- Attachments for supporting documentation
+- Comment thread for communication between submitter and approver
+
+### 4. Admin Panel
+
+#### 4.1 Report Management
+- Review submitted Work Reports
+- Filter/sort by period, user, status, client, project
+- Bulk approval/rejection capabilities
+- Batch payment marking
+
+#### 4.2 User Management
+- Assign user roles and permissions
+- Configure default rates and access to clients/projects
+- Set approval workflows and notification preferences
+
+#### 4.3 Client & Project Management
+- Create and manage client records
+- Set up projects with associated rates
+- Configure project-specific fields and requirements
+
+### 5. Reporting & Analytics
+
+#### 5.1 Standard Reports
+- Time utilization by user, client, project, department, product
+- Billable vs. non-billable hours
+- Revenue forecasting based on submitted time
+- Trend analysis (month-over-month, year-over-year)
+
+#### 5.2 Custom Reporting
+- Report builder with drag-and-drop fields
+- Saved report templates
+- Scheduled report generation and distribution
+- Export options (CSV, PDF, Excel)
+
+#### 5.3 Dashboard
+- Admin overview dashboard with key metrics
+- User-specific dashboard showing recent entries and reports
+- Visual charts and graphs for time distribution
+
+## Technical Implementation
+
+### Data Model (Prisma Schema)
+
+```prisma
+model TimeEntry {
+  id          String      @id @default(uuid())
+  user        User        @relation(fields: [userId], references: [id])
+  userId      String
+  date        DateTime
+  startTime   DateTime?
+  endTime     DateTime?
+  duration    Int?        // in minutes, calculated or directly entered
+  rate        Rate        @relation(fields: [rateId], references: [id])
+  rateId      String
+  client      Client?     @relation(fields: [clientId], references: [id])
+  clientId    String?
+  project     Project?    @relation(fields: [projectId], references: [id])
+  projectId   String?
+  department  Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+  product     Product?    @relation(fields: [productId], references: [id])
+  productId   String?
+  description String
+  privateNotes String?
+  tags        String[]
+  workReport  WorkReport? @relation(fields: [workReportId], references: [id])
+  workReportId String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Rate {
+  id          String      @id @default(uuid())
+  user        User        @relation(fields: [userId], references: [id])
+  userId      String
+  name        String
+  amount      Float
+  currency    String      @default("USD")
+  client      Client?     @relation(fields: [clientId], references: [id])
+  clientId    String?
+  project     Project?    @relation(fields: [projectId], references: [id])
+  projectId   String?
+  effectiveFrom DateTime
+  effectiveTo DateTime?
+  isDefault   Boolean     @default(false)
+  timeEntries TimeEntry[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model WorkReport {
+  id          String      @id @default(uuid())
+  user        User        @relation(fields: [userId], references: [id])
+  userId      String
+  name        String
+  periodStart DateTime
+  periodEnd   DateTime
+  status      ReportStatus @default(DRAFT)
+  timeEntries TimeEntry[]
+  totalHours  Float
+  totalAmount Float
+  currency    String      @default("USD")
+  notes       String?
+  submittedAt DateTime?
+  approvedAt  DateTime?
+  approvedBy  User?       @relation("ApprovedReports", fields: [approvedById], references: [id])
+  approvedById String?
+  paidAt      DateTime?
+  receivedAt  DateTime?
+  comments    Comment[]
+  attachments Attachment[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
+  RECEIVED
+}
+
+model Comment {
+  id          String      @id @default(uuid())
+  workReport  WorkReport  @relation(fields: [workReportId], references: [id])
+  workReportId String
+  user        User        @relation(fields: [userId], references: [id])
+  userId      String
+  content     String
+  createdAt   DateTime    @default(now())
+}
+
+model Attachment {
+  id          String      @id @default(uuid())
+  workReport  WorkReport  @relation(fields: [workReportId], references: [id])
+  workReportId String
+  fileName    String
+  fileUrl     String
+  fileSize    Int
+  fileType    String
+  uploadedBy  User        @relation(fields: [uploadedById], references: [id])
+  uploadedById String
+  createdAt   DateTime    @default(now())
+}
+```
+
+### UI Components
+
+#### Mobile-First Time Entry Form
+- Responsive design optimized for mobile screens
+- Shadcn UI components for consistent look and feel
+- Swipe gestures for quick actions
+- Offline support with local storage sync
+
+#### Time Entry Calendar/List
+- Interactive calendar view using a modern date library
+- Drag-and-drop for entry adjustment
+- Color coding by project or status
+- Infinite scroll for performance
+
+#### Report Builder
+- Step-by-step wizard interface
+- Preview mode before submission
+- PDF generation with customizable templates
+
+## Integration Points
+
+### Existing Expense Functionality
+- Shared user authentication and authorization
+- Unified navigation and menu structure
+- Consistent approval workflows
+- Combined reporting capabilities
+
+### Future Extensions
+- Invoice generation based on time reports
+- Automatic payroll or payment integrations
+- Time tracking with start/stop functionality
+- Geolocation verification for on-site work
+- Integration with project management tools
 
 ## Implementation Phases
 
-1. Backend Implementation
-   - Add service layer validations
-   - Update GraphQL schema
-   - Add tests for new validation logic
+### Phase 1 (MVP)
+- Basic time entry creation and management
+- Simple rate configuration
+- Work report submission and approval workflow
+- Admin review capabilities
+- Essential reporting
 
-2. Frontend Implementation
-   - Update UI components to respect new restrictions
-   - Add user feedback mechanisms
-   - Update existing tests
+### Phase 2
+- Advanced rate management
+- Enhanced mobile experience
+- Expanded reporting and analytics
+- Batch operations for administrators
+- API extensions for third-party integrations
 
-3. Testing
-   - Unit tests for new validation logic
-   - Integration tests for full flow
-   - UI testing for disabled states
+### Phase 3
+- Custom fields and workflows
+- Advanced dashboards
+- Business intelligence features
+- Client portal access
 
-## Error Messages
+## Success Metrics
+- 90% user satisfaction on ease of entry (survey-based)
+- <10s average time to record a work entry
+- Accurate financial reporting across multiple dimensions (manual audit validation)
+- Increased compliance in reporting time (measured monthly)
+- Reduction in administrative overhead for time processing
 
-Standard error messages to use:
-- "This expense cannot be modified because the trip is pending reimbursement"
-- "This expense cannot be modified because the trip has been reimbursed"
+## Out of Scope (Phase 1)
+- Invoice generation
+- Automatic payroll or payment integrations
+- User-specific dashboards beyond basic summaries
+- Time tracking with start/stop functionality
+- Mobile native application (focusing on mobile web)
 
-## Next Steps
+## Technical Considerations
 
-1. Switch to Code mode to implement backend changes
-2. Update frontend components to handle new restrictions
-3. Add comprehensive tests
-4. Add user feedback mechanisms
+### RedwoodJS Implementation
+- Utilize RedwoodJS code generation for scaffolding:
+  - `yarn redwood generate page TimeEntryPage`
+  - `yarn redwood generate cell TimeEntriesCell`
+  - `yarn redwood generate component TimeEntryForm`
+- Database migrations using Prisma:
+  - `yarn rw prisma migrate dev`
+
+### GraphQL Schema
+- Define appropriate queries and mutations
+- Implement proper authorization directives
+- Optimize for mobile data usage
+
+### UI/UX Guidelines
+- Follow existing app design patterns
+- Ensure accessibility compliance
+- Support dark/light mode
+- Optimize for touch interactions
+
+## Appendix
+
+### User Stories
+1. As a freelancer, I want to quickly log my hours for the organization so I can accurately bill them.
+2. As an employee or freelancer, I want to categorize my time by project and department so my organization can track resource allocation.
+3. As an administrator, I want to review and approve time reports so I can authorize payments.
+4. As a freelancer, I want to see my total hours and earnings so I can track my progress.
+
+
+
+### Wireframes
+- Time Entry Form
+- Calendar View
+- Report Submission
+- Admin Dashboard
+
+### API Endpoints
+- Detailed GraphQL queries and mutations for all CRUD operations
+- Authentication and authorization requirements
+- Rate limiting and caching strategies
