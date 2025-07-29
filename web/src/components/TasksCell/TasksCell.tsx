@@ -53,7 +53,7 @@ export type TasksQueryResponse = {
 
 export const Loading = () => (
   <div className="flex items-center justify-center p-8 text-foreground">
-    <div className="h-8 w-8 animate-spin rounded-full border-t-2 border-b-2 border-primary"></div>
+    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
     <span className="ml-2">Loading tasks...</span>
   </div>
 )
@@ -72,7 +72,9 @@ export const Failure = ({ error }) => (
       Please make sure the tasks.json file is accessible and properly formatted.
     </p>
     <details className="mt-4">
-      <summary className="cursor-pointer text-sm font-medium">Technical Details</summary>
+      <summary className="cursor-pointer text-sm font-medium">
+        Technical Details
+      </summary>
       <pre className="mt-2 max-h-40 overflow-auto rounded bg-destructive/10 p-2 text-xs dark:bg-destructive/20">
         {JSON.stringify(error, null, 2)}
       </pre>
@@ -121,18 +123,28 @@ export const Success = ({ tasks }: TasksQueryResponse) => {
   }
 
   // Check if any of the tasks are from the fallback data
-  const isUsingFallbackData = tasks.some(task => task.isFromFallback)
+  const isUsingFallbackData = tasks.some((task) => task.isFromFallback)
 
   return (
     <>
       {isUsingFallbackData && (
         <div className="mb-4 rounded-md border border-warning/30 bg-warning/10 p-4 text-warning-foreground dark:bg-warning/5">
           <p className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="mr-2 h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
             <span>
-              <strong>Note:</strong> Displaying fallback task data because the tasks.json file could not be accessed.
+              <strong>Note:</strong> Displaying fallback task data because the
+              tasks.json file could not be accessed.
             </span>
           </p>
         </div>
@@ -156,12 +168,17 @@ export const Success = ({ tasks }: TasksQueryResponse) => {
             {tasks.map((task) => (
               <TableRow
                 key={task.id}
-                className={task.isFromFallback ? "bg-warning/5 dark:bg-warning/10" : ""}
+                className={
+                  task.isFromFallback ? 'bg-warning/5 dark:bg-warning/10' : ''
+                }
               >
                 <TableCell>
                   {task.id}
                   {task.isFromFallback && (
-                    <span className="ml-1 inline-flex h-2 w-2 rounded-full bg-warning dark:bg-warning/80" title="Fallback data"></span>
+                    <span
+                      className="ml-1 inline-flex h-2 w-2 rounded-full bg-warning dark:bg-warning/80"
+                      title="Fallback data"
+                    ></span>
                   )}
                 </TableCell>
                 <TableCell className="font-medium">{task.title}</TableCell>
