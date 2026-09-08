@@ -1,0 +1,37 @@
+# Task ID: 18
+# Title: Implement User Dashboard
+# Status: pending
+# Dependencies: 3, 5, 11
+# Priority: low
+# Description: Create a personalized dashboard for users showing their time entries, reports, and key statistics.
+# Details:
+Develop a user dashboard with the following features:
+
+1. Personal metrics:
+   - Hours logged (today, this week, this month)
+   - Earnings (if applicable)
+   - Reports status summary
+
+2. Quick access:
+   - Recent time entries
+   - Draft reports
+   - Common actions (new entry, new report)
+
+3. Visual elements:
+   - Time distribution by project/client
+   - Weekly/monthly trends
+
+4. Notifications:
+   - Report status changes
+   - Approval requests
+   - Reminders for unbilled time
+
+Ensure the dashboard is personalized based on user preferences and activity.
+
+# Test Strategy:
+1. Verify personal metrics are calculated correctly
+2. Test quick access links
+3. Verify visual elements render correctly
+4. Test notifications appear correctly
+5. Verify dashboard updates when underlying data changes
+6. Test with different user scenarios (freelancer vs. employee)

@@ -1,0 +1,37 @@
+# Task ID: 10
+# Title: Implement Work Report Creation Wizard
+# Status: pending
+# Dependencies: 5, 8
+# Priority: high
+# Description: Create a step-by-step wizard for creating and submitting work reports from time entries.
+# Details:
+Develop a multi-step wizard for work report creation with the following steps:
+
+1. Report details:
+   - Name input
+   - Period selection (week, month, custom date range)
+   - Notes textarea
+
+2. Time entry selection:
+   - List of unbilled time entries in the selected period
+   - Checkboxes to include/exclude entries
+   - Summary of selected entries (hours, amount)
+
+3. Attachments (optional):
+   - File upload interface
+   - List of attached files
+
+4. Review and submit:
+   - Summary of report details
+   - Preview of total hours and amounts
+   - Submit button
+
+Implement form validation and state management across steps.
+
+# Test Strategy:
+1. Test navigation between wizard steps
+2. Verify time entry selection works correctly
+3. Test file upload functionality
+4. Verify summary calculations are correct
+5. Test submission with valid and invalid data
+6. Test with different period selections

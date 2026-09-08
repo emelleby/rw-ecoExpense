@@ -1,0 +1,289 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Setup Database Schema for Time Entry Functionality",
+      "description": "Implement the Prisma schema for all models related to time entry functionality as defined in the PRD.",
+      "details": "Create Prisma schema files for the following models:\n- TimeEntry\n- Rate\n- WorkReport\n- Comment\n- Attachment\n\nEnsure all relationships are properly defined including:\n- User to TimeEntry (one-to-many)\n- User to Rate (one-to-many)\n- User to WorkReport (one-to-many)\n- TimeEntry to WorkReport (many-to-one)\n- WorkReport to Comment (one-to-many)\n- WorkReport to Attachment (one-to-many)\n\nImplement the ReportStatus enum as defined in the PRD.\n\nRun the migration using:\n```bash\nyarn rw prisma migrate dev --name add_time_entry_models\n```",
+      "testStrategy": "1. Verify schema compiles without errors\n2. Run migration in development environment\n3. Test database queries to ensure relationships work as expected\n4. Validate constraints and defaults\n5. Create test data and verify it can be stored and retrieved correctly",
+      "priority": "high",
+      "dependencies": [],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 2,
+      "title": "Generate GraphQL Schema for Time Entry Models",
+      "description": "Define GraphQL types, queries, and mutations for all time entry related models.",
+      "details": "Create GraphQL schema definitions for:\n\n1. Types:\n   - TimeEntry\n   - Rate\n   - WorkReport\n   - Comment\n   - Attachment\n   - ReportStatus (enum)\n\n2. Queries:\n   - timeEntries(filters): [TimeEntry!]!\n   - timeEntry(id: String!): TimeEntry\n   - rates(userId: String, clientId: String, projectId: String): [Rate!]!\n   - workReports(userId: String, status: ReportStatus): [WorkReport!]!\n   - workReport(id: String!): WorkReport\n\n3. Mutations:\n   - createTimeEntry(input: CreateTimeEntryInput!): TimeEntry!\n   - updateTimeEntry(id: String!, input: UpdateTimeEntryInput!): TimeEntry!\n   - deleteTimeEntry(id: String!): TimeEntry!\n   - createRate(input: CreateRateInput!): Rate!\n   - updateRate(id: String!, input: UpdateRateInput!): Rate!\n   - deleteRate(id: String!): Rate!\n   - createWorkReport(input: CreateWorkReportInput!): WorkReport!\n   - updateWorkReport(id: String!, input: UpdateWorkReportInput!): WorkReport!\n   - updateWorkReportStatus(id: String!, status: ReportStatus!): WorkReport!\n   - addCommentToWorkReport(workReportId: String!, content: String!): Comment!\n   - addAttachmentToWorkReport(workReportId: String!, file: Upload!): Attachment!\n\nImplement proper authorization directives to ensure users can only access their own data unless they have admin privileges.",
+      "testStrategy": "1. Validate schema using GraphQL playground\n2. Test each query and mutation with sample data\n3. Verify authorization rules work correctly\n4. Test edge cases like invalid inputs\n5. Verify proper error handling",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 3,
+      "title": "Implement Time Entry Services",
+      "description": "Create service layer for TimeEntry model to handle business logic and database operations.",
+      "details": "Create a TimeEntryService with the following functionality:\n\n1. CRUD operations:\n   - createTimeEntry\n   - updateTimeEntry\n   - deleteTimeEntry\n   - getTimeEntry\n   - listTimeEntries\n\n2. Business logic:\n   - validateTimeEntry: Check for overlapping entries\n   - calculateDuration: Auto-calculate duration from start/end times\n   - getRecentEntries: Fetch recent entries for quick entry suggestions\n   - groupTimeEntriesByDate/Client/Project: For different view options\n\nImplement filtering capabilities for:\n- Date range\n- Client\n- Project\n- Department\n- Product\n- Tags\n- Status (submitted in report or not)\n\nEnsure proper error handling and validation.",
+      "testStrategy": "1. Unit tests for all service methods\n2. Test validation logic with valid and invalid data\n3. Test duration calculation with various time inputs\n4. Test filtering with different combinations\n5. Test error handling scenarios\n6. Verify overlapping entry detection works correctly",
+      "priority": "high",
+      "dependencies": [
+        1,
+        2
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 4,
+      "title": "Implement Rate Management Services",
+      "description": "Create service layer for Rate model to handle rate calculations, effective dates, and rate selection logic.",
+      "details": "Create a RateService with the following functionality:\n\n1. CRUD operations:\n   - createRate\n   - updateRate\n   - deleteRate\n   - getRate\n   - listRates\n\n2. Business logic:\n   - getApplicableRates: Get rates applicable for a user on a specific date\n   - getEffectiveRate: Determine the most specific applicable rate (project > client > default)\n   - validateRateEffectiveDates: Ensure no overlapping effective dates for same rate type\n   - bulkUpdateRates: For admin batch operations\n\nImplement logic to handle rate precedence:\n1. Project-specific rates\n2. Client-specific rates\n3. Special rates (overtime, weekend, holiday)\n4. Default user rate\n\nEnsure historical rate tracking for accurate reporting on past entries.",
+      "testStrategy": "1. Unit tests for all service methods\n2. Test rate selection logic with various scenarios\n3. Test effective date handling\n4. Verify rate precedence works correctly\n5. Test bulk update operations\n6. Verify historical rates are preserved",
+      "priority": "high",
+      "dependencies": [
+        1,
+        2
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 5,
+      "title": "Implement Work Report Services",
+      "description": "Create service layer for WorkReport model to handle report creation, submission, and workflow.",
+      "details": "Create a WorkReportService with the following functionality:\n\n1. CRUD operations:\n   - createWorkReport\n   - updateWorkReport\n   - deleteWorkReport\n   - getWorkReport\n   - listWorkReports\n\n2. Business logic:\n   - submitWorkReport: Change status from DRAFT to SUBMITTED\n   - approveWorkReport: Change status from SUBMITTED to APPROVED\n   - rejectWorkReport: Change status from SUBMITTED to REJECTED\n   - markAsPaid: Change status from APPROVED to PAID\n   - markAsReceived: Change status from PAID to RECEIVED\n   - addTimeEntryToReport: Associate a time entry with a report\n   - removeTimeEntryFromReport: Remove a time entry from a report\n   - calculateTotals: Update totalHours and totalAmount\n   - getUnbilledTimeEntries: Find entries not yet included in a report\n   - addComment: Add a comment to a work report\n   - addAttachment: Add an attachment to a work report\n\nImplement workflow validation to ensure status transitions follow the defined flow.",
+      "testStrategy": "1. Unit tests for all service methods\n2. Test workflow transitions with valid and invalid state changes\n3. Test calculation of totals\n4. Verify time entry association/removal works correctly\n5. Test comment and attachment functionality\n6. Verify unbilled time entries are correctly identified",
+      "priority": "high",
+      "dependencies": [
+        1,
+        2,
+        3
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 6,
+      "title": "Create Time Entry Form Component",
+      "description": "Develop a mobile-first form component for creating and editing time entries with all required fields and validation.",
+      "details": "Create a React component for time entry form with the following features:\n\n1. Form fields:\n   - Date (date picker, defaulting to current date)\n   - Time Input Method toggle (Start/End Time vs Duration)\n   - Start/End Time pickers (conditional)\n   - Duration input (hours/minutes, conditional)\n   - Rate dropdown (showing applicable rates by effective date)\n   - Client dropdown (optional, filtered by user access)\n   - Project dropdown (optional, filtered by selected client)\n   - Product dropdown (optional)\n   - Department dropdown (optional)\n   - Description textarea (required)\n   - Private Notes textarea (optional)\n   - Tags selection (optional, multiple)\n\n2. Functionality:\n   - Auto-calculate duration when using start/end time\n   - Pre-fill last used values for frequent combinations\n   - Form validation\n   - Submit handling\n   - Cancel/Reset options\n\nUse Shadcn UI components for consistent look and feel. Implement responsive design for mobile-first experience.",
+      "testStrategy": "1. Unit tests for form validation\n2. Test auto-calculation of duration\n3. Test form submission with valid and invalid data\n4. Test responsive design on various screen sizes\n5. Verify dropdown filtering works correctly\n6. Test with keyboard navigation and screen readers for accessibility",
+      "priority": "high",
+      "dependencies": [
+        2,
+        3,
+        4
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 7,
+      "title": "Implement Time Entry Calendar View",
+      "description": "Create an interactive calendar view to display time entries by day/week/month with filtering options.",
+      "details": "Develop a calendar view component with the following features:\n\n1. Display modes:\n   - Day view\n   - Week view\n   - Month view\n\n2. Functionality:\n   - Show time entries as blocks on the calendar\n   - Color coding by project or status\n   - Click to view/edit entry details\n   - Drag-and-drop for entry adjustment (optional for Phase 1)\n   - Filter controls for client, project, etc.\n   - Navigation between time periods\n\n3. Visual indicators:\n   - Different styling for submitted vs. draft entries\n   - Weekend/holiday highlighting\n\nUse a modern date library (e.g., date-fns) for date manipulation and a calendar component that supports the required interactions.",
+      "testStrategy": "1. Test calendar navigation\n2. Verify entries appear correctly in all view modes\n3. Test filtering functionality\n4. Verify visual indicators work correctly\n5. Test entry selection and editing\n6. Test responsive behavior on different screen sizes",
+      "priority": "medium",
+      "dependencies": [
+        3,
+        6
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 8,
+      "title": "Implement Time Entry List View",
+      "description": "Create a list view for time entries with sorting, filtering, and grouping capabilities.",
+      "details": "Develop a list view component with the following features:\n\n1. Display options:\n   - Tabular list of time entries\n   - Group by project, client, or date\n   - Sorting by any column\n\n2. Functionality:\n   - Filter controls (date range, client, project, etc.)\n   - Quick actions (edit, duplicate, delete)\n   - Pagination or infinite scroll\n   - Selection for bulk actions\n\n3. Visual elements:\n   - Status indicators\n   - Summary statistics (total hours, amount)\n\nImplement efficient data fetching with pagination or infinite scroll for performance.",
+      "testStrategy": "1. Test sorting functionality\n2. Verify grouping works correctly\n3. Test filtering with various combinations\n4. Verify quick actions work as expected\n5. Test pagination/infinite scroll\n6. Verify summary calculations are correct",
+      "priority": "medium",
+      "dependencies": [
+        3,
+        6
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 9,
+      "title": "Create Rate Management Interface",
+      "description": "Develop UI components for managing user rates, including creation, editing, and effective date handling.",
+      "details": "Create components for rate management with the following features:\n\n1. Rate list view:\n   - Display all rates for a user\n   - Filter by client, project, effective date\n   - Sort by various attributes\n\n2. Rate form:\n   - Name input\n   - Amount and currency inputs\n   - Client/Project selectors (optional)\n   - Effective date range pickers\n   - Default rate toggle\n\n3. Admin rate management:\n   - User selection\n   - Bulk update capabilities\n   - Rate templates\n\nImplement validation to prevent overlapping effective dates for the same rate type.",
+      "testStrategy": "1. Test rate creation with valid and invalid data\n2. Verify effective date validation works correctly\n3. Test filtering and sorting in the list view\n4. Test admin bulk update functionality\n5. Verify rate templates work as expected\n6. Test with different user roles to ensure proper access control",
+      "priority": "medium",
+      "dependencies": [
+        4
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "Implement Work Report Creation Wizard",
+      "description": "Create a step-by-step wizard for creating and submitting work reports from time entries.",
+      "details": "Develop a multi-step wizard for work report creation with the following steps:\n\n1. Report details:\n   - Name input\n   - Period selection (week, month, custom date range)\n   - Notes textarea\n\n2. Time entry selection:\n   - List of unbilled time entries in the selected period\n   - Checkboxes to include/exclude entries\n   - Summary of selected entries (hours, amount)\n\n3. Attachments (optional):\n   - File upload interface\n   - List of attached files\n\n4. Review and submit:\n   - Summary of report details\n   - Preview of total hours and amounts\n   - Submit button\n\nImplement form validation and state management across steps.",
+      "testStrategy": "1. Test navigation between wizard steps\n2. Verify time entry selection works correctly\n3. Test file upload functionality\n4. Verify summary calculations are correct\n5. Test submission with valid and invalid data\n6. Test with different period selections",
+      "priority": "high",
+      "dependencies": [
+        5,
+        8
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 11,
+      "title": "Create Work Report List and Detail Views",
+      "description": "Implement interfaces for viewing work reports, their status, and associated time entries.",
+      "details": "Develop components for work report management with the following features:\n\n1. Report list view:\n   - Filter by status, period, client\n   - Sort by various attributes\n   - Status indicators\n   - Quick actions (view, edit if draft)\n\n2. Report detail view:\n   - Report header with summary information\n   - Status and workflow buttons (submit, approve, reject, etc.)\n   - List of included time entries\n   - Financial summary (hours, amounts)\n   - Comments section\n   - Attachments section\n\n3. Comment functionality:\n   - Add comment form\n   - Comment thread display\n\nImplement proper access control based on user role and report status.",
+      "testStrategy": "1. Test filtering and sorting in the list view\n2. Verify status indicators and workflow buttons appear correctly based on status\n3. Test comment functionality\n4. Verify time entry list displays correctly\n5. Test with different user roles to ensure proper access control\n6. Verify financial summaries are calculated correctly",
+      "priority": "medium",
+      "dependencies": [
+        5,
+        10
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 12,
+      "title": "Implement Admin Report Management Interface",
+      "description": "Create an admin interface for reviewing, approving, and managing work reports across users.",
+      "details": "Develop an admin interface for work report management with the following features:\n\n1. Advanced filtering:\n   - By user, client, project, status, date range\n   - Saved filter presets\n\n2. Bulk actions:\n   - Select multiple reports\n   - Approve/reject selected\n   - Mark as paid\n\n3. Detailed view:\n   - All report details\n   - Approval/rejection with comments\n   - Payment tracking\n\n4. Export functionality:\n   - Export to CSV/Excel\n   - Custom export templates\n\nImplement proper authorization to ensure only admins can access this interface.",
+      "testStrategy": "1. Test advanced filtering with various combinations\n2. Verify bulk actions work correctly\n3. Test approval/rejection workflow\n4. Verify export functionality produces correct data\n5. Test authorization to ensure regular users cannot access\n6. Test with large datasets to ensure performance",
+      "priority": "medium",
+      "dependencies": [
+        5,
+        11
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 13,
+      "title": "Implement User Management for Time Entry",
+      "description": "Create interfaces for managing user-specific settings related to time entry functionality.",
+      "details": "Develop components for user management with the following features:\n\n1. User settings:\n   - Default rate configuration\n   - Client/project access settings\n   - Notification preferences\n\n2. Admin user management:\n   - Assign user roles and permissions\n   - Configure approval workflows\n   - Set default rates\n   - Manage client/project access\n\n3. User profile extensions:\n   - Time entry statistics\n   - Recent reports\n   - Quick access to common actions\n\nEnsure proper access control so users can only modify their own settings unless they have admin privileges.",
+      "testStrategy": "1. Test user settings form with valid and invalid data\n2. Verify admin can configure settings for other users\n3. Test role and permission assignment\n4. Verify client/project access controls work correctly\n5. Test with different user roles to ensure proper access control\n6. Verify statistics and recent reports display correctly",
+      "priority": "medium",
+      "dependencies": [
+        4,
+        9
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 14,
+      "title": "Implement Client & Project Management",
+      "description": "Create interfaces for managing clients and projects with associated rates and settings.",
+      "details": "Develop components for client and project management with the following features:\n\n1. Client management:\n   - Create/edit client form\n   - Client list with filtering and sorting\n   - Client detail view with associated projects and rates\n\n2. Project management:\n   - Create/edit project form\n   - Project list with filtering and sorting\n   - Project detail view with associated rates\n   - Project-specific field configuration\n\n3. Integration with rates:\n   - Set default rates for client/project\n   - View all rates associated with a client/project\n\nImplement proper access control based on user role.",
+      "testStrategy": "1. Test client and project creation with valid and invalid data\n2. Verify filtering and sorting in list views\n3. Test association of rates with clients and projects\n4. Verify project-specific field configuration works correctly\n5. Test with different user roles to ensure proper access control\n6. Verify client-project relationship management works correctly",
+      "priority": "medium",
+      "dependencies": [
+        4,
+        9
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 15,
+      "title": "Implement Standard Reports and Analytics",
+      "description": "Create predefined reports for time utilization, billable hours, and revenue analysis.",
+      "details": "Develop standard reporting components with the following features:\n\n1. Time utilization reports:\n   - By user, client, project, department, product\n   - Billable vs. non-billable hours\n   - Filtering by date range\n\n2. Revenue reports:\n   - Revenue by client, project, user\n   - Forecasting based on submitted time\n   - Trend analysis (month-over-month, year-over-year)\n\n3. Visual representations:\n   - Charts and graphs\n   - Tabular data with summaries\n   - Export options (CSV, PDF, Excel)\n\nImplement efficient data aggregation for performance with large datasets.",
+      "testStrategy": "1. Verify reports generate correct data\n2. Test filtering with various combinations\n3. Verify calculations and aggregations are accurate\n4. Test export functionality\n5. Test with large datasets to ensure performance\n6. Verify visual representations render correctly",
+      "priority": "low",
+      "dependencies": [
+        3,
+        5,
+        12
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 16,
+      "title": "Create Custom Report Builder",
+      "description": "Implement a flexible report builder allowing users to create custom reports with selected fields and filters.",
+      "details": "Develop a custom report builder with the following features:\n\n1. Field selection:\n   - Drag-and-drop interface for selecting fields\n   - Grouping and aggregation options\n   - Sorting and filtering criteria\n\n2. Report templates:\n   - Save custom reports as templates\n   - Share templates with other users\n   - Load and modify existing templates\n\n3. Scheduling:\n   - Schedule automatic report generation\n   - Email distribution options\n   - Recurring schedule configuration\n\n4. Output options:\n   - Preview in browser\n   - Export to various formats (CSV, PDF, Excel)\n   - Print-friendly version\n\nImplement a flexible query builder that can handle complex combinations of fields and filters.",
+      "testStrategy": "1. Test field selection and configuration\n2. Verify report generation with various field combinations\n3. Test template saving and loading\n4. Verify scheduling functionality\n5. Test export in different formats\n6. Test with complex queries to ensure performance and accuracy",
+      "priority": "low",
+      "dependencies": [
+        15
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 17,
+      "title": "Implement Admin Dashboard",
+      "description": "Create a comprehensive dashboard for administrators with key metrics and quick access to common functions.",
+      "details": "Develop an admin dashboard with the following features:\n\n1. Key metrics:\n   - Total hours by status (draft, submitted, approved, etc.)\n   - Revenue metrics (billed, paid, pending)\n   - User activity statistics\n\n2. Quick access:\n   - Reports pending approval\n   - Recent submissions\n   - Users with highest activity\n\n3. Visual elements:\n   - Charts and graphs for time distribution\n   - Trend analysis\n   - Anomaly highlighting\n\n4. Customization:\n   - Configurable widgets\n   - Saved dashboard layouts\n\nImplement efficient data loading and caching for dashboard performance.",
+      "testStrategy": "1. Verify metrics are calculated correctly\n2. Test quick access links\n3. Verify visual elements render correctly\n4. Test customization options\n5. Test with large datasets to ensure performance\n6. Verify dashboard updates when underlying data changes",
+      "priority": "low",
+      "dependencies": [
+        12,
+        15
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 18,
+      "title": "Implement User Dashboard",
+      "description": "Create a personalized dashboard for users showing their time entries, reports, and key statistics.",
+      "details": "Develop a user dashboard with the following features:\n\n1. Personal metrics:\n   - Hours logged (today, this week, this month)\n   - Earnings (if applicable)\n   - Reports status summary\n\n2. Quick access:\n   - Recent time entries\n   - Draft reports\n   - Common actions (new entry, new report)\n\n3. Visual elements:\n   - Time distribution by project/client\n   - Weekly/monthly trends\n\n4. Notifications:\n   - Report status changes\n   - Approval requests\n   - Reminders for unbilled time\n\nEnsure the dashboard is personalized based on user preferences and activity.",
+      "testStrategy": "1. Verify personal metrics are calculated correctly\n2. Test quick access links\n3. Verify visual elements render correctly\n4. Test notifications appear correctly\n5. Verify dashboard updates when underlying data changes\n6. Test with different user scenarios (freelancer vs. employee)",
+      "priority": "low",
+      "dependencies": [
+        3,
+        5,
+        11
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 19,
+      "title": "Implement Mobile Optimizations",
+      "description": "Enhance the mobile experience with touch-friendly controls, offline support, and performance optimizations.",
+      "details": "Implement mobile-specific optimizations including:\n\n1. Touch interactions:\n   - Swipe gestures for quick actions\n   - Touch-friendly form controls\n   - Simplified navigation for small screens\n\n2. Offline support:\n   - Local storage for draft entries\n   - Sync when connection is restored\n   - Offline indicator\n\n3. Performance:\n   - Lazy loading of components\n   - Optimized data fetching\n   - Reduced bundle size for mobile\n\n4. Mobile-specific UI:\n   - Simplified calendar view\n   - Quick entry mode\n   - Bottom navigation\n\nTest thoroughly on various mobile devices and browsers.",
+      "testStrategy": "1. Test on various mobile devices and screen sizes\n2. Verify touch interactions work correctly\n3. Test offline functionality by disabling network\n4. Measure and verify performance improvements\n5. Test synchronization when connection is restored\n6. Verify UI adaptations for mobile screens",
+      "priority": "medium",
+      "dependencies": [
+        6,
+        7,
+        8,
+        10,
+        11
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 20,
+      "title": "Integration with Existing Expense Functionality",
+      "description": "Integrate time entry functionality with the existing expense submission system for a unified experience.",
+      "details": "Implement integration points with existing expense functionality:\n\n1. Unified navigation:\n   - Combined menu structure\n   - Consistent UI patterns\n   - Shared components\n\n2. Shared workflows:\n   - Consistent approval processes\n   - Combined reporting\n   - Unified notification system\n\n3. Data integration:\n   - Link expenses to time entries when applicable\n   - Combined financial reporting\n   - Shared client/project data\n\n4. User experience:\n   - Seamless switching between expense and time tracking\n   - Consistent terminology and patterns\n   - Unified help and documentation\n\nEnsure backward compatibility with existing expense functionality.",
+      "testStrategy": "1. Verify navigation works correctly between expense and time tracking\n2. Test shared workflows for consistency\n3. Verify data integration points work correctly\n4. Test user experience for seamless transitions\n5. Verify existing expense functionality continues to work\n6. Test with users familiar with the expense system to ensure intuitive integration",
+      "priority": "medium",
+      "dependencies": [
+        3,
+        5,
+        11,
+        12,
+        17,
+        18
+      ],
+      "status": "pending",
+      "subtasks": []
+    }
+  ]
+}

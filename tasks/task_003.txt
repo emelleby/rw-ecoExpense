@@ -1,0 +1,40 @@
+# Task ID: 3
+# Title: Implement Time Entry Services
+# Status: pending
+# Dependencies: 1, 2
+# Priority: high
+# Description: Create service layer for TimeEntry model to handle business logic and database operations.
+# Details:
+Create a TimeEntryService with the following functionality:
+
+1. CRUD operations:
+   - createTimeEntry
+   - updateTimeEntry
+   - deleteTimeEntry
+   - getTimeEntry
+   - listTimeEntries
+
+2. Business logic:
+   - validateTimeEntry: Check for overlapping entries
+   - calculateDuration: Auto-calculate duration from start/end times
+   - getRecentEntries: Fetch recent entries for quick entry suggestions
+   - groupTimeEntriesByDate/Client/Project: For different view options
+
+Implement filtering capabilities for:
+- Date range
+- Client
+- Project
+- Department
+- Product
+- Tags
+- Status (submitted in report or not)
+
+Ensure proper error handling and validation.
+
+# Test Strategy:
+1. Unit tests for all service methods
+2. Test validation logic with valid and invalid data
+3. Test duration calculation with various time inputs
+4. Test filtering with different combinations
+5. Test error handling scenarios
+6. Verify overlapping entry detection works correctly
