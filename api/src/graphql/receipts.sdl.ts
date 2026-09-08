@@ -19,6 +19,12 @@ export const schema = gql`
     success: Boolean
   }
 
+  type UploadUrlResult {
+    uploadUrl: String!
+    fileUrl: String!
+    fileName: String!
+  }
+
   input ReceiptInput {
     url: String!
     fileName: String!
@@ -29,5 +35,6 @@ export const schema = gql`
     createReceipt(input: ReceiptInput!): Receipt! @requireAuth
     updateReceipt(id: Int!, input: ReceiptInput!): Receipt! @requireAuth
     deleteReceipt(id: Int!, url: String!): DeleteReceiptResult! @requireAuth
+    createUploadUrl(contentType: String!): UploadUrlResult! @requireAuth
   }
 `

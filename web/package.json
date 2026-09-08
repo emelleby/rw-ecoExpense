@@ -35,8 +35,6 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "date-fns": "^4.1.0",
-    "filestack-js": "^3.36.4",
-    "filestack-react": "^5.0.0",
     "humanize-string": "2.1.0",
     "lucide-react": "^0.460.0",
     "react": "18.3.1",

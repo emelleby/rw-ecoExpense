@@ -83,8 +83,8 @@ yarn rw test --testPathPattern="expenses"
 # Build for production
 yarn rw build
 
-# Deploy to Netlify (configured)
-npm run deploy  # or yarn deploy
+# Deploy to Netlify (configured via netlify.toml)
+yarn rw deploy netlify
 ```
 
 ## Environment Variables
@@ -110,9 +110,24 @@ Required variables (see redwood.toml):
 - API side: Use `@requireAuth` directive in SDL or check `context.currentUser`
 
 **File uploads:**
-- API: `functions/uploadUrl.ts` generates signed URLs
+- API: GCS signed upload URLs are generated in the receipts service (/api/src/services/receipts/receipts.ts)
 - Frontend: See `components/Expense/ExpenseForm/UploadReciepts.tsx`
+- - Bucket setup/CORS/public-read runbook: `docs/gcs-bucket-setup.md` (CORS config lives in `infra/gcs-cors.json`; `GOOGLE_CLOUD_*` vars must be in the **root** `.env`, not `api/.env`)
 
 **Emissions calculations:**
 - CO2 factors stored in Sector model
 - Calculations handled in expense service (/api/src/services/expenses/expenses.ts)
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues (emelleby/rw-ecoExpense) via the gh CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-label vocabulary: needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one CONTEXT.md + docs/adr/ at the repo root. See `docs/agents/domain.md`.

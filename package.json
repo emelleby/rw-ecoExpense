@@ -1,5 +1,10 @@
 {
   "private": true,
+  "scripts": {
+    "gcs:apply-cors": "gsutil cors set infra/gcs-cors.json gs://ecoexpense-receipts",
+    "gcs:get-cors": "gsutil cors get gs://ecoexpense-receipts",
+    "gcs:make-public": "gsutil iam ch allUsers:objectViewer gs://ecoexpense-receipts"
+  },
   "workspaces": {
     "packages": [
       "api",
