@@ -27,8 +27,10 @@ import {
 import { CommonFields } from './CommonFields'
 import {
   CURRENCIES_OF_COUTRIES,
+  decimalField,
   FUEL_TYPE_LIST,
   FUEL_FACTORS_DATA,
+  parseDecimal,
 } from './constants'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
@@ -252,13 +254,13 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           >
             Amount
           </Label>
-          <NumberField
+          <TextField
             name="amount"
             placeholder="0.00"
+            inputMode="decimal"
             className="rw-input"
-            step="0.01"
             onChange={(e) => {
-              const value = Number(e.target.value)
+              const value = parseDecimal(e.target.value)
               formMethods.setValue('amount', value)
 
               if (value > 0) {
@@ -267,10 +269,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
               }
             }}
             errorClassName="rw-input rw-input-error"
-            validation={{
-              valueAsNumber: true,
-              required: true,
-            }}
+            validation={{ required: true, ...decimalField }}
           />
           <FieldError name="amount" className="rw-field-error" />
         </div>

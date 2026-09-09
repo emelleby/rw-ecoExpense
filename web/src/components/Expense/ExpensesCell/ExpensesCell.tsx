@@ -30,6 +30,8 @@ export const QUERY: TypedDocumentNode<FindExpenses, FindExpensesVariables> =
         supplierId
         tripId
         trip {
+          id
+          name
           reimbursementStatus
         }
         projectId

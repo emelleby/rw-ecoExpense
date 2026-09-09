@@ -31,6 +31,8 @@ import {
   COUNTRY_EMISSIONS,
   COUNTRY_NAMES,
   CURRENCIES_OF_COUTRIES,
+  decimalField,
+  parseDecimal,
 } from './constants'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
@@ -357,20 +359,20 @@ export const Accommodation = ({
           >
             Amount
           </Label>
-          <NumberField
+          <TextField
             name="amount"
             data-testid="amount-input"
             placeholder="0"
+            inputMode="decimal"
             defaultValue={expense?.amount || undefined}
             className="rw-input"
-            step="1.00"
             onChange={(e) => {
-              const value = Number(e.target.value)
-              const nokAmount = (value * exchangeRate).toFixed(2)
+              const value = parseDecimal(e.target.value)
+              const nokAmount = ((value ?? 0) * exchangeRate).toFixed(2)
               formMethods.setValue('nokAmount', parseFloat(nokAmount))
             }}
             errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: true, required: true }}
+            validation={{ required: true, ...decimalField }}
           />
           <FieldError name="amount" className="rw-field-error" />
         </div>
