@@ -11,6 +11,7 @@ import { PrivateSet, Set, Router, Route } from '@redwoodjs/router'
 import AppshellLayout from 'src/layouts/AppshellLayout'
 import ReportLayout from 'src/layouts/ReportLayout/ReportLayout'
 import ScaffoldLayout from 'src/layouts/ScaffoldLayout'
+import TasksLayout from 'src/layouts/TasksLayout/TasksLayout'
 
 import { useAuth } from './auth'
 import LoaderSpinner from './components/LoaderSpinner/LoaderSpinner'
@@ -22,6 +23,7 @@ const Routes = () => {
   console.log('currentUser', currentUser)
   return (
     <Router useAuth={useAuth}>
+
       <Route path="/" page={LoginPage} name="login" />
 
       <PrivateSet whileLoadingPage={LoaderSpinner} unauthenticated="login">
@@ -33,7 +35,6 @@ const Routes = () => {
             <Route path="/home" page={HomePage} name="homey" />
             <Route path="/profile" page={ProfilePage} name="profile" />
             <Route path="/add-expense" page={AddExpensePage} name="addExpense" />
-            <Route path="/expenses2" page={ExpensesPage} name="expenses2" />
             <Route path="/projects" page={ProjectProjectsPage} name="projects" />
             <Route path="/projects/new" page={ProjectNewProjectPage} name="newProject" />
             <Route path="/projects/{id:Int}/edit" page={ProjectEditProjectPage} name="editProject" />
@@ -67,6 +68,9 @@ const Routes = () => {
         <Route path="/admin/sectors/{id:Int}/edit" page={SectorEditSectorPage} name="editSector" />
         <Route path="/admin/sectors/{id:Int}" page={SectorSectorPage} name="sector" />
         <Route path="/admin/sectors" page={SectorSectorsPage} name="sectors" />
+      </PrivateSet>
+      <PrivateSet wrap={(props) => <TasksLayout {...props} title="Tasks" />} whileLoadingPage={LoaderSpinner} unauthenticated="homey" roles={['superuser']}>
+        <Route path="/admin/tasks" page={TasksPage} name="tasks" />
       </PrivateSet>
       <PrivateSet wrap={(props) => <ScaffoldLayout {...props} title="Organizations" titleTo="organizations" buttonLabel="New Organization" buttonTo="newOrganization" />} whileLoadingPage={LoaderSpinner} unauthenticated="homey" roles={['superuser']}>
         <Route path="/admin/organizations/new" page={OrganizationNewOrganizationPage} name="newOrganization" />

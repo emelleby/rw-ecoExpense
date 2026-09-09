@@ -5,6 +5,7 @@ import { TypedDocumentNode, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { QUERY } from 'src/components/Trip/TripCell/TripCell'
+import { Alert, AlertDescription } from 'src/components/ui/Alert'
 import { Button } from 'src/components/ui/Button'
 import {
   Table,
@@ -15,6 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from 'src/components/ui/Table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from 'src/components/ui/Tooltip'
 
 import ImageDialog from '../../Trip/Trip/ImageDialog'
 
@@ -38,6 +45,7 @@ interface Expense {
   date: string
   description: string
   imageUrl: string
+  tripStatus?: string // Add trip status to each expense
 }
 
 interface ExpenseChartProps {
@@ -92,47 +100,74 @@ export function ExpenseTable({
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[80px]">Actions</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-            <TableHead className="text-right">Emissions</TableHead>
-            <TableHead className="text-right">Receipt</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((expense) => (
-            <TableRow key={`${expense.id}_${expense.date}`}>
-              <TableCell>
-                <ExpenseActions
-                  id={Number(expense.id)}
-                  tripStatus={tripStatus}
-                />
-              </TableCell>
-              <TableCell>
-                {new Date(expense.date).toLocaleDateString()}
-              </TableCell>
-              <TableCell>{expense.category}</TableCell>
-              <TableCell>{expense.description}</TableCell>
-              <TableCell className="text-right">
-                {formatCurrency(expense.amount)} NOK
-              </TableCell>
-              <TableCell className="text-right">
-                {expense.emissions.toFixed(2)} kg Co2e
-              </TableCell>
-              <TableCell className="text-right">
-                <ImageDialog
-                  imageUrl={expense.imageUrl}
-                  title="Example Image"
-                />
-              </TableCell>
+    <TooltipProvider>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[80px]">Actions</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="text-right">Emissions</TableHead>
+              <TableHead className="text-right">Receipt</TableHead>
             </TableRow>
-          ))}
+          </TableHeader>
+          <TableBody>
+            {data.map((expense) => {
+              // Use each expense's individual trip status
+              const expenseTripStatus = expense.tripStatus || tripStatus
+              const isModificationDisabled = expenseTripStatus === 'PENDING' || expenseTripStatus === 'REIMBURSED'
+              const disabledReason = isModificationDisabled
+                ? expenseTripStatus === 'PENDING'
+                  ? 'This expense cannot be modified because the trip is pending reimbursement'
+                  : 'This expense cannot be modified because the trip has been reimbursed'
+                : ''
+
+              return (
+                <TableRow
+                  key={`${expense.id}_${expense.date}`}
+                  className={isModificationDisabled ? 'opacity-80 bg-muted' : ''}
+                >
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <ExpenseActions
+                        id={Number(expense.id)}
+                        tripStatus={expenseTripStatus}
+                      />
+                      {isModificationDisabled && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="cursor-help text-muted-foreground">🔒</span>
+                          </TooltipTrigger>
+                          <TooltipContent side="right" sideOffset={5} className="z-[100]">
+                            <p>{disabledReason}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(expense.date).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>{expense.category}</TableCell>
+                  <TableCell>{expense.description}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(expense.amount)} NOK
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {expense.emissions.toFixed(2)} kg Co2e
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <ImageDialog
+                      imageUrl={expense.imageUrl}
+                      title="Example Image"
+                    />
+                  </TableCell>
+                </TableRow>
+              )
+            })}
         </TableBody>
 
         <TableFooter>
@@ -155,5 +190,6 @@ export function ExpenseTable({
         </TableFooter>
       </Table>
     </div>
+    </TooltipProvider>
   )
 }

@@ -1,0 +1,11 @@
+[
+  {
+    "origin": [
+      "http://localhost:8910",
+      "https://REPLACE-WITH-PRODUCTION-DOMAIN.example"
+    ],
+    "method": ["PUT", "GET"],
+    "responseHeader": ["Content-Type"],
+    "maxAgeSeconds": 3600
+  }
+]

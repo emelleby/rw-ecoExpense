@@ -1,3 +1,17 @@
+// Accept both "12.5" and "12,5" as decimal input
+export const parseDecimal = (value) => {
+  const normalized = String(value ?? '')
+    .trim()
+    .replace(',', '.')
+  if (normalized === '' || normalized === '.') return null
+  const parsed = Number(normalized)
+  return Number.isNaN(parsed) ? null : parsed
+}
+
+export const decimalField = {
+  setValueAs: parseDecimal,
+}
+
 export const ACCOMODATIONTYPES = ['Hotel', 'Luxury Hotel', 'Standard']
 export const CURRENCIES = [
   {

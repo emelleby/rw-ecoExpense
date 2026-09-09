@@ -1,0 +1,37 @@
+# Task ID: 4
+# Title: Implement Rate Management Services
+# Status: pending
+# Dependencies: 1, 2
+# Priority: high
+# Description: Create service layer for Rate model to handle rate calculations, effective dates, and rate selection logic.
+# Details:
+Create a RateService with the following functionality:
+
+1. CRUD operations:
+   - createRate
+   - updateRate
+   - deleteRate
+   - getRate
+   - listRates
+
+2. Business logic:
+   - getApplicableRates: Get rates applicable for a user on a specific date
+   - getEffectiveRate: Determine the most specific applicable rate (project > client > default)
+   - validateRateEffectiveDates: Ensure no overlapping effective dates for same rate type
+   - bulkUpdateRates: For admin batch operations
+
+Implement logic to handle rate precedence:
+1. Project-specific rates
+2. Client-specific rates
+3. Special rates (overtime, weekend, holiday)
+4. Default user rate
+
+Ensure historical rate tracking for accurate reporting on past entries.
+
+# Test Strategy:
+1. Unit tests for all service methods
+2. Test rate selection logic with various scenarios
+3. Test effective date handling
+4. Verify rate precedence works correctly
+5. Test bulk update operations
+6. Verify historical rates are preserved

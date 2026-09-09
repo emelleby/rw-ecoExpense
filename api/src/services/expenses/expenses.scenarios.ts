@@ -1,4 +1,4 @@
-import type { Prisma, Expense } from '@prisma/client'
+import type { Prisma, Expense, ReimbursementStatus } from '@prisma/client'
 import type { ScenarioData } from '@redwoodjs/testing/api'
 
 export const standard = defineScenario<Prisma.ExpenseCreateArgs>({
@@ -14,6 +14,7 @@ export const standard = defineScenario<Prisma.ExpenseCreateArgs>({
             name: 'String',
             startDate: '2024-12-02T20:00:56.229Z',
             endDate: '2024-12-02T20:00:56.229Z',
+            reimbursementStatus: 'NOT_REQUESTED' as ReimbursementStatus,
             user: {
               create: {
                 username: 'String2282011',
@@ -47,6 +48,7 @@ export const standard = defineScenario<Prisma.ExpenseCreateArgs>({
             name: 'String',
             startDate: '2024-12-02T20:00:56.229Z',
             endDate: '2024-12-02T20:00:56.229Z',
+            reimbursementStatus: 'NOT_REQUESTED' as ReimbursementStatus,
             user: {
               create: {
                 username: 'String2224934',
@@ -64,6 +66,74 @@ export const standard = defineScenario<Prisma.ExpenseCreateArgs>({
             email: 'String8802792',
             organization: {
               create: { regnr: 'String3990121', name: 'String9595385' },
+            },
+          },
+        },
+      },
+    },
+    withPendingTrip: {
+      data: {
+        amount: 5000,
+        currency: 'NOK',
+        nokAmount: 5000,
+        category: { create: { name: 'PendingCategory' } },
+        trip: {
+          create: {
+            name: 'Pending Trip',
+            startDate: '2024-12-02T20:00:56.229Z',
+            endDate: '2024-12-02T20:00:56.229Z',
+            reimbursementStatus: 'PENDING' as ReimbursementStatus,
+            user: {
+              create: {
+                username: 'PendingUser',
+                email: 'pending@example.com',
+                organization: {
+                  create: { regnr: 'PendingReg', name: 'PendingOrg' },
+                },
+              },
+            },
+          },
+        },
+        user: {
+          create: {
+            username: 'PendingExpenseUser',
+            email: 'pendingexpense@example.com',
+            organization: {
+              create: { regnr: 'PendingExpReg', name: 'PendingExpOrg' },
+            },
+          },
+        },
+      },
+    },
+    withReimbursedTrip: {
+      data: {
+        amount: 6000,
+        currency: 'NOK',
+        nokAmount: 6000,
+        category: { create: { name: 'ReimbursedCategory' } },
+        trip: {
+          create: {
+            name: 'Reimbursed Trip',
+            startDate: '2024-12-02T20:00:56.229Z',
+            endDate: '2024-12-02T20:00:56.229Z',
+            reimbursementStatus: 'REIMBURSED' as ReimbursementStatus,
+            user: {
+              create: {
+                username: 'ReimbursedUser',
+                email: 'reimbursed@example.com',
+                organization: {
+                  create: { regnr: 'ReimbursedReg', name: 'ReimbursedOrg' },
+                },
+              },
+            },
+          },
+        },
+        user: {
+          create: {
+            username: 'ReimbursedExpenseUser',
+            email: 'reimbursedexpense@example.com',
+            organization: {
+              create: { regnr: 'ReimbursedExpReg', name: 'ReimbursedExpOrg' },
             },
           },
         },

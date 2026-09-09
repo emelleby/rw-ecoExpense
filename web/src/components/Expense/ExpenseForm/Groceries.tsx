@@ -25,7 +25,12 @@ import {
 } from 'src/components/ui/Select'
 
 import { CommonFields } from './CommonFields'
-import { BUCKET_TYPES, CURRENCIES_OF_COUTRIES } from './constants'
+import {
+  BUCKET_TYPES,
+  CURRENCIES_OF_COUTRIES,
+  decimalField,
+  parseDecimal,
+} from './constants'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
 
@@ -240,19 +245,19 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           >
             Amount
           </Label>
-          <NumberField
+          <TextField
             name="amount"
             placeholder="0"
+            inputMode="decimal"
             defaultValue={props?.expense?.amount || undefined}
             className="rw-input"
-            step="1.00"
             onChange={(e) => {
-              const value = Number(e.target.value)
-              const nokAmount = (value * exchangeRate).toFixed(2)
+              const value = parseDecimal(e.target.value)
+              const nokAmount = ((value ?? 0) * exchangeRate).toFixed(2)
               formMethods.setValue('nokAmount', parseFloat(nokAmount))
             }}
             errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: true, required: true }}
+            validation={{ required: true, ...decimalField }}
           />
           <FieldError name="amount" className="rw-field-error" />
         </div>

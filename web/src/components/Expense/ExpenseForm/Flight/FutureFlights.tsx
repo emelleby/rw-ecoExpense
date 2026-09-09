@@ -35,7 +35,13 @@ import { cn } from 'src/utils/cn'
 
 import AirportSelect from '../AirportSearch'
 import { CommonFields } from '../CommonFields'
-import { AIRLINES, CURRENCIES_OF_COUTRIES, FLIGHT_CLASSES } from '../constants'
+import {
+  AIRLINES,
+  CURRENCIES_OF_COUTRIES,
+  decimalField,
+  FLIGHT_CLASSES,
+  parseDecimal,
+} from '../constants'
 import { FlightEmissionResult, getCurrencyConversionRate } from '../service'
 import UploadReciepts from '../UploadReciepts'
 
@@ -590,19 +596,17 @@ export const FutureFlights: FC<ExpenseFormProps> = (
               name="amount"
               defaultValue={props?.expense?.amount}
               placeholder="amount"
+              inputMode="decimal"
               className="rw-input"
               onChange={(e) => {
-                const rawValue = e.target.value
-                  .replace(/,/g, '.')
-                  .replace(/[^0-9.]/g, '')
-                const value = Number(rawValue)
+                const value = parseDecimal(e.target.value)
                 if (value > 0) {
                   const nokAmount = (value * exchangeRate).toFixed(2)
                   formMethods.setValue('nokAmount', parseFloat(nokAmount))
                 }
               }}
               errorClassName="rw-input rw-input-error"
-              validation={{ valueAsNumber: true, required: true }}
+              validation={{ required: true, ...decimalField }}
             />
             <FieldError name="amount" className="rw-field-error" />
           </div>

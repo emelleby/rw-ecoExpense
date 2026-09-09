@@ -1,0 +1,45 @@
+# Task ID: 2
+# Title: Generate GraphQL Schema for Time Entry Models
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Define GraphQL types, queries, and mutations for all time entry related models.
+# Details:
+Create GraphQL schema definitions for:
+
+1. Types:
+   - TimeEntry
+   - Rate
+   - WorkReport
+   - Comment
+   - Attachment
+   - ReportStatus (enum)
+
+2. Queries:
+   - timeEntries(filters): [TimeEntry!]!
+   - timeEntry(id: String!): TimeEntry
+   - rates(userId: String, clientId: String, projectId: String): [Rate!]!
+   - workReports(userId: String, status: ReportStatus): [WorkReport!]!
+   - workReport(id: String!): WorkReport
+
+3. Mutations:
+   - createTimeEntry(input: CreateTimeEntryInput!): TimeEntry!
+   - updateTimeEntry(id: String!, input: UpdateTimeEntryInput!): TimeEntry!
+   - deleteTimeEntry(id: String!): TimeEntry!
+   - createRate(input: CreateRateInput!): Rate!
+   - updateRate(id: String!, input: UpdateRateInput!): Rate!
+   - deleteRate(id: String!): Rate!
+   - createWorkReport(input: CreateWorkReportInput!): WorkReport!
+   - updateWorkReport(id: String!, input: UpdateWorkReportInput!): WorkReport!
+   - updateWorkReportStatus(id: String!, status: ReportStatus!): WorkReport!
+   - addCommentToWorkReport(workReportId: String!, content: String!): Comment!
+   - addAttachmentToWorkReport(workReportId: String!, file: Upload!): Attachment!
+
+Implement proper authorization directives to ensure users can only access their own data unless they have admin privileges.
+
+# Test Strategy:
+1. Validate schema using GraphQL playground
+2. Test each query and mutation with sample data
+3. Verify authorization rules work correctly
+4. Test edge cases like invalid inputs
+5. Verify proper error handling

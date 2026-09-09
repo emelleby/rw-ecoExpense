@@ -1,0 +1,36 @@
+# Task ID: 11
+# Title: Create Work Report List and Detail Views
+# Status: pending
+# Dependencies: 5, 10
+# Priority: medium
+# Description: Implement interfaces for viewing work reports, their status, and associated time entries.
+# Details:
+Develop components for work report management with the following features:
+
+1. Report list view:
+   - Filter by status, period, client
+   - Sort by various attributes
+   - Status indicators
+   - Quick actions (view, edit if draft)
+
+2. Report detail view:
+   - Report header with summary information
+   - Status and workflow buttons (submit, approve, reject, etc.)
+   - List of included time entries
+   - Financial summary (hours, amounts)
+   - Comments section
+   - Attachments section
+
+3. Comment functionality:
+   - Add comment form
+   - Comment thread display
+
+Implement proper access control based on user role and report status.
+
+# Test Strategy:
+1. Test filtering and sorting in the list view
+2. Verify status indicators and workflow buttons appear correctly based on status
+3. Test comment functionality
+4. Verify time entry list displays correctly
+5. Test with different user roles to ensure proper access control
+6. Verify financial summaries are calculated correctly

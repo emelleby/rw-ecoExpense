@@ -1,0 +1,35 @@
+# Task ID: 7
+# Title: Implement Time Entry Calendar View
+# Status: pending
+# Dependencies: 3, 6
+# Priority: medium
+# Description: Create an interactive calendar view to display time entries by day/week/month with filtering options.
+# Details:
+Develop a calendar view component with the following features:
+
+1. Display modes:
+   - Day view
+   - Week view
+   - Month view
+
+2. Functionality:
+   - Show time entries as blocks on the calendar
+   - Color coding by project or status
+   - Click to view/edit entry details
+   - Drag-and-drop for entry adjustment (optional for Phase 1)
+   - Filter controls for client, project, etc.
+   - Navigation between time periods
+
+3. Visual indicators:
+   - Different styling for submitted vs. draft entries
+   - Weekend/holiday highlighting
+
+Use a modern date library (e.g., date-fns) for date manipulation and a calendar component that supports the required interactions.
+
+# Test Strategy:
+1. Test calendar navigation
+2. Verify entries appear correctly in all view modes
+3. Test filtering functionality
+4. Verify visual indicators work correctly
+5. Test entry selection and editing
+6. Test responsive behavior on different screen sizes

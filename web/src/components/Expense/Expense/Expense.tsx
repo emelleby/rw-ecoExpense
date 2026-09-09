@@ -7,6 +7,7 @@ import { Link, routes, navigate } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { Alert, AlertDescription } from 'src/components/ui/Alert'
 import { timeTag } from 'src/lib/formatters'
 
 const DELETE_SINGLE_EXPENSE_MUTATION = gql`
@@ -60,6 +61,15 @@ const Expense = ({ expense }: Props) => {
             Expense {expense.id} Detail
           </h2>
         </header>
+        {!isExpenseEditable(expense.trip.reimbursementStatus) && (
+          <Alert variant="warning" className="mb-4">
+            <AlertDescription>
+              {expense.trip.reimbursementStatus === 'PENDING'
+                ? 'This expense cannot be modified because the trip is pending reimbursement'
+                : 'This expense cannot be modified because the trip has been reimbursed'}
+            </AlertDescription>
+          </Alert>
+        )}
         <table className="rw-table">
           <tbody>
             <tr>
