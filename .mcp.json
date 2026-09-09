@@ -1,9 +1,15 @@
 {
   "mcpServers": {
     "serena": {
-            "command": "/home/eivind/.local/bin/uvx",
-            "args": ["--from", "git+https://github.com/oraios/serena", "serena-mcp-server", "--context", "ide-assistant"]
-        },
+      "command": "/home/eivind/.local/bin/uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena-mcp-server",
+        "--context",
+        "ide-assistant"
+      ]
+    },
     "context7": {
       "command": "npx",
       "args": [
@@ -72,6 +78,14 @@
         "DEFAULT_PRIORITY": "medium"
       },
       "disabled": true
+    },
+    "graft": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@nanonets/graft",
+        "mcp"
+      ]
     }
   }
 }
