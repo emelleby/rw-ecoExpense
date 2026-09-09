@@ -5,6 +5,11 @@
 
   [build.environment]
     NODE_VERSION = "20"
+    # These three GCP values are identifiers, not credentials (the private key
+    # is the real secret and is still scanned). Their values legitimately
+    # appear in docs, tests, and package.json scripts, which would otherwise
+    # fail the build's secrets scanning.
+    SECRETS_SCAN_OMIT_KEYS = "GOOGLE_CLOUD_PROJECT_ID,GOOGLE_CLOUD_BUCKET_NAME,GOOGLE_CLOUD_CLIENT_EMAIL"
 
 [[redirects]]
   from = "/*"
