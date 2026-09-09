@@ -25,6 +25,9 @@ api/src/lib/generateGraphiQLHeader.*
 api/key.json
 .qodo
 
+# Kilo agent working notes (session plans) — local state, not repo content
+.kilo/plans/
+
 # Added by Claude Task Master
 # Logs
 logs
