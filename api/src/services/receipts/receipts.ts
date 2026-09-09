@@ -49,7 +49,10 @@ export const createUploadUrl: MutationResolvers['createUploadUrl'] = async ({
   }
 
   const extension = contentType.split('/')[1] || 'bin'
-  const fileName = `receipts/${uuidv4()}.${extension}`
+  // Uploads land in `pending/` first. If the expense is never saved, a bucket
+  // lifecycle rule (infra/gcs-lifecycle.json) deletes stale pending objects.
+  // On save, finalizePendingReceipt() moves the object to `receipts/`.
+  const fileName = `receipts/pending/${uuidv4()}.${extension}`
 
   let uploadUrl: string
   try {
@@ -78,26 +81,85 @@ export const createUploadUrl: MutationResolvers['createUploadUrl'] = async ({
   }
 }
 
+const gcsUrlPrefix = () => `storage.googleapis.com/${bucketName}/`
+
+// Called on expense save. Moves a freshly uploaded object from
+// `receipts/pending/` to `receipts/` (where objects are permanent) and
+// returns the final URL. URLs outside the pending prefix pass through
+// unchanged, so editing an expense with an existing receipt is a no-op.
+export const finalizePendingReceipt = async (url: string): Promise<string> => {
+  const pendingMarker = 'receipts/pending/'
+  if (!url || !url.includes(pendingMarker) || !bucketName) {
+    return url
+  }
+
+  const pendingPath = url.split(gcsUrlPrefix())[1]?.split('?')[0]
+  if (!pendingPath) {
+    return url
+  }
+
+  const finalPath = pendingPath.replace(pendingMarker, 'receipts/')
+  const bucket = storage.bucket(bucketName)
+
+  try {
+    await bucket.file(pendingPath).copy(bucket.file(finalPath))
+  } catch (error) {
+    const notFound = (error as { code?: number })?.code === 404
+    if (notFound) {
+      // Pending object already removed by the lifecycle rule
+      throw new SyntaxError(
+        'The uploaded receipt has expired and must be uploaded again'
+      )
+    }
+    logger.error({
+      message: `Failed to finalize pending receipt ${pendingPath}`,
+      error,
+    })
+    throw error
+  }
+
+  await bucket
+    .file(pendingPath)
+    .delete({ ignoreNotFound: true })
+    .catch((error) => {
+      // Lifecycle rule will clean it up eventually; never block the save
+      logger.warn({
+        message: `Failed to delete pending receipt ${pendingPath} after copy`,
+        error,
+      })
+    })
+
+  return url.replace(pendingMarker, 'receipts/')
+}
+
+// Shared storage deletion used by deleteReceipt and deleteExpense. Never
+// throws: a failed object deletion must not block DB writes.
+export const deleteReceiptObject = async (url?: string | null) => {
+  if (!bucketName || !url || !url.includes(gcsUrlPrefix())) {
+    return
+  }
+  const objectPath = url.split(gcsUrlPrefix())[1]?.split('?')[0]
+  if (!objectPath) {
+    return
+  }
+  try {
+    await storage
+      .bucket(bucketName)
+      .file(objectPath)
+      .delete({ ignoreNotFound: true })
+  } catch (error) {
+    logger.error({
+      message: `Failed to delete receipt object ${objectPath} from storage`,
+      error,
+    })
+  }
+}
+
 export const deleteReceipt: MutationResolvers['deleteReceipt'] = async ({
   id,
   url,
 }) => {
-  const gcsPrefix = `storage.googleapis.com/${bucketName}/`
-  if (bucketName && url && url.includes(gcsPrefix)) {
-    const objectPath = url.split(gcsPrefix)[1].split('?')[0]
-    try {
-      await storage
-        .bucket(bucketName)
-        .file(objectPath)
-        .delete({ ignoreNotFound: true })
-    } catch (error) {
-      // Storage deletion must never block the DB row deletion
-      logger.error({
-        message: `Failed to delete receipt object ${objectPath} from storage`,
-        error,
-      })
-    }
-  }
+  await deleteReceiptObject(url)
   // Legacy Filestack URLs (dead account) are skipped: files are gone anyway.
 
   if (id === 0) {

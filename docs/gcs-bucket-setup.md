@@ -11,6 +11,7 @@ Receipt files are uploaded by the browser directly to the bucket
 | --- | --- |
 | Bucket | `gs://ecoexpense-receipts` (project `ecoexpense`) |
 | Objects | `receipts/<uuid4>.<ext>`, public-read |
+| Orphan prevention | Uploads land in `receipts/pending/` and are moved to `receipts/` when the expense is saved; a bucket lifecycle rule deletes pending objects after 7 days (`infra/gcs-lifecycle.json`) |
 | Service account | `receipts-upload@ecoexpense.iam.gserviceaccount.com` |
 | Env vars | Root `.env`: `GOOGLE_CLOUD_PROJECT_ID`, `GOOGLE_CLOUD_CLIENT_EMAIL`, `GOOGLE_CLOUD_PRIVATE_KEY`, `GOOGLE_CLOUD_BUCKET_NAME` |
 | CORS source of truth | `infra/gcs-cors.json` (checked into the repo) |
@@ -30,7 +31,32 @@ yarn gcs:apply-cors
 
 # 2. Make stored receipts publicly readable (unguessable-URL sharing)
 yarn gcs:make-public
+
+# 3. Auto-delete abandoned uploads (see "Orphaned uploads" below)
+yarn gcs:apply-lifecycle
 ```
+
+## Orphaned uploads (abandoned forms)
+
+Uploads happen immediately when the user picks a file, so a receipt whose
+expense is never saved would be orphaned. This is handled without any cron
+jobs:
+
+1. `createUploadUrl` places new uploads under `receipts/pending/`
+2. When the expense is saved, `finalizePendingReceipt` (called from
+   `createExpense`/`updateExpense`) copies the object to `receipts/` and
+   deletes the pending one — the DB stores the permanent URL
+3. A bucket lifecycle rule deletes `receipts/pending/*` after 7 days, so
+   abandoned uploads clean themselves up
+
+Replacing or removing a receipt deletes the old object immediately
+(`deleteReceipt`), and deleting an expense deletes its receipt object too.
+If a pending object has already expired when the user finally saves, the
+save fails with "The uploaded receipt has expired and must be uploaded
+again".
+
+Apply/inspect the lifecycle rule with `yarn gcs:apply-lifecycle` /
+`yarn gcs:get-lifecycle`.
 
 ## Before every production deploy
 

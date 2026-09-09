@@ -9,6 +9,8 @@ jest.mock('src/lib/storage', () => ({
   bucketName: 'ecoexpense-receipts',
 }))
 
+import { SyntaxError } from '@redwoodjs/graphql-server'
+
 import { db } from 'src/lib/db'
 import { storage } from 'src/lib/storage'
 
@@ -18,6 +20,7 @@ import {
   createReceipt,
   createUploadUrl,
   deleteReceipt,
+  finalizePendingReceipt,
 } from './receipts'
 import type { StandardScenario } from './receipts.scenarios'
 
@@ -31,6 +34,7 @@ const mockBucket = storage.bucket as jest.Mock
 const mockFile = {
   getSignedUrl: jest.fn(),
   delete: jest.fn(),
+  copy: jest.fn(),
 }
 
 describe('receipts', () => {
@@ -87,8 +91,8 @@ describe('createUploadUrl', () => {
     expect(result).toEqual({
       uploadUrl: 'https://signed.url/put',
       fileUrl:
-        'https://storage.googleapis.com/ecoexpense-receipts/receipts/test-uuid-1234.jpeg',
-      fileName: 'receipts/test-uuid-1234.jpeg',
+        'https://storage.googleapis.com/ecoexpense-receipts/receipts/pending/test-uuid-1234.jpeg',
+      fileName: 'receipts/pending/test-uuid-1234.jpeg',
     })
   })
 
@@ -111,8 +115,8 @@ describe('createUploadUrl', () => {
 
     const result = await createUploadUrl({ contentType: 'application/pdf' })
 
-    expect(result.fileName).toEqual('receipts/test-uuid-1234.pdf')
-    expect(result.fileUrl).toContain('/receipts/test-uuid-1234.pdf')
+    expect(result.fileName).toEqual('receipts/pending/test-uuid-1234.pdf')
+    expect(result.fileUrl).toContain('/receipts/pending/test-uuid-1234.pdf')
   })
 
   it('rejects unsupported content types', async () => {
@@ -120,6 +124,72 @@ describe('createUploadUrl', () => {
       createUploadUrl({ contentType: 'text/plain' })
     ).rejects.toThrow('Only images and PDFs can be uploaded as receipts')
     expect(mockFile.getSignedUrl).not.toHaveBeenCalled()
+  })
+})
+
+describe('finalizePendingReceipt', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockBucket.mockReturnValue({ file: () => mockFile })
+    mockFile.copy.mockResolvedValue([{}])
+    mockFile.delete.mockResolvedValue([{}])
+  })
+
+  it('copies a pending object to the permanent prefix and deletes the pending one', async () => {
+    const result = await finalizePendingReceipt(
+      'https://storage.googleapis.com/ecoexpense-receipts/receipts/pending/abc.png'
+    )
+
+    expect(result).toEqual(
+      'https://storage.googleapis.com/ecoexpense-receipts/receipts/abc.png'
+    )
+    expect(mockFile.copy).toHaveBeenCalledTimes(1)
+    expect(mockFile.delete).toHaveBeenCalledWith({ ignoreNotFound: true })
+  })
+
+  it('passes through URLs outside the pending prefix', async () => {
+    const url =
+      'https://storage.googleapis.com/ecoexpense-receipts/receipts/old.png'
+
+    const result = await finalizePendingReceipt(url)
+
+    expect(result).toEqual(url)
+    expect(mockFile.copy).not.toHaveBeenCalled()
+    expect(mockFile.delete).not.toHaveBeenCalled()
+  })
+
+  it('throws a friendly error when the pending object is already gone', async () => {
+    mockFile.copy.mockRejectedValueOnce({ code: 404 })
+
+    const promise = finalizePendingReceipt(
+      'https://storage.googleapis.com/ecoexpense-receipts/receipts/pending/abc.png'
+    )
+    await expect(promise).rejects.toThrow(
+      'The uploaded receipt has expired and must be uploaded again'
+    )
+    await expect(promise).rejects.toBeInstanceOf(SyntaxError)
+  })
+
+  it('rethrows non-404 copy failures', async () => {
+    mockFile.copy.mockRejectedValueOnce(new Error('storage down'))
+
+    await expect(
+      finalizePendingReceipt(
+        'https://storage.googleapis.com/ecoexpense-receipts/receipts/pending/abc.png'
+      )
+    ).rejects.toThrow('storage down')
+  })
+
+  it('still returns the final URL when deleting the pending object fails', async () => {
+    mockFile.delete.mockRejectedValueOnce(new Error('delete failed'))
+
+    const result = await finalizePendingReceipt(
+      'https://storage.googleapis.com/ecoexpense-receipts/receipts/pending/abc.png'
+    )
+
+    expect(result).toEqual(
+      'https://storage.googleapis.com/ecoexpense-receipts/receipts/abc.png'
+    )
   })
 })
 
