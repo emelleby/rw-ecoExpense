@@ -1,0 +1,35 @@
+# Task ID: 1
+# Title: Setup Database Schema for Time Entry Functionality
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Implement the Prisma schema for all models related to time entry functionality as defined in the PRD.
+# Details:
+Create Prisma schema files for the following models:
+- TimeEntry
+- Rate
+- WorkReport
+- Comment
+- Attachment
+
+Ensure all relationships are properly defined including:
+- User to TimeEntry (one-to-many)
+- User to Rate (one-to-many)
+- User to WorkReport (one-to-many)
+- TimeEntry to WorkReport (many-to-one)
+- WorkReport to Comment (one-to-many)
+- WorkReport to Attachment (one-to-many)
+
+Implement the ReportStatus enum as defined in the PRD.
+
+Run the migration using:
+```bash
+yarn rw prisma migrate dev --name add_time_entry_models
+```
+
+# Test Strategy:
+1. Verify schema compiles without errors
+2. Run migration in development environment
+3. Test database queries to ensure relationships work as expected
+4. Validate constraints and defaults
+5. Create test data and verify it can be stored and retrieved correctly

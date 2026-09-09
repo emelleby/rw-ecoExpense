@@ -123,6 +123,10 @@ const data = {
           title: 'Sectors',
           url: 'sectors',
         },
+        {
+          title: 'Tasks',
+          url: 'tasks',
+        },
       ],
     },
   ],

@@ -13,6 +13,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from 'src/components/ui/DropdownMenu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from 'src/components/ui/Tooltip'
 
 const DELETE_EXPENSE_MUTATION = gql`
   mutation DeleteExpenseMutation($id: Int!) {
@@ -62,50 +68,77 @@ export function ExpenseActions({ id, tripStatus }: ExpenseActionsProps) {
     }
   }
 
+  const disabledReason = !isExpenseEditable(tripStatus)
+    ? tripStatus === 'PENDING'
+      ? 'This expense cannot be modified because the trip is pending reimbursement'
+      : 'This expense cannot be modified because the trip has been reimbursed'
+    : ''
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 bg-muted p-0">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <Link to={routes.expense({ id })}>
-          <DropdownMenuItem>Show</DropdownMenuItem>
-        </Link>
-
-        {isExpenseEditable(tripStatus) ? (
-          <Link to={routes.editExpense({ id })}>
-            <DropdownMenuItem className="text-sky-600">Edit</DropdownMenuItem>
+    <TooltipProvider>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 bg-muted p-0">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <Link to={routes.expense({ id })}>
+            <DropdownMenuItem>Show</DropdownMenuItem>
           </Link>
-        ) : (
-          <DropdownMenuItem
-            className="cursor-not-allowed text-sky-600 opacity-50"
-            onClick={() =>
-              toast.error(
-                `Cannot edit expenses for trips that are ${tripStatus.toLowerCase()}`
-              )
-            }
-          >
-            Edit
-          </DropdownMenuItem>
-        )}
 
-        <DropdownMenuItem
-          className={`text-rose-500 ${!isExpenseEditable(tripStatus) ? 'cursor-not-allowed opacity-50' : ''}`}
-          onClick={() => {
-            if (isExpenseEditable(tripStatus)) {
-              onDeleteClick(id)
-            } else {
-              toast.error(
-                `Cannot delete expenses for trips that are ${tripStatus.toLowerCase()}`
-              )
-            }
-          }}
-        >
-          Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          {isExpenseEditable(tripStatus) ? (
+            <Link to={routes.editExpense({ id })}>
+              <DropdownMenuItem className="text-sky-600">Edit</DropdownMenuItem>
+            </Link>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuItem
+                  className="cursor-not-allowed text-sky-600 opacity-50"
+                  onClick={() =>
+                    toast.error(
+                      `Cannot edit expenses for trips that are ${tripStatus.toLowerCase()}`
+                    )
+                  }
+                >
+                  Edit
+                </DropdownMenuItem>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{disabledReason}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {isExpenseEditable(tripStatus) ? (
+            <DropdownMenuItem
+              className="text-rose-500"
+              onClick={() => onDeleteClick(id)}
+            >
+              Delete
+            </DropdownMenuItem>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuItem
+                  className="cursor-not-allowed text-rose-500 opacity-50"
+                  onClick={() =>
+                    toast.error(
+                      `Cannot delete expenses for trips that are ${tripStatus.toLowerCase()}`
+                    )
+                  }
+                >
+                  Delete
+                </DropdownMenuItem>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{disabledReason}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </TooltipProvider>
   )
 }

@@ -1,0 +1,38 @@
+# Task ID: 16
+# Title: Create Custom Report Builder
+# Status: pending
+# Dependencies: 15
+# Priority: low
+# Description: Implement a flexible report builder allowing users to create custom reports with selected fields and filters.
+# Details:
+Develop a custom report builder with the following features:
+
+1. Field selection:
+   - Drag-and-drop interface for selecting fields
+   - Grouping and aggregation options
+   - Sorting and filtering criteria
+
+2. Report templates:
+   - Save custom reports as templates
+   - Share templates with other users
+   - Load and modify existing templates
+
+3. Scheduling:
+   - Schedule automatic report generation
+   - Email distribution options
+   - Recurring schedule configuration
+
+4. Output options:
+   - Preview in browser
+   - Export to various formats (CSV, PDF, Excel)
+   - Print-friendly version
+
+Implement a flexible query builder that can handle complex combinations of fields and filters.
+
+# Test Strategy:
+1. Test field selection and configuration
+2. Verify report generation with various field combinations
+3. Test template saving and loading
+4. Verify scheduling functionality
+5. Test export in different formats
+6. Test with complex queries to ensure performance and accuracy

@@ -98,6 +98,7 @@ const TripForm = (props: TripFormProps) => {
         <TextAreaField
           name="description"
           defaultValue={props.trip?.description}
+          placeholder="Formålet med reisen. Hvilket arrangement for eksempel."
           className="rw-input"
           errorClassName="rw-input rw-input-error"
         />
@@ -234,8 +235,8 @@ const TripForm = (props: TripFormProps) => {
         </div>
 
         <div className="rw-button-group">
-          <Submit disabled={props.loading} className="rw-button rw-button-blue">
-            Save
+          <Submit disabled={props.loading} className="rw-button">
+            {props.loading ? 'Saving...' : 'Save'}
           </Submit>
         </div>
       </Form>

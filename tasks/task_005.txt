@@ -1,0 +1,38 @@
+# Task ID: 5
+# Title: Implement Work Report Services
+# Status: pending
+# Dependencies: 1, 2, 3
+# Priority: high
+# Description: Create service layer for WorkReport model to handle report creation, submission, and workflow.
+# Details:
+Create a WorkReportService with the following functionality:
+
+1. CRUD operations:
+   - createWorkReport
+   - updateWorkReport
+   - deleteWorkReport
+   - getWorkReport
+   - listWorkReports
+
+2. Business logic:
+   - submitWorkReport: Change status from DRAFT to SUBMITTED
+   - approveWorkReport: Change status from SUBMITTED to APPROVED
+   - rejectWorkReport: Change status from SUBMITTED to REJECTED
+   - markAsPaid: Change status from APPROVED to PAID
+   - markAsReceived: Change status from PAID to RECEIVED
+   - addTimeEntryToReport: Associate a time entry with a report
+   - removeTimeEntryFromReport: Remove a time entry from a report
+   - calculateTotals: Update totalHours and totalAmount
+   - getUnbilledTimeEntries: Find entries not yet included in a report
+   - addComment: Add a comment to a work report
+   - addAttachment: Add an attachment to a work report
+
+Implement workflow validation to ensure status transitions follow the defined flow.
+
+# Test Strategy:
+1. Unit tests for all service methods
+2. Test workflow transitions with valid and invalid state changes
+3. Test calculation of totals
+4. Verify time entry association/removal works correctly
+5. Test comment and attachment functionality
+6. Verify unbilled time entries are correctly identified

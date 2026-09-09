@@ -15,6 +15,10 @@ import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
+import {
+  deleteReceiptObject,
+  finalizePendingReceipt,
+} from 'src/services/receipts/receipts'
 
 const validateTripStatus = async (
   tripId: number
@@ -73,12 +77,18 @@ export const createExpense: MutationResolvers['createExpense'] = async ({
 
   const { receipt, ...expenseData } = input
 
+  // Move freshly uploaded receipts out of the pending prefix (orphan
+  // cleanup) and store the permanent URL
+  const receiptData = receipt
+    ? { ...receipt, url: await finalizePendingReceipt(receipt.url) }
+    : undefined
+
   const data = {
     ...expenseData,
     userId: currentUser.dbUserId,
-    Receipt: receipt
+    Receipt: receiptData
       ? {
-          create: receipt, // Use `create` for nested writes
+          create: receiptData, // Use `create` for nested writes
         }
       : undefined,
   }
@@ -119,15 +129,19 @@ export const updateExpense: MutationResolvers['updateExpense'] = async ({
 
   const { receipt, ...expenseData } = input
 
+  const receiptData = receipt
+    ? { ...receipt, url: await finalizePendingReceipt(receipt.url) }
+    : undefined
+
   const updatedExpense = await db.expense.update({
     where: { id },
     data: {
       ...expenseData,
-      Receipt: receipt
+      Receipt: receiptData
         ? {
             upsert: {
-              create: receipt,
-              update: receipt,
+              create: receiptData,
+              update: receiptData,
             },
           }
         : undefined,
@@ -155,6 +169,15 @@ export const deleteExpense: MutationResolvers['deleteExpense'] = async ({
   const validationError = await validateTripStatus(expense.tripId)
   if (validationError) {
     return validationError
+  }
+
+  // Delete the stored receipt objects before removing the rows
+  const receipts = await db.receipt.findMany({
+    where: { expenseId: id },
+    select: { url: true },
+  })
+  for (const { url } of receipts) {
+    await deleteReceiptObject(url)
   }
 
   await db.receipt.deleteMany({

@@ -3,7 +3,7 @@
 ## Technology Stack
 
 ### Core Framework
-- **RedwoodJS** v8.5.0
+- **RedwoodJS** v8.6.1
   - Full-stack JavaScript/TypeScript framework
   - Integrated frontend and backend
   - API and web sides with clear separation
@@ -12,6 +12,8 @@
 - **React** 18.x
 - **TypeScript** 5.x in strict mode
 - **Tailwind CSS** 3.x for styling
+  - Dark/light theme support via CSS variables
+  - Theme-aware color classes
 - **shadcn/ui** (via rw-shad v2.x) for UI components
 - **Storybook** 7.x for component development and testing
 
@@ -30,6 +32,10 @@
 - **Jest** 29.x for unit and integration testing
 - **MSW** for mocking API responses
 - **Storybook** for component testing
+- Scenario-based testing for service functions
+- Mocking GraphQL queries and mutations
+- Testing validation functions independently
+- Testing UI components with different data states
 
 ### Deployment
 - Configuration for Netlify deployment
@@ -91,13 +97,32 @@
 - GraphQL SDL-first approach
 - Role-based access control through directives
 - Service-based resolver implementation
+- Union types for operation results with potential errors
+- Custom error types for specific validation failures
+- Service-level validation functions for business rules
+- Trip status validation for expense modifications
 
 ### UI Components
 - shadcn/ui integration through rw-shad
-- Tailwind-based styling
+- Tailwind-based styling with theme support
+  - Dark/light mode toggle via useTheme hook
+  - Theme-aware color classes (bg-background, text-foreground)
 - Redwood Cell pattern for data fetching
+  - Fallback mechanisms for critical data
+  - Visual indicators for fallback content
+- Interactive UI elements with status-based restrictions:
+  - Disabled buttons for restricted actions
+  - Tooltips to explain restrictions (using ShadcN Tooltip component)
+  - Visual indicators for non-editable items
+  - Status badges to show current state
 
 ### Environment Configuration
 - `.env` file for local development
 - Environment variables for deployment
 - Different configurations for development and production
+
+### File Access Patterns
+- External files (outside src directory) accessed via backend services
+- Configuration files like tasks.json remain in their designated locations
+- Backend services provide proper path resolution for non-standard file locations
+- Fallback mechanisms implemented for critical data sources

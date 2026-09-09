@@ -28,6 +28,7 @@ enum ReimbursementStatus {
   NOT_REQUESTED
   PENDING
   REIMBURSED
+  RECEIVED
 }
 
 enum USER_STATUS {
@@ -36,119 +37,10 @@ enum USER_STATUS {
 }
 
 // Enum for rate_type
-enum RateType {
-  hourly
-  daily
-}
-
-model Organization {
-  id          Int        @id @default(autoincrement())
-  regnr       String     @unique @db.VarChar(9)
-  name        String     @unique @db.VarChar(100)
-  description String?    @db.Text
-  createdAt   DateTime   @default(now())
-  Project     Project[]
-  User        User[]
-  Supplier    Supplier[]
-}
-
-model User {
-  id              Int          @id @default(autoincrement())
-  clerkId         String?      @unique @db.VarChar(100)
-  username        String       @unique @db.VarChar(64)
-  email           String       @unique @db.VarChar(120)
-  firstName       String?      @db.VarChar(100)
-  lastName        String?      @db.VarChar(50)
-  bankAccount     String?      @db.VarChar(50)
-  status          USER_STATUS  @default(INACTIVE)
-  homeAddress     String?      @db.VarChar(255)
-  workAddress     String?      @db.VarChar(255)
-  homeLatitude    Float?
-  homeLongitude   Float?
-  workLatitude    Float?
-  workLongitude   Float?
-  organizationId  Int
-  Organization    Organization @relation(fields: [organizationId], references: [id])
-  Expense         Expense[]
-  Trip            Trip[]
-  customers       Customer[] // One-to-many relation to Customer
-  workEntries     WorkEntry[] // One-to-many relation to WorkEntry
-  createdProjects Project[]    @relation("CreatedBy")
-
-  @@index([username], name: "idx_user_username")
-}
-
-model Supplier {
-  id             Int          @id @default(autoincrement())
-  name           String       @db.VarChar(100)
-  contact        String?      @db.VarChar(100)
-  organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  Expense        Expense[]
-}
-
-// Customer model
-model Customer {
-  id     Int    @id @default(autoincrement())
-  user   User   @relation(fields: [userId], references: [id]) // Foreign key to User
-  userId Int
-  name   String
-  rates  Rate[] // One-to-many relation to Rate
-}
-
-// Rate model
-model Rate {
-  id          Int         @id @default(autoincrement())
-  customer    Customer    @relation(fields: [customerId], references: [id]) // Foreign key to Customer
-  customerId  Int
-  rateType    RateType
-  rateAmount  Decimal     @db.Decimal(10, 2) // Numeric field with precision 10, scale 2
-  description String? // Optional text field
-  workEntries WorkEntry[] // One-to-many relation to WorkEntry
-}
-
-// WorkEntry model
-model WorkEntry {
-  id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [userId], references: [id]) // Foreign key to User
-  userId    Int
-  date      DateTime  @db.Date // Date-only field
-  startTime DateTime? @db.Time // Optional time field
-  endTime   DateTime? @db.Time // Optional time field
-  duration  Decimal   @db.Decimal(5, 2) // Numeric field with precision 5, scale 2
-  rate      Rate      @relation(fields: [rateId], references: [id]) // Foreign key to Rate
-  rateId    Int
-}
-
-model Trip {
-  id                  Int                 @id @default(autoincrement())
-  name                String              @db.VarChar(100)
-  description         String?             @db.Text
-  startDate           DateTime
-  endDate             DateTime
-  createdAt           DateTime            @default(now())
-  userId              Int
-  User                User                @relation(fields: [userId], references: [id])
-  Expense             Expense[]
-  approvedDate        DateTime?
-  reimbursementStatus ReimbursementStatus @default(NOT_REQUESTED)
-  transactionId       String?             @db.VarChar(100)
-  projectId           Int // Remove the optional (?) marker
-  Project             Project             @relation(fields: [projectId], references: [id])
-}
-
-model Project {
-  id             Int           @id @default(autoincrement())
-  name           String        @db.VarChar(100)
-  description    String?       @db.Text
-  active         Boolean       @default(true)
-  organizationId Int? // Add this field
-  Organization   Organization? @relation(fields: [organizationId], references: [id]) // Add this relation
-  createdById    Int?
-  createdBy      User?         @relation("CreatedBy", fields: [createdById], references: [id])
-  Expense        Expense[]
-  Trip           Trip[]
-  createdAt      DateTime      @default(now())
+enum RATE_TYPE {
+  HOURLY
+  DAILY
+  WEEKLY
 }
 
 model ExpenseCategory {
@@ -164,6 +56,182 @@ model Sector {
   factor   Decimal
   currency String    @db.VarChar(3)
   Expense  Expense[]
+}
+
+model Organization {
+  id          Int          @id @default(autoincrement())
+  regnr       String       @unique @db.VarChar(9)
+  name        String       @unique @db.VarChar(100)
+  description String?      @db.Text
+  createdAt   DateTime     @default(now())
+  Project     Project[]
+  User        User[]
+  Product     Product[]
+  Rates       Rate[]
+  Customer    Customer[]
+  Department  Department[]
+}
+
+model Department {
+  id             Int          @id @default(autoincrement())
+  name           String
+  organizationId Int
+  Organization   Organization @relation(fields: [organizationId], references: [id])
+  projects       Project[]
+  workEntries    WorkEntry[]
+}
+
+model User {
+  id             Int          @id @default(autoincrement())
+  clerkId        String?      @unique @db.VarChar(100)
+  username       String       @unique @db.VarChar(64)
+  email          String       @unique @db.VarChar(120)
+  firstName      String?      @db.VarChar(100)
+  lastName       String?      @db.VarChar(50)
+  bankAccount    String?      @db.VarChar(50)
+  status         USER_STATUS  @default(INACTIVE)
+  homeAddress    String?      @db.VarChar(255)
+  workAddress    String?      @db.VarChar(255)
+  homeLatitude   Float?
+  homeLongitude  Float?
+  workLatitude   Float?
+  workLongitude  Float?
+  organizationId Int
+  Organization   Organization @relation(fields: [organizationId], references: [id])
+  Expense        Expense[]
+  Trip           Trip[]
+  Rates          Rate[]
+  WorkEntry      WorkEntry[] // One-to-many relation to WorkEntry
+  UserProject    Project[]    @relation("CreatedBy")
+  WorkReport     WorkReport[]
+
+  @@index([username], name: "idx_user_username")
+}
+
+// Customer model
+model Customer {
+  id                 Int          @id @default(autoincrement())
+  name               String
+  registrationNumber String?
+  organizationId     Int
+  organization       Organization @relation(fields: [organizationId], references: [id])
+  rates              Rate[] // One-to-many relation to Rate
+  WorkEntry          WorkEntry[]
+}
+
+model Project {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(100)
+  description    String?          @db.Text
+  active         Boolean          @default(true)
+  organizationId Int?
+  Organization   Organization?    @relation(fields: [organizationId], references: [id])
+  Department     Department?      @relation(fields: [departmentId], references: [id])
+  departmentId   Int?
+  createdById    Int?
+  createdBy      User?            @relation("CreatedBy", fields: [createdById], references: [id])
+  Expense        Expense[]
+  Trip           Trip[]
+  createdAt      DateTime         @default(now())
+  productLinks   ProductProject[]
+  Product        Product[]
+  WorkEntry      WorkEntry[]
+}
+
+model ProductProject {
+  id         Int     @id @default(autoincrement())
+  product    Product @relation(fields: [productId], references: [id])
+  productId  Int
+  project    Project @relation(fields: [projectId], references: [id])
+  projectId  Int
+  allocation Float? // optional percentage of project allocated to product
+}
+
+model Product {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(100)
+  description    String?          @db.Text
+  organizationId Int
+  Organization   Organization     @relation(fields: [organizationId], references: [id])
+  project        Project?         @relation(fields: [projectId], references: [id])
+  projectId      Int?
+  WorkEntry      WorkEntry[]
+  ProjectLinks   ProductProject[]
+}
+
+model Trip {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(100)
+  description         String?             @db.Text
+  startDate           DateTime
+  endDate             DateTime
+  createdAt           DateTime            @default(now())
+  userId              Int
+  User                User                @relation(fields: [userId], references: [id])
+  Expense             Expense[]
+  approvedDate        DateTime?
+  reimbursementStatus ReimbursementStatus @default(NOT_REQUESTED)
+  transactionId       String?             @db.VarChar(100)
+  projectId           Int
+  Project             Project             @relation(fields: [projectId], references: [id])
+}
+
+// Rate model
+model Rate {
+  id          Int         @id @default(autoincrement())
+  customerId  Int?        // Make optional
+  customer    Customer?   @relation(fields: [customerId], references: [id]) // Optional relation
+  userId      Int?        // Add optional user relation for freelancer rates
+  user        User?       @relation(fields: [userId], references: [id])
+  internal    Boolean     @default(false) // Flag for internal organization rates
+  organizationId Int?     // Optional direct link to organization for internal rates
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  rateType    RATE_TYPE
+  rateAmount  Decimal     @db.Decimal(10, 2) // Numeric field with precision 10, scale 2
+  description String? // Optional text field
+  workEntries WorkEntry[] // One-to-many relation to WorkEntry
+}
+
+// WorkEntry model
+model WorkEntry {
+  id           Int         @id @default(autoincrement())
+  user         User        @relation(fields: [userId], references: [id]) // Foreign key to User
+  userId       Int
+  date         DateTime    @db.Date // Date-only field
+  startTime    DateTime?   @db.Time // Optional time field
+  endTime      DateTime?   @db.Time // Optional time field
+  duration     Decimal     @db.Decimal(5, 2) // Numeric field with precision 5, scale 2
+  description  String
+  privateNotes String?
+  rate         Rate        @relation(fields: [rateId], references: [id]) // Foreign key to Rate
+  rateId       Int
+  customer     Customer?   @relation(fields: [customerId], references: [id])
+  customerId   Int?
+  project      Project?    @relation(fields: [projectId], references: [id])
+  projectId    Int?
+  Department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int?
+  Product      Product?    @relation(fields: [productId], references: [id])
+  productId    Int?
+  workReport   WorkReport? @relation(fields: [workReportId], references: [id])
+  workReportId String?
+  createdAt    DateTime    @default(now())
+}
+
+model WorkReport {
+  id          String              @id @default(uuid())
+  user        User                @relation(fields: [userId], references: [id])
+  userId      Int
+  startDate   DateTime
+  endDate     DateTime
+  status      ReimbursementStatus @default(NOT_REQUESTED)
+  entries     WorkEntry[]
+  totalHours  Float?
+  totalAmount Float?
+  submittedAt DateTime?
+  paidAt      DateTime?
+  receivedAt  DateTime?
+  createdAt   DateTime            @default(now())
 }
 
 model Expense {
@@ -182,8 +250,6 @@ model Expense {
   fuelAmountLiters   Float?          @default(0.0)
   sectorId           Int?
   Sector             Sector?         @relation(fields: [sectorId], references: [id])
-  supplierId         Int?
-  Supplier           Supplier?       @relation(fields: [supplierId], references: [id])
   tripId             Int
   Trip               Trip            @relation(fields: [tripId], references: [id])
   projectId          Int?

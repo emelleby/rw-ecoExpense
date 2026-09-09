@@ -14,7 +14,6 @@ import {
   Label,
   RWGqlError,
   TextField,
-  NumberField,
   useForm,
 } from '@redwoodjs/forms'
 import { TypedDocumentNode, useQuery } from '@redwoodjs/web'
@@ -33,7 +32,7 @@ import {
 import { Loading } from '../EditExpenseCell'
 
 import { CommonFields } from './CommonFields'
-import { CURRENCIES_OF_COUTRIES } from './constants'
+import { CURRENCIES_OF_COUTRIES, decimalField, parseDecimal } from './constants'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
 
@@ -310,19 +309,19 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
           >
             Amount
           </Label>
-          <NumberField
+          <TextField
             name="amount"
             placeholder="0"
+            inputMode="decimal"
             defaultValue={props?.expense?.amount || undefined}
             className="rw-input"
-            step="0.01"
             onChange={(e) => {
-              const value = Number(e.target.value)
-              const nokAmount = (value * exchangeRate).toFixed(2)
+              const value = parseDecimal(e.target.value)
+              const nokAmount = ((value ?? 0) * exchangeRate).toFixed(2)
               formMethods.setValue('nokAmount', parseFloat(nokAmount))
             }}
             errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: true, required: true }}
+            validation={{ required: true, ...decimalField }}
           />
           <FieldError name="amount" className="rw-field-error" />
         </div>

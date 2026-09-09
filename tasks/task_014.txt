@@ -1,0 +1,33 @@
+# Task ID: 14
+# Title: Implement Client & Project Management
+# Status: pending
+# Dependencies: 4, 9
+# Priority: medium
+# Description: Create interfaces for managing clients and projects with associated rates and settings.
+# Details:
+Develop components for client and project management with the following features:
+
+1. Client management:
+   - Create/edit client form
+   - Client list with filtering and sorting
+   - Client detail view with associated projects and rates
+
+2. Project management:
+   - Create/edit project form
+   - Project list with filtering and sorting
+   - Project detail view with associated rates
+   - Project-specific field configuration
+
+3. Integration with rates:
+   - Set default rates for client/project
+   - View all rates associated with a client/project
+
+Implement proper access control based on user role.
+
+# Test Strategy:
+1. Test client and project creation with valid and invalid data
+2. Verify filtering and sorting in list views
+3. Test association of rates with clients and projects
+4. Verify project-specific field configuration works correctly
+5. Test with different user roles to ensure proper access control
+6. Verify client-project relationship management works correctly
