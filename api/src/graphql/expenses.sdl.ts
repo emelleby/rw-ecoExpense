@@ -36,6 +36,11 @@ export const schema = gql`
     scope3CategoryId: Int!
     receipt: Receipt
     merchant: String
+    # Server-computed from the Trip's secondaryCurrency; deliberately absent
+    # from the input types so the client cannot set them.
+    secondaryCurrency: String
+    secondaryExchangeRate: Float
+    secondaryAmount: Float
   }
 
   type Query {

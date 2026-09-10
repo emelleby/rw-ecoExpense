@@ -292,7 +292,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
             render={({ field }) => (
               <Combobox
                 Data={CURRENCIES_OF_COUTRIES}
-                defaultValue={expense?.currency}
+                defaultValue={expense?.currency || 'NOK'}
                 defaultText="Norwegian Krone"
                 isActive={true}
                 onChangeHandle={(value) => {

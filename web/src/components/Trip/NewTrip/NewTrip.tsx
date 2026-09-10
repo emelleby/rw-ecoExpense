@@ -108,6 +108,7 @@ const NewTrip = ({ p }) => {
           ...input,
           userId: userId,
           projectId: Number(input.projectId),
+          secondaryCurrency: input.secondaryCurrency || null,
         },
       },
     })

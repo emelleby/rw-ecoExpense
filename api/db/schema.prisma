@@ -175,6 +175,7 @@ model Trip {
   transactionId       String?             @db.VarChar(100)
   projectId           Int
   Project             Project             @relation(fields: [projectId], references: [id])
+  secondaryCurrency   String?             @db.VarChar(3)
 }
 
 // Rate model
@@ -263,6 +264,12 @@ model Expense {
   kwh                Float?          @default(0.0)
   scope3CategoryId   Int             @default(6)
   Receipt            Receipt?
+
+  // Amount converted to the Trip's optional secondary (reimbursement) currency.
+  // Computed server-side on create/update; null when the trip has none.
+  secondaryCurrency     String?  @db.VarChar(3)
+  secondaryExchangeRate Decimal?
+  secondaryAmount       Decimal?
 }
 
 model Receipt {

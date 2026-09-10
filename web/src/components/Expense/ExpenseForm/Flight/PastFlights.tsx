@@ -59,7 +59,12 @@ interface ExpenseFormProps {
 export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
   const date = new Date()
 
-  const formMethods = useForm()
+  const formMethods = useForm({
+    defaultValues: {
+      currency: props.expense?.currency || 'NOK',
+      exchangeRate: props.expense?.exchangeRate || 1,
+    },
+  })
 
   const [exchangeRate, setExchangeRate] = useState(
     props.expense?.exchangeRate || 0
@@ -190,7 +195,8 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
     if (props.expense?.currency) {
       fetchExchangeRate()
     } else {
-      formMethods.setValue('exchangeRate', 0)
+      // ponytail: no expense = new form, defaults to NOK which is 1:1 to NOK
+      formMethods.setValue('exchangeRate', 1)
     }
   }, [selectedDate, formMethods, props.expense?.currency])
 
@@ -481,7 +487,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
             render={({ field }) => (
               <Combobox
                 Data={CURRENCIES_OF_COUTRIES}
-                defaultValue={props.expense?.currency}
+                defaultValue={props.expense?.currency || 'NOK'}
                 defaultText="Currency"
                 isActive={true}
                 onChangeHandle={(value) => {

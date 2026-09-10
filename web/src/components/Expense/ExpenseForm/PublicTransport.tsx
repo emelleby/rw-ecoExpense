@@ -44,7 +44,12 @@ export const PublicTransport: FC<ExpenseFormProps> = (
 ) => {
   const date = new Date()
 
-  const formMethods = useForm()
+  const formMethods = useForm({
+    defaultValues: {
+      currency: props.expense?.currency || 'NOK',
+      exchangeRate: props.expense?.exchangeRate || 1,
+    },
+  })
 
   const [fileName, setFileName] = useState(
     props.expense?.receipt?.fileName || ''
@@ -150,7 +155,8 @@ export const PublicTransport: FC<ExpenseFormProps> = (
     if (props.expense?.currency) {
       fetchExchangeRate()
     } else {
-      formMethods.setValue('exchangeRate', 0)
+      // ponytail: no expense = new form, defaults to NOK which is 1:1 to NOK
+      formMethods.setValue('exchangeRate', 1)
     }
   }, [selectedDate, formMethods, props.expense?.currency])
 
@@ -189,7 +195,8 @@ export const PublicTransport: FC<ExpenseFormProps> = (
           <div className="relative flex items-center">
             <NumberField
               name="kilometers"
-              defaultValue={props.expense?.kilometers || 0}
+              defaultValue={props.expense?.kilometers || undefined}
+              placeholder="0"
               className="rw-input flex-1 pr-16"
               validation={{ required: true, min: 0 }}
             />
@@ -243,7 +250,7 @@ export const PublicTransport: FC<ExpenseFormProps> = (
             render={({ field }) => (
               <Combobox
                 Data={CURRENCIES_OF_COUTRIES}
-                defaultValue={props.expense?.currency}
+                defaultValue={props.expense?.currency || 'NOK'}
                 defaultText="Currency"
                 isActive={true}
                 onChangeHandle={(value) => {

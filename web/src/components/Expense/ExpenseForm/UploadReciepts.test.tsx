@@ -141,7 +141,7 @@ describe('UploadReciepts', () => {
       />
     )
 
-    const image = screen.getByAltText('Receipt preview')
+    const image = screen.getByAltText('receipt.png')
     expect(image).toHaveAttribute('src', GCS_URL)
     expect(screen.getByText('Replace Image')).toBeInTheDocument()
   })

@@ -150,9 +150,12 @@ export const COUNTRY_NAMES = [
 ]
 
 export const CURRENCIES_OF_COUTRIES = [
+  // Major currencies first
+  { label: 'Norwegian Krone', value: 'NOK' },
+  { label: 'United States Dollar', value: 'USD' },
+  { label: 'Euro', value: 'EUR' }, // Covers Austria, Belgium, Croatia, Estonia, Finland, France, Germany, Greece, Ireland, Italy, Lithuania, Latvia, Netherlands, Portugal, Spain
   { label: 'Argentine Peso', value: 'ARS' },
   { label: 'Australian Dollar', value: 'AUD' },
-  { label: 'Euro', value: 'EUR' }, // Covers Austria, Belgium, Croatia, Estonia, Finland, France, Germany, Greece, Ireland, Italy, Lithuania, Latvia, Netherlands, Portugal, Spain
   { label: 'Bangladeshi Taka', value: 'BDT' },
   { label: 'Brazilian Real', value: 'BRL' },
   { label: 'Bulgarian Lev', value: 'BGN' },
@@ -180,7 +183,6 @@ export const CURRENCIES_OF_COUTRIES = [
   { label: 'Maldivian Rufiyaa', value: 'MVR' },
   { label: 'Mexican Peso', value: 'MXN' },
   { label: 'New Zealand Dollar', value: 'NZD' },
-  { label: 'Norwegian Krone', value: 'NOK' },
   { label: 'Omani Rial', value: 'OMR' },
   { label: 'Panamanian Balboa', value: 'PAB' },
   { label: 'Pakistani Rupee', value: 'PKR' },
@@ -200,7 +202,6 @@ export const CURRENCIES_OF_COUTRIES = [
   { label: 'Thai Baht', value: 'THB' },
   { label: 'Turkish Lira', value: 'TRY' },
   { label: 'UAE Dirham', value: 'AED' },
-  { label: 'United States Dollar', value: 'USD' },
   { label: 'British Pound Sterling', value: 'GBP' },
   { label: 'Vietnamese Dong', value: 'VND' },
 ]
@@ -746,6 +747,7 @@ export const BUCKET_TYPES = [
 export const TRAVEL_SPEND_FACTORS = {
   'Road toll': 0.015,
   'Rental car': 0.05,
+  Parking: 0.01,
 }
 
 // ponytail: placeholder CO2e factors, not sourced — replace with real figures per mode.

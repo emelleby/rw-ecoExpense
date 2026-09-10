@@ -72,6 +72,7 @@ export function Combobox({
                 <CommandItem
                   key={d.value}
                   value={d.value.toString()}
+                  keywords={[d.label]}
                   onSelect={(currentValue) => {
                     console.log('currentValue', currentValue)
 
