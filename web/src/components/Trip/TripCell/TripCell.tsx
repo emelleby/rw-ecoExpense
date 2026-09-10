@@ -22,8 +22,10 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
         approvedDate
         reimbursementStatus
         transactionId
+        secondaryCurrency
         expenses {
           id
+          secondaryAmount
           scope1Co2Emissions
           scope2Co2Emissions
           scope3Co2Emissions

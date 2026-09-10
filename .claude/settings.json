@@ -69,6 +69,13 @@
   ],
   "permissions": {
     "allow": [
+      "Bash(yarn rw test *)",
+      "Bash(yarn rw type-check *)",
+      "Bash(yarn rw lint *)",
+      "Bash(yarn eslint *)",
+      "mcp__graft__graft_find_code",
+      "mcp__graft__graft_file_api",
+      "mcp__graft__graft_find_all",
       "Bash(graft:*)",
       "Bash(npx graft:*)",
       "Bash(graft-dev:*)",

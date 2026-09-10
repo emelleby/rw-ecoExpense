@@ -6,15 +6,14 @@ import {
   Store,
   Briefcase,
   DollarSign,
-  BarChart,
   Plane,
   User,
   Home,
-  Building,
   CreditCard,
   Mail,
 } from 'lucide-react'
 
+import ReceiptPreview from 'src/components/ReceiptPreview/ReceiptPreview'
 import {
   Card,
   CardContent,
@@ -35,6 +34,7 @@ interface TripReportProps {
     startDate: string
     endDate: string
     reimbursementStatus: string
+    secondaryCurrency?: string | null
     projectId?: number
     project?: {
       id: number
@@ -62,6 +62,7 @@ interface TripReportProps {
       } | null
       categoryId: number
       nokAmount: number
+      secondaryAmount?: number | null
       kwh: number
       date: string
       category: {
@@ -83,6 +84,14 @@ const TripReport = ({ trip }: TripReportProps) => {
     (sum, expense) => sum + expense.totalCo2Emissions,
     0
   )
+
+  // Total in the trip's reimbursement currency, if one is set
+  const totalSecondary = trip.secondaryCurrency
+    ? trip.expenses.reduce(
+        (sum, expense) => sum + (expense.secondaryAmount ?? 0),
+        0
+      )
+    : null
 
   // Format dates
   const startDate = new Date(trip.startDate).toLocaleDateString()
@@ -165,6 +174,11 @@ const TripReport = ({ trip }: TripReportProps) => {
               <p className="text-lg font-semibold text-slate-900">
                 {formatCurrency(totalExpenses)} NOK
               </p>
+              {totalSecondary !== null && (
+                <p className="text-sm text-slate-600">
+                  {formatCurrency(totalSecondary)} {trip.secondaryCurrency}
+                </p>
+              )}
             </div>
             <div className="relative rounded-lg border border-slate-200 bg-slate-100 p-4">
               <Globe className="absolute right-3 top-3 h-5 w-5 text-slate-400" />
@@ -198,9 +212,8 @@ const TripReport = ({ trip }: TripReportProps) => {
                   {/* Receipt image - only shown if available */}
                   {expense.receipt?.url && (
                     <div className="sm:max-w-1/3 h-auto">
-                      <img
-                        src={expense.receipt.url}
-                        alt="Receipt"
+                      <ReceiptPreview
+                        url={expense.receipt.url}
                         className="h-full max-h-80 w-full object-contain"
                       />
                     </div>
@@ -258,10 +271,16 @@ const TripReport = ({ trip }: TripReportProps) => {
               </Card>
             ))}
           </div>
-          <div className="mt-6 flex break-inside-avoid-page justify-end border-t border-slate-200 pt-4">
+          <div className="mt-6 flex break-inside-avoid-page flex-col items-end border-t border-slate-200 pt-4">
             <p className="text-lg font-semibold text-slate-900">
               Total Amount: {formatCurrency(totalExpenses)} NOK
             </p>
+            {totalSecondary !== null && (
+              <p className="text-sm text-slate-600">
+                To be reimbursed: {formatCurrency(totalSecondary)}{' '}
+                {trip.secondaryCurrency}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

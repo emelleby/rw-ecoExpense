@@ -76,6 +76,7 @@ const Fields = ({ type, ...props }: { type: string } & ExpenseFormProps) => {
       )
     case 'Road toll':
     case 'Rental car':
+    case 'Parking':
       return (
         <TravelSpend categoryId={category.id} name={category.name} {...props} />
       )

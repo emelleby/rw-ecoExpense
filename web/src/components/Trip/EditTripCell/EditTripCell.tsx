@@ -28,6 +28,7 @@ export const QUERY: TypedDocumentNode<EditTripById> = gql`
       reimbursementStatus
       transactionId
       projectId
+      secondaryCurrency
       project {
         id
         name
@@ -58,6 +59,7 @@ const UPDATE_TRIP_MUTATION: TypedDocumentNode<
       reimbursementStatus
       transactionId
       projectId
+      secondaryCurrency
     }
   }
 `
@@ -87,6 +89,7 @@ export const Success = ({ trip, projects }: CellSuccessProps<EditTripById>) => {
         input: {
           ...input,
           projectId: Number(input.projectId),
+          secondaryCurrency: input.secondaryCurrency || null,
         },
       },
     })

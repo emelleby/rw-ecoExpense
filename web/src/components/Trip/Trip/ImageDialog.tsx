@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 
+import ReceiptPreview from 'src/components/ReceiptPreview/ReceiptPreview'
 import { Button } from 'src/components/ui/Button'
 import {
   Dialog,
@@ -31,9 +32,8 @@ const ImageDialog: React.FC<ImageDialogProps> = ({
         <DialogTitle>{title}</DialogTitle>
         <div className="mt-4 flex justify-center">
           {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt="Preview"
+            <ReceiptPreview
+              url={imageUrl}
               className="h-auto max-w-full rounded-md shadow-lg"
             />
           ) : (
