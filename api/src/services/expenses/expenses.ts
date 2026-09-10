@@ -13,6 +13,7 @@ interface ExpenseValidationError {
 
 import { context } from '@redwoodjs/graphql-server'
 
+import { getConversionRate } from 'src/lib/currency'
 import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
 import {
@@ -43,6 +44,53 @@ const validateTripStatus = async (
   }
 
   return null
+}
+
+/**
+ * Convert an expense into the secondary (reimbursement) currency configured on
+ * its trip, if any. Converts straight from the expense's own currency at the
+ * expense date — the same quote source the form uses for NOK — so there is no
+ * double rounding through NOK, and an expense already in the secondary currency
+ * converts at exactly 1.
+ *
+ * The user never sees this figure while entering an expense; it surfaces only
+ * on the trip report and trip summary.
+ */
+const secondaryCurrencyFields = async (
+  tripId: number,
+  amount: number,
+  currency: string,
+  date: Date | string
+) => {
+  const trip = await db.trip.findUnique({
+    where: { id: tripId },
+    select: { secondaryCurrency: true },
+  })
+
+  // No secondary currency (or it was just cleared) — clear any stale values too.
+  if (!trip?.secondaryCurrency) {
+    return {
+      secondaryCurrency: null,
+      secondaryExchangeRate: null,
+      secondaryAmount: null,
+    }
+  }
+
+  const rate = await getConversionRate(
+    currency,
+    trip.secondaryCurrency,
+    new Date(date)
+  )
+
+  // Unsupported currency or the rate API is down. Touch nothing rather than
+  // blocking the save — an expense must never fail to persist over this.
+  if (rate === null) return {}
+
+  return {
+    secondaryCurrency: trip.secondaryCurrency,
+    secondaryExchangeRate: rate,
+    secondaryAmount: Number((Number(amount) * rate).toFixed(2)),
+  }
 }
 // import { context } from '@redwoodjs/graphql-server'
 
@@ -85,6 +133,12 @@ export const createExpense: MutationResolvers['createExpense'] = async ({
 
   const data = {
     ...expenseData,
+    ...(await secondaryCurrencyFields(
+      expenseData.tripId,
+      expenseData.amount,
+      expenseData.currency,
+      expenseData.date
+    )),
     userId: currentUser.dbUserId,
     Receipt: receiptData
       ? {
@@ -115,7 +169,8 @@ export const updateExpense: MutationResolvers['updateExpense'] = async ({
 }) => {
   const expense = await db.expense.findUnique({
     where: { id },
-    select: { tripId: true },
+    // amount/currency/date are needed to re-convert on a partial update
+    select: { tripId: true, amount: true, currency: true, date: true },
   })
 
   if (!expense) {
@@ -133,10 +188,20 @@ export const updateExpense: MutationResolvers['updateExpense'] = async ({
     ? { ...receipt, url: await finalizePendingReceipt(receipt.url) }
     : undefined
 
+  // Fall back to the stored values on a partial update; an expense moved
+  // between trips picks up the destination trip's currency.
+  const secondary = await secondaryCurrencyFields(
+    expenseData.tripId ?? expense.tripId,
+    expenseData.amount ?? Number(expense.amount),
+    expenseData.currency ?? expense.currency,
+    expenseData.date ?? expense.date
+  )
+
   const updatedExpense = await db.expense.update({
     where: { id },
     data: {
       ...expenseData,
+      ...secondary,
       Receipt: receiptData
         ? {
             upsert: {

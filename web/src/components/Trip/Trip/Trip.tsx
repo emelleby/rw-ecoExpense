@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 
+import { Settings } from 'lucide-react'
 import type { FindTripById } from 'types/graphql'
+
+import { Link, routes } from '@redwoodjs/router'
 
 import {
   Tabs,
@@ -8,6 +11,7 @@ import {
   TabsList,
   TabsTrigger,
 } from 'src/components/ui/Tabs'
+import { formatCurrency } from 'src/lib/formatters'
 
 import { ExpenseDetails } from '../../Expense/Expenses/ExpenseDetails'
 
@@ -52,9 +56,29 @@ const Trip = ({ trip }: Props) => {
     setExpenses(data)
   }, [trip])
 
+  // Total in the trip's reimbursement currency, if one is set
+  const totalSecondary = trip.secondaryCurrency
+    ? trip.expenses.reduce((sum, e) => sum + (e.secondaryAmount ?? 0), 0)
+    : null
+
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <h1 className="p-2 text-3xl font-bold">Report for {trip.name}</h1>
+      <div className="flex items-center justify-between p-2">
+        <h1 className="text-3xl font-bold">Report for {trip.name}</h1>
+        <Link
+          to={routes.editTrip({ id: trip.id })}
+          title="Edit trip"
+          aria-label="Edit trip"
+        >
+          <Settings className="h-6 w-6 text-muted-foreground transition-colors hover:text-foreground" />
+        </Link>
+      </div>
+      {totalSecondary !== null && (
+        <p className="px-2 text-muted-foreground">
+          To be reimbursed: {formatCurrency(totalSecondary)}{' '}
+          {trip.secondaryCurrency}
+        </p>
+      )}
       {/* <div>{DateRangeDisplay()}</div> */}
 
       <Tabs defaultValue="expenses">

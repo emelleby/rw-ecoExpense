@@ -395,7 +395,7 @@ export const Accommodation = ({
               <Combobox
                 data-testid="currency-select"
                 Data={CURRENCIES_OF_COUTRIES}
-                defaultValue={expense?.currency}
+                defaultValue={expense?.currency || 'NOK'}
                 defaultText="Currency"
                 isActive={true}
                 onChangeHandle={(value) => {

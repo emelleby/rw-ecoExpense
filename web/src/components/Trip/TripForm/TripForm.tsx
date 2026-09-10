@@ -16,6 +16,7 @@ import {
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
+import { CURRENCIES_OF_COUTRIES } from 'src/components/Expense/ExpenseForm/constants'
 
 import { Button } from '@/components/ui/Button'
 import {
@@ -171,6 +172,36 @@ const TripForm = (props: TripFormProps) => {
               </option>
             ))}
           </SelectField>
+
+          <Label
+            name="secondaryCurrency"
+            className="rw-label mb-2"
+            errorClassName="rw-label rw-label-error"
+          >
+            Reimbursement currency (optional)
+          </Label>
+
+          {/* ponytail: reuses the 55-entry expense currency list; Frankfurter
+              quotes ~31 of them. An unquoted pick just leaves secondary amounts
+              empty. Filter against /v1/currencies if that ever bites. */}
+          <SelectField
+            name="secondaryCurrency"
+            className="rw-input"
+            errorClassName="rw-input rw-input-error"
+            defaultValue={props.trip?.secondaryCurrency ?? ''}
+          >
+            <option value="">None</option>
+            {CURRENCIES_OF_COUTRIES.map((currency) => (
+              <option key={currency.value} value={currency.value}>
+                {currency.label}
+              </option>
+            ))}
+          </SelectField>
+
+          <p className="rw-helper-text mb-2 text-sm text-muted-foreground">
+            Expenses stay in NOK. If set, each expense is also converted to this
+            currency for the trip summary and report.
+          </p>
 
           {/* <Controller
             name="projectId"

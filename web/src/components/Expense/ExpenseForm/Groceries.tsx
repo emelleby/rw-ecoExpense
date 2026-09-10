@@ -47,7 +47,12 @@ interface ExpenseFormProps {
 export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
   const date = new Date()
 
-  const formMethods = useForm()
+  const formMethods = useForm({
+    defaultValues: {
+      currency: props.expense?.currency || 'NOK',
+      exchangeRate: props.expense?.exchangeRate || 1,
+    },
+  })
 
   //const { showLoader, hideLoader } = useLoader()
 
@@ -281,7 +286,7 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
             render={({ field }) => (
               <Combobox
                 Data={CURRENCIES_OF_COUTRIES}
-                defaultValue={props.expense?.currency}
+                defaultValue={props.expense?.currency || 'NOK'}
                 defaultText="Currency"
                 isActive={true}
                 onChangeHandle={(value) => {

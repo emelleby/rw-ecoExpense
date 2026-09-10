@@ -23,6 +23,7 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
         approvedDate
         reimbursementStatus
         transactionId
+        secondaryCurrency
         projectId
         project {
           id
@@ -50,6 +51,7 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
           }
           categoryId
           nokAmount
+          secondaryAmount
           kwh
           date
           category {
