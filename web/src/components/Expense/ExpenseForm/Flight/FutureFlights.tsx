@@ -42,6 +42,7 @@ import {
   FLIGHT_CLASSES,
   parseDecimal,
 } from '../constants'
+import SaveButton from '../SaveButton'
 import { FlightEmissionResult, getCurrencyConversionRate } from '../service'
 import UploadReciepts from '../UploadReciepts'
 
@@ -55,6 +56,7 @@ interface ExpenseFormProps {
   trips: { id: number; name: string }[]
   projects: { id: number; name: string }[]
   error: RWGqlError
+  loading?: boolean
 }
 
 const SUBMIT_FLIGHTS_MUTATION = gql`
@@ -268,6 +270,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       exchangeRate,
       description,
       flightClass,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -294,6 +297,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       kilometers: 0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt,
@@ -552,7 +556,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             </Label>
             <TextField
               name="merchant"
-              defaultValue={''}
+              defaultValue={props.expense?.merchant || ''}
               className="rw-input"
               errorClassName="rw-input rw-input-error"
               validation={{ valueAsNumber: false }}
@@ -727,9 +731,9 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         </div>
 
         <div className="my-6 grid grid-cols-1">
-          <Button type="submit" variant="default" className="w-full">
-            Save
-          </Button>
+          <SaveButton
+            saving={props.loading || formMethods.formState.isSubmitting}
+          />
         </div>
       </Form>
     </>

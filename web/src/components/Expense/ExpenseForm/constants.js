@@ -739,3 +739,19 @@ export const BUCKET_TYPES = [
   { name: 'Average basket', value: 31.3 },
   { name: 'Meat and dairy heavy', value: 45.2 },
 ]
+
+// ponytail: placeholder CO2e factors, not sourced — replace with real figures per mode.
+// kg CO2e per NOK spent. Nonzero for both: a toll funds road infrastructure build/maintenance,
+// and a rental car carries embodied manufacturing emissions on top of the fuel it burns.
+export const TRAVEL_SPEND_FACTORS = {
+  'Road toll': 0.015,
+  'Rental car': 0.05,
+}
+
+// ponytail: placeholder CO2e factors, not sourced — replace with real figures per mode.
+// kg CO2e per km travelled.
+export const TRAVEL_DISTANCE_FACTORS = {
+  Bus: 0.09,
+  Train: 0.025,
+  Ferry: 0.17,
+}

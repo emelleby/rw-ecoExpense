@@ -2,6 +2,7 @@ export const schema = gql`
   type ExpenseCategory {
     id: Int!
     name: String!
+    group: String
     expenses: [Expense]!
   }
 
