@@ -14,7 +14,6 @@ import {
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
   Select,
@@ -31,6 +30,7 @@ import {
   decimalField,
   parseDecimal,
 } from './constants'
+import SaveButton from './SaveButton'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
 
@@ -41,6 +41,7 @@ interface ExpenseFormProps {
   expense?: FormExpense
   trips: { id: number; name: string }[]
   error: RWGqlError
+  loading?: boolean
 }
 
 export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
@@ -392,9 +393,7 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-        <Button type="submit" variant="default" className="w-full">
-          Save
-        </Button>
+        <SaveButton loading={props.loading} />
       </div>
     </Form>
   )

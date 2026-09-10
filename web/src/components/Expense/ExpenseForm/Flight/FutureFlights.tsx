@@ -42,6 +42,7 @@ import {
   FLIGHT_CLASSES,
   parseDecimal,
 } from '../constants'
+import SaveButton from '../SaveButton'
 import { FlightEmissionResult, getCurrencyConversionRate } from '../service'
 import UploadReciepts from '../UploadReciepts'
 
@@ -55,6 +56,7 @@ interface ExpenseFormProps {
   trips: { id: number; name: string }[]
   projects: { id: number; name: string }[]
   error: RWGqlError
+  loading?: boolean
 }
 
 const SUBMIT_FLIGHTS_MUTATION = gql`
@@ -727,9 +729,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         </div>
 
         <div className="my-6 grid grid-cols-1">
-          <Button type="submit" variant="default" className="w-full">
-            Save
-          </Button>
+          <SaveButton loading={props.loading} />
         </div>
       </Form>
     </>

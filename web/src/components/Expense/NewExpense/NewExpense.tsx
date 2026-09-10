@@ -20,6 +20,7 @@ const CATEGORIES_QUERY = gql`
     expenseCategories {
       id
       name
+      group
     }
   }
 `

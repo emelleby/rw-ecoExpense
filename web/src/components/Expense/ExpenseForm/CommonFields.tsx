@@ -20,7 +20,7 @@ import {
 interface CommonFieldsProps<T = Record<string, unknown>> {
   trips: { id: number; name: string }[]
   tripId?: number
-  description?: string
+  description?: string | null
   formMethods?: UseFormReturn<T, unknown>
 }
 

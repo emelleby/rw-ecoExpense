@@ -25,6 +25,7 @@ interface ExpenseFormProps {
   trips: { id: number; name: string }[]
   projects: { id: number; name: string }[]
   error: RWGqlError
+  loading?: boolean
 }
 
 export const Flight: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {

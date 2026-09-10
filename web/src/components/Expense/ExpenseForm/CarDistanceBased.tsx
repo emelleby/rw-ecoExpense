@@ -15,7 +15,6 @@ import {
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/Button'
 import {
   Select,
   SelectContent,
@@ -27,6 +26,7 @@ import {
 
 import { CommonFields } from './CommonFields'
 import { FUEL_FACTORS_DATA, FUEL_TYPE_LIST } from './constants'
+import SaveButton from './SaveButton'
 import UploadReciepts from './UploadReciepts'
 
 import { Switch } from '@/components/ui/Switch'
@@ -39,12 +39,14 @@ interface ExpenseFormProps {
   trips: { id: number; name: string }[]
 
   error: RWGqlError
+  loading?: boolean
 }
 
 export const CarDistanceBased: FC<ExpenseFormProps> = ({
   expense,
   trips,
 
+  loading,
   onSave,
 }) => {
   // Set up form with all default values in one place
@@ -442,9 +444,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-        <Button type="submit" variant="default" className="w-full">
-          Save
-        </Button>
+        <SaveButton loading={loading} />
       </div>
     </Form>
   )
