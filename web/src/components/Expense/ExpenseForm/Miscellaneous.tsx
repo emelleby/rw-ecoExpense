@@ -19,7 +19,6 @@ import {
 import { TypedDocumentNode, useQuery } from '@redwoodjs/web'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
   Select,
@@ -33,6 +32,7 @@ import { Loading } from '../EditExpenseCell'
 
 import { CommonFields } from './CommonFields'
 import { CURRENCIES_OF_COUTRIES, decimalField, parseDecimal } from './constants'
+import SaveButton from './SaveButton'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
 
@@ -44,6 +44,7 @@ interface ExpenseFormProps {
   trips: { id: number; name: string }[]
   projects: { id: number; name: string }[]
   error: RWGqlError
+  loading?: boolean
 }
 
 const QUERY: TypedDocumentNode<FindSectors, FindSectorsVariables> = gql`
@@ -158,6 +159,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
       nokAmount,
       exchangeRate,
       description,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -184,6 +186,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
       kilometers: 0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt, // Add the nested receipt object
@@ -258,7 +261,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
         </div>
       </div>
 
-      <div className="gap-x-7-4 grid grid-cols-1 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
         <div>
           <Label
             name="merchant"
@@ -269,7 +272,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
           </Label>
           <TextField
             name="merchant"
-            defaultValue={''}
+            defaultValue={props.expense?.merchant || ''}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: false }}
@@ -426,9 +429,9 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-        <Button type="submit" variant="default" className="w-full">
-          Save
-        </Button>
+        <SaveButton
+          saving={props.loading || formMethods.formState.isSubmitting}
+        />
       </div>
     </Form>
   )

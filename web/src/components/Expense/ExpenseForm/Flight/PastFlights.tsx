@@ -20,7 +20,6 @@ import {
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
   Select,
@@ -39,6 +38,7 @@ import {
   FLIGHT_CLASSES,
   parseDecimal,
 } from '../constants'
+import SaveButton from '../SaveButton'
 import { calculateEmissions, getCurrencyConversionRate } from '../service'
 import UploadReciepts from '../UploadReciepts'
 
@@ -53,6 +53,7 @@ interface ExpenseFormProps {
   trips: { id: number; name: string }[]
   projects: { id: number; name: string }[]
   error: RWGqlError
+  loading?: boolean
 }
 
 export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
@@ -136,6 +137,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       nokAmount,
       exchangeRate,
       description,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -162,6 +164,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       kilometers: 0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt, // Add the nested receipt object
@@ -403,7 +406,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           </Label>
           <TextField
             name="merchant"
-            defaultValue={''}
+            defaultValue={props.expense?.merchant || ''}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: false }}
@@ -582,9 +585,9 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       </div>
 
       <div className="my-6 grid grid-cols-1">
-        <Button type="submit" variant="default" className="w-full">
-          Save
-        </Button>
+        <SaveButton
+          saving={props.loading || formMethods.formState.isSubmitting}
+        />
       </div>
     </Form>
   )

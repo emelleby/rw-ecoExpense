@@ -14,7 +14,6 @@ import {
 } from '@redwoodjs/forms'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
   Select,
@@ -32,6 +31,7 @@ import {
   FUEL_FACTORS_DATA,
   parseDecimal,
 } from './constants'
+import SaveButton from './SaveButton'
 import { getCurrencyConversionRate } from './service'
 import UploadReciepts from './UploadReciepts'
 
@@ -55,11 +55,13 @@ interface FuelExpenseProps {
   expense?: FormExpense
   trips: { id: number; name: string }[]
   error?: RWGqlError
+  loading?: boolean
 }
 
 export const FuelExpense: FC<FuelExpenseProps> = ({
   expense,
   trips,
+  loading,
   onSave,
 }) => {
   const formMethods = useForm<FuelExpenseFormValues>({
@@ -432,9 +434,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-        <Button type="submit" variant="default" className="w-full">
-          Save
-        </Button>
+        <SaveButton saving={loading || formMethods.formState.isSubmitting} />
       </div>
     </Form>
   )

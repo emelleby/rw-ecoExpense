@@ -5,9 +5,9 @@ import type { EditExpenseById, CreateExpenseInput } from 'types/graphql'
 import {
   Controller,
   FieldError,
-  NumberField,
   Form,
   Label,
+  NumberField,
   RWGqlError,
   TextField,
   useForm,
@@ -15,20 +15,13 @@ import {
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
 import { Combobox } from 'src/components/ui/combobox'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from 'src/components/ui/Select'
 
 import { CommonFields } from './CommonFields'
 import {
-  BUCKET_TYPES,
   CURRENCIES_OF_COUTRIES,
   decimalField,
   parseDecimal,
+  TRAVEL_DISTANCE_FACTORS,
 } from './constants'
 import SaveButton from './SaveButton'
 import { getCurrencyConversionRate } from './service'
@@ -37,36 +30,34 @@ import UploadReciepts from './UploadReciepts'
 type FormExpense = NonNullable<EditExpenseById['expense']>
 
 interface ExpenseFormProps {
-  onSave: (data: CreateExpenseInput, id?: number) => void // Accept CreateExpenseInput directly
+  onSave: (data: CreateExpenseInput, id?: number) => void
   expense?: FormExpense
   trips: { id: number; name: string }[]
   error: RWGqlError
   loading?: boolean
+  categoryId: number
+  name: string
 }
 
-export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
+export const PublicTransport: FC<ExpenseFormProps> = (
+  props: ExpenseFormProps
+) => {
   const date = new Date()
 
   const formMethods = useForm()
 
-  //const { showLoader, hideLoader } = useLoader()
-
   const [fileName, setFileName] = useState(
     props.expense?.receipt?.fileName || ''
   )
-
   const [fileType, setFileType] = useState(
     props.expense?.receipt?.fileType || ''
   )
-
   const [receiptUrl, setReceiptUrl] = useState(
     props.expense?.receipt?.url || ''
   )
-
   const [exchangeRate, setExchangeRate] = useState(
     props.expense?.exchangeRate || 1
   )
-
   const [selectedDate, setSelectedDate] = useState(date)
 
   const onCurrencyChange = async (value: string) => {
@@ -88,18 +79,18 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           formMethods.setValue('nokAmount', parseFloat(nokAmount))
         }
       }
-    } catch (error) {
+    } catch {
       formMethods.setError('exchangeRate', {
         type: 'manual',
-        message: `Failed to fetch exchange rate: ${error.message}. Please enter manually.`,
+        message: 'Failed to fetch exchange rate. Please enter manually.',
       })
     }
   }
 
   const getEmission = async (data) => {
-    const { nokAmount, bucketFactor } = data
-
-    const emission = Number(bucketFactor) * (nokAmount / 1000)
+    const { kilometers } = data
+    const factor = TRAVEL_DISTANCE_FACTORS[props.name] || 0
+    const emission = factor * Number(kilometers || 0)
 
     return {
       scope1Co2Emissions: 0,
@@ -109,9 +100,6 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
   }
 
   const onSubmit = async (data) => {
-    // Construct the receipt object
-    //console.log('Receipt data submitted:', { receiptUrl, fileName, fileType }
-
     const {
       date,
       tripId,
@@ -120,15 +108,11 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       nokAmount,
       exchangeRate,
       description,
-      merchant,
+      kilometers,
     } = data
 
     const receipt = receiptUrl
-      ? {
-          url: receiptUrl,
-          fileName: fileName!,
-          fileType: fileType!,
-        }
+      ? { url: receiptUrl, fileName: fileName!, fileType: fileType! }
       : undefined
 
     const emission = await getEmission(data)
@@ -140,106 +124,84 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       currency,
       nokAmount,
       exchangeRate,
-      categoryId: 5,
+      categoryId: props.categoryId,
       fuelAmountLiters: 0.0,
       fuelType: '',
-      kilometers: 0,
+      kilometers: Number(kilometers || 0),
       kwh: 0,
       description,
-      merchant,
       scope3CategoryId: 6,
       ...emission,
-      receipt, // Add the nested receipt object
+      receipt,
     }
 
-    // format the data before sending it to the server
-
-    //const formattedData = formatData(dataWithReceipt)
     props.onSave(dataWithReceipt, props?.expense?.id)
-
-    //console.log(dataWithReceipt)
   }
 
   useEffect(() => {
     async function fetchExchangeRate() {
-      const currency =
-        formMethods.getValues('currency') || props.expense?.currency
-      if (currency) {
-        const newExchangeRate = await getCurrencyConversionRate(
-          currency,
-          selectedDate
-        )
-        formMethods.setValue('exchangeRate', newExchangeRate)
-        setExchangeRate(newExchangeRate)
-      }
+      const exchangeRate = await getCurrencyConversionRate(
+        props.expense?.currency,
+        selectedDate
+      )
+      formMethods.setValue('exchangeRate', exchangeRate)
+      setExchangeRate(exchangeRate)
     }
-    fetchExchangeRate()
+    if (props.expense?.currency) {
+      fetchExchangeRate()
+    } else {
+      formMethods.setValue('exchangeRate', 0)
+    }
   }, [selectedDate, formMethods, props.expense?.currency])
 
   return (
     <Form formMethods={formMethods} onSubmit={onSubmit}>
-      <div className=" grid grid-cols-1 gap-x-4 md:grid-cols-2">
+      <div className="grid grid-cols-2 gap-x-4">
         <div>
           <Label
-            name="bucketFactor"
-            className="rw-label mb-2"
-            errorClassName="rw-label rw-label-error"
-          >
-            Basket Type
-          </Label>
-
-          <Controller
-            name="bucketFactor"
-            defaultValue={BUCKET_TYPES[0].value.toString()}
-            rules={{ required: true }}
-            render={({ field }) => (
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value)
-                  // formMethods.setValue('economy', VEHICLE_ECONOMY[value])
-                }}
-                value={field.value}
-                defaultValue={BUCKET_TYPES[0].value.toString()}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select fuel type ..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {BUCKET_TYPES.map((bucket) => (
-                    <SelectItem
-                      key={bucket.value}
-                      value={bucket.value.toString()}
-                    >
-                      {bucket.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-
-          <FieldError name="purchaceType" className="rw-field-error" />
-        </div>
-        <div>
-          <Label
-            name="merchant"
+            name="date"
             className="rw-label"
             errorClassName="rw-label rw-label-error"
           >
-            Merchant
+            Date
           </Label>
-          <TextField
-            name="merchant"
-            defaultValue={props.expense?.merchant || ''}
-            className="rw-input"
+
+          <DatetimeLocalField
+            name="date"
+            defaultValue={new Date()}
+            onChange={(date) => setSelectedDate(date)}
+            className="rw-input-calendar"
             errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: false }}
+            validation={{ required: true }}
           />
-          <FieldError name="merchant" className="rw-field-error" />
+
+          <FieldError name="date" className="rw-field-error" />
+        </div>
+
+        <div>
+          <Label
+            name="kilometers"
+            className="rw-label"
+            errorClassName="rw-label rw-label-error"
+          >
+            Distance
+          </Label>
+          <div className="relative flex items-center">
+            <NumberField
+              name="kilometers"
+              defaultValue={props.expense?.kilometers || 0}
+              className="rw-input flex-1 pr-16"
+              validation={{ required: true, min: 0 }}
+            />
+            <span className="absolute right-2 mt-1 text-sm text-muted-foreground">
+              Km
+            </span>
+          </div>
+          <FieldError name="kilometers" className="rw-field-error" />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 lg:grid-cols-4">
         <div>
           <Label
             name="amount"
@@ -302,34 +264,23 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           >
             Exchange rate
           </Label>
-          <NumberField
+          <TextField
             name="exchangeRate"
-            placeholder="0"
-            defaultValue={props.expense?.exchangeRate || undefined}
-            className="rw-input"
-            step="0.0001"
-            onChange={(e) => {
-              const value = Number(e.target.value)
-              setExchangeRate(value)
-              formMethods.setValue('exchangeRate', value)
-              formMethods.clearErrors('exchangeRate')
+            defaultValue={props.expense?.exchangeRate}
+            validation={{ valueAsNumber: true }}
+            onChange={(event) => {
+              const newExchangeRate = event.target.value.replace(/[^0-9.]/g, '')
+              setExchangeRate(Number(newExchangeRate))
+              formMethods.setValue('exchangeRate', newExchangeRate)
 
               const amount = formMethods.getValues('amount')
               if (amount) {
-                const nokAmount = amount * value
-                formMethods.setValue(
-                  'nokAmount',
-                  parseFloat(nokAmount.toFixed(2))
-                )
+                const nokAmount = amount * Number(newExchangeRate)
+                formMethods.setValue('nokAmount', nokAmount)
               }
             }}
+            className="rw-input"
             errorClassName="rw-input rw-input-error"
-            validation={{
-              valueAsNumber: true,
-              required: true,
-              validate: (value) =>
-                value > 0 || 'Exchange rate must be greater than 0',
-            }}
           />
           <FieldError name="exchangeRate" className="rw-field-error" />
         </div>
@@ -354,28 +305,6 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           />
           <FieldError name="nokAmount" className="rw-field-error" />
         </div>
-      </div>
-      <div>
-        <Label
-          name="date"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Date
-        </Label>
-
-        <DatetimeLocalField
-          name="date"
-          defaultValue={new Date()}
-          onChange={(date) => {
-            setSelectedDate(date)
-          }}
-          className="rw-input-calendar"
-          errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
-        />
-
-        <FieldError name="date" className="rw-field-error" />
       </div>
 
       <CommonFields

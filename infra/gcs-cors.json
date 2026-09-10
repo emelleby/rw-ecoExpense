@@ -2,7 +2,8 @@
   {
     "origin": [
       "http://localhost:8910",
-      "https://REPLACE-WITH-PRODUCTION-DOMAIN.example"
+      "https://ecoexpense.app",
+      "https://www.ecoexpense.app"
     ],
     "method": ["PUT", "GET"],
     "responseHeader": ["Content-Type"],

@@ -12,12 +12,16 @@ import { Flight } from './Flight'
 import { FuelExpense } from './FuelExpenses'
 import { Groceries } from './Groceries'
 import { Miscellaneous } from './Miscellaneous'
+import { PublicTransport } from './PublicTransport'
+import { TravelSpend } from './TravelSpend'
 
 import { Label } from '@/components/ui/Label'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
@@ -39,21 +43,42 @@ interface ExpenseFormProps {
   categories: {
     id: number
     name: string
+    group?: string
   }[]
 }
 
+// Which form each category renders is keyed by name, not id: ids are
+// assigned by seed order, so an id-based switch would silently break
+// (falling through to Accommodation) if categories are ever reseeded.
 const Fields = ({ type, ...props }: { type: string } & ExpenseFormProps) => {
-  switch (type) {
-    case '2':
+  const category = props.categories?.find((c) => c.id === Number(type))
+
+  switch (category?.name) {
+    case 'Car - distance-based':
       return <CarDistanceBased {...props} />
-    case '3':
+    case 'Fuel Expenses':
       return <FuelExpense {...props} />
-    case '4':
+    case 'Flights':
       return <Flight {...props} />
-    case '6':
+    case 'Other miscellaneous':
       return <Miscellaneous {...props} />
-    case '5':
+    case 'Groceries':
       return <Groceries {...props} />
+    case 'Bus':
+    case 'Train':
+    case 'Ferry':
+      return (
+        <PublicTransport
+          categoryId={category.id}
+          name={category.name}
+          {...props}
+        />
+      )
+    case 'Road toll':
+    case 'Rental car':
+      return (
+        <TravelSpend categoryId={category.id} name={category.name} {...props} />
+      )
     default:
       return <Accommodation trips={props.trips} {...props} />
   }
@@ -92,10 +117,28 @@ const ExpenseForm = (props: ExpenseFormProps) => {
           <SelectValue placeholder="Select a category..." />
         </SelectTrigger>
         <SelectContent>
-          {props.categories?.map((category) => (
-            <SelectItem key={category.id} value={category.id.toString()}>
-              {category.name}
-            </SelectItem>
+          {props.categories
+            ?.filter((category) => !category.group)
+            .map((category) => (
+              <SelectItem key={category.id} value={category.id.toString()}>
+                {category.name}
+              </SelectItem>
+            ))}
+          {Array.from(
+            new Set(
+              props.categories?.filter((c) => c.group).map((c) => c.group)
+            )
+          ).map((group) => (
+            <SelectGroup key={group}>
+              <SelectLabel>{group}</SelectLabel>
+              {props.categories
+                ?.filter((category) => category.group === group)
+                .map((category) => (
+                  <SelectItem key={category.id} value={category.id.toString()}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+            </SelectGroup>
           ))}
         </SelectContent>
       </Select>

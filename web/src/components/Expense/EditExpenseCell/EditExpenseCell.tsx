@@ -53,6 +53,7 @@ export const QUERY: TypedDocumentNode<EditExpenseById> = gql`
     expenseCategories {
       id
       name
+      group
     }
   }
 `
