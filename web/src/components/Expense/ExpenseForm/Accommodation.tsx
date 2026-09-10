@@ -488,7 +488,7 @@ export const Accommodation = ({
           setReceiptUrl={setReceiptUrl}
         />
 
-        <SaveButton loading={loading} />
+        <SaveButton saving={loading || formMethods.formState.isSubmitting} />
       </div>
     </Form>
   )

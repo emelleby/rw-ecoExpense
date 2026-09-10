@@ -4,25 +4,26 @@ import { useFormContext } from 'react-hook-form'
 import { Button } from 'src/components/ui/Button'
 
 interface SaveButtonProps {
+  saving?: boolean
   loading?: boolean
 }
 
-const SaveButton = ({ loading }: SaveButtonProps) => {
-  const {
-    formState: { isSubmitting },
-  } = useFormContext()
-  const saving = isSubmitting || loading
+const SaveButton = ({ saving, loading }: SaveButtonProps) => {
+  const { formState } = useFormContext() ?? {
+    formState: { isSubmitting: false },
+  }
+  const busy = saving || loading || formState.isSubmitting
 
   return (
     <Button
       type="submit"
       variant="default"
       className="w-full"
-      disabled={saving}
-      aria-busy={saving}
+      disabled={busy}
+      aria-busy={busy}
     >
-      {saving && <Loader2 className="animate-spin" />}
-      {saving ? 'Saving...' : 'Save'}
+      {busy && <Loader2 className="animate-spin" />}
+      {busy ? 'Saving...' : 'Save'}
     </Button>
   )
 }

@@ -120,6 +120,7 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       nokAmount,
       exchangeRate,
       description,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -145,6 +146,7 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       kilometers: 0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt, // Add the nested receipt object
@@ -228,7 +230,7 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           </Label>
           <TextField
             name="merchant"
-            defaultValue={''}
+            defaultValue={props.expense?.merchant || ''}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: false }}
@@ -393,7 +395,9 @@ export const Groceries: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-        <SaveButton loading={props.loading} />
+        <SaveButton
+          saving={props.loading || formMethods.formState.isSubmitting}
+        />
       </div>
     </Form>
   )

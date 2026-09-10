@@ -434,7 +434,7 @@ export const FuelExpense: FC<FuelExpenseProps> = ({
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-        <SaveButton loading={loading} />
+        <SaveButton saving={loading || formMethods.formState.isSubmitting} />
       </div>
     </Form>
   )

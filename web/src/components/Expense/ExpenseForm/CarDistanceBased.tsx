@@ -444,7 +444,7 @@ export const CarDistanceBased: FC<ExpenseFormProps> = ({
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-        <SaveButton loading={loading} />
+        <SaveButton saving={loading || formMethods.formState.isSubmitting} />
       </div>
     </Form>
   )

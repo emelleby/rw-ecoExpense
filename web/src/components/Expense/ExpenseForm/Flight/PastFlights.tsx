@@ -137,6 +137,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       nokAmount,
       exchangeRate,
       description,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -163,6 +164,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       kilometers: 0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt, // Add the nested receipt object
@@ -404,7 +406,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           </Label>
           <TextField
             name="merchant"
-            defaultValue={''}
+            defaultValue={props.expense?.merchant || ''}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: false }}
@@ -583,7 +585,9 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       </div>
 
       <div className="my-6 grid grid-cols-1">
-        <SaveButton loading={props.loading} />
+        <SaveButton
+          saving={props.loading || formMethods.formState.isSubmitting}
+        />
       </div>
     </Form>
   )

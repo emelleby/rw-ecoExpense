@@ -270,6 +270,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       exchangeRate,
       description,
       flightClass,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -296,6 +297,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       kilometers: 0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt,
@@ -554,7 +556,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             </Label>
             <TextField
               name="merchant"
-              defaultValue={''}
+              defaultValue={props.expense?.merchant || ''}
               className="rw-input"
               errorClassName="rw-input rw-input-error"
               validation={{ valueAsNumber: false }}
@@ -729,7 +731,9 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         </div>
 
         <div className="my-6 grid grid-cols-1">
-          <SaveButton loading={props.loading} />
+          <SaveButton
+            saving={props.loading || formMethods.formState.isSubmitting}
+          />
         </div>
       </Form>
     </>

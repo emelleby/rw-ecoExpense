@@ -159,6 +159,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
       nokAmount,
       exchangeRate,
       description,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -185,6 +186,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
       kilometers: 0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt, // Add the nested receipt object
@@ -259,7 +261,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
         </div>
       </div>
 
-      <div className="gap-x-7-4 grid grid-cols-1 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
         <div>
           <Label
             name="merchant"
@@ -270,7 +272,7 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
           </Label>
           <TextField
             name="merchant"
-            defaultValue={''}
+            defaultValue={props.expense?.merchant || ''}
             className="rw-input"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: false }}
@@ -427,7 +429,9 @@ export const Miscellaneous: FC<ExpenseFormProps> = (
           setFileType={setFileType}
           setReceiptUrl={setReceiptUrl}
         />
-        <SaveButton loading={props.loading} />
+        <SaveButton
+          saving={props.loading || formMethods.formState.isSubmitting}
+        />
       </div>
     </Form>
   )
