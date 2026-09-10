@@ -746,6 +746,7 @@ export const BUCKET_TYPES = [
 export const TRAVEL_SPEND_FACTORS = {
   'Road toll': 0.015,
   'Rental car': 0.05,
+  Parking: 0.01,
 }
 
 // ponytail: placeholder CO2e factors, not sourced — replace with real figures per mode.

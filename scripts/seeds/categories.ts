@@ -10,4 +10,5 @@ export const categories = [
   { name: 'Ferry', norName: 'Ferge', group: 'Travel' },
   { name: 'Road toll', norName: 'Bompenger', group: 'Travel' },
   { name: 'Rental car', norName: 'Leiebil', group: 'Travel' },
+  { name: 'Parking', norName: 'Parkering', group: 'Travel' },
 ]

@@ -34,6 +34,7 @@ describe('ExpenseForm travel categories', () => {
     { id: 27, name: 'Ferry', group: 'Travel' },
     { id: 28, name: 'Road toll', group: 'Travel' },
     { id: 29, name: 'Rental car', group: 'Travel' },
+    { id: 30, name: 'Parking', group: 'Travel' },
   ]
 
   const defaultProps = {
@@ -50,7 +51,14 @@ describe('ExpenseForm travel categories', () => {
     await userEvent.click(screen.getByText('Accommodation').closest('button'))
 
     expect(screen.getByText('Travel')).toBeInTheDocument()
-    for (const name of ['Bus', 'Train', 'Ferry', 'Road toll', 'Rental car']) {
+    for (const name of [
+      'Bus',
+      'Train',
+      'Ferry',
+      'Road toll',
+      'Rental car',
+      'Parking',
+    ]) {
       expect(screen.getByText(name)).toBeInTheDocument()
     }
   })

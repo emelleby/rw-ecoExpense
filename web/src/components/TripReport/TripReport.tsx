@@ -6,15 +6,14 @@ import {
   Store,
   Briefcase,
   DollarSign,
-  BarChart,
   Plane,
   User,
   Home,
-  Building,
   CreditCard,
   Mail,
 } from 'lucide-react'
 
+import ReceiptPreview from 'src/components/ReceiptPreview/ReceiptPreview'
 import {
   Card,
   CardContent,
@@ -198,9 +197,8 @@ const TripReport = ({ trip }: TripReportProps) => {
                   {/* Receipt image - only shown if available */}
                   {expense.receipt?.url && (
                     <div className="sm:max-w-1/3 h-auto">
-                      <img
-                        src={expense.receipt.url}
-                        alt="Receipt"
+                      <ReceiptPreview
+                        url={expense.receipt.url}
                         className="h-full max-h-80 w-full object-contain"
                       />
                     </div>

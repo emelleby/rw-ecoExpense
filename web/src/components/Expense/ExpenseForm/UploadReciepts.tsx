@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 
-import { CameraIcon, FileTextIcon, PlusIcon } from 'lucide-react'
+import { CameraIcon, PlusIcon } from 'lucide-react'
 import {
   CreateUploadUrlMutation,
   CreateUploadUrlMutationVariables,
@@ -11,6 +11,7 @@ import {
 import { gql, TypedDocumentNode, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import ReceiptPreview from 'src/components/ReceiptPreview/ReceiptPreview'
 import { Button } from 'src/components/ui/Button'
 import useLoader from 'src/hooks/useLoader'
 
@@ -76,7 +77,6 @@ export default function UploadReciepts({
   const [createUploadUrl] = useMutation(CREATE_UPLOAD_URL_MUTATION)
 
   const isGcsUrl = receiptUrl.includes('storage.googleapis.com/')
-  const isImage = fileType.startsWith('image/')
 
   const onReplaceClick = async () => {
     const receiptId = id || 0
@@ -199,25 +199,13 @@ export default function UploadReciepts({
         <div className="mt-4">
           <h3 className="rw-label">Receipt Preview</h3>
           <div className="mx-auto w-full max-w-sm">
-            {isGcsUrl && isImage && (
-              <img
-                src={receiptUrl}
-                alt="Receipt preview"
+            {isGcsUrl && (
+              <ReceiptPreview
+                url={receiptUrl}
+                fileType={fileType}
+                fileName={fileName}
                 className="h-auto w-full rounded-lg object-contain shadow-md"
               />
-            )}
-            {isGcsUrl && !isImage && (
-              <a
-                href={receiptUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-lg border p-4 hover:bg-accent"
-              >
-                <FileTextIcon className="size-6 shrink-0" />
-                <span className="break-all text-sm underline">
-                  {fileName || 'Open receipt (PDF)'}
-                </span>
-              </a>
             )}
             {!isGcsUrl && (
               <div className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
