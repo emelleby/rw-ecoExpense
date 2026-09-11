@@ -10,7 +10,16 @@ import type { TypedDocumentNode } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { QUERY } from 'src/components/Sector/SectorsCell'
-import { truncate } from 'src/lib/formatters'
+
+import { Button } from '@/components/ui/Button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/Table'
 
 const DELETE_SECTOR_MUTATION: TypedDocumentNode<
   DeleteSectorMutation,
@@ -45,54 +54,58 @@ const SectorsList = ({ sectors }: FindSectors) => {
   }
 
   return (
-    <div className="rw-segment rw-table-wrapper-responsive">
-      <table className="rw-table">
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Factor</th>
-            <th>Currency</th>
-            <th>&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sectors.map((sector) => (
-            <tr key={sector.id}>
-              <td>{truncate(sector.id)}</td>
-              <td>{truncate(sector.name)}</td>
-              <td>{truncate(sector.factor)}</td>
-              <td>{truncate(sector.currency)}</td>
-              <td>
-                <nav className="rw-table-actions">
-                  <Link
-                    to={routes.sector({ id: sector.id })}
-                    title={'Show sector ' + sector.id + ' detail'}
-                    className="rw-button rw-button-small rw-button-green"
-                  >
-                    Show
-                  </Link>
-                  <Link
-                    to={routes.editSector({ id: sector.id })}
-                    title={'Edit sector ' + sector.id}
-                    className="rw-button rw-button-small rw-button-blue"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    title={'Delete sector ' + sector.id}
-                    className="rw-button rw-button-small rw-button-red"
-                    onClick={() => onDeleteClick(sector.id)}
-                  >
-                    Delete
-                  </button>
-                </nav>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="mx-auto max-w-3xl p-6">
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Factor</TableHead>
+              <TableHead>Currency</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sectors.map((sector) => (
+              <TableRow key={sector.id} className="hover:bg-neutral-100">
+                <TableCell className="font-medium">{sector.name}</TableCell>
+                <TableCell>{sector.factor}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {sector.currency}
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link
+                        to={routes.sector({ id: sector.id })}
+                        title={'Show sector ' + sector.id + ' detail'}
+                      >
+                        Show
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link
+                        to={routes.editSector({ id: sector.id })}
+                        title={'Edit sector ' + sector.id}
+                      >
+                        Edit
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      title={'Delete sector ' + sector.id}
+                      onClick={() => onDeleteClick(sector.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }
