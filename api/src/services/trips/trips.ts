@@ -6,6 +6,7 @@ import type {
 
 import { getConversionRate } from 'src/lib/currency'
 import { db } from 'src/lib/db'
+import { ForbiddenError } from '@redwoodjs/graphql-server'
 
 export const trips: QueryResolvers['trips'] = () => {
   return db.trip.findMany()
@@ -41,6 +42,12 @@ export const tripsByUser: QueryResolvers['tripsByUser'] = ({ take }) => {
       startDate: 'desc',
     },
   })
+}
+
+export const sharedTripReport: QueryResolvers['sharedTripReport'] = ({
+  token,
+}) => {
+  return db.trip.findUnique({ where: { shareToken: token } })
 }
 
 export const createTrip: MutationResolvers['createTrip'] = ({ input }) => {
@@ -169,6 +176,36 @@ export const updateTrip: MutationResolvers['updateTrip'] = async ({
   return updated
 }
 
+export const createShareLink: MutationResolvers['createShareLink'] = async ({
+  tripId,
+}) => {
+  const existing = await db.trip.findUnique({ where: { id: tripId } })
+
+  if (!existing || existing.userId !== context.currentUser.dbUserId) {
+    throw new ForbiddenError('You do not own this trip')
+  }
+
+  return db.trip.update({
+    where: { id: tripId },
+    data: { shareToken: crypto.randomUUID() },
+  })
+}
+
+export const revokeShareLink: MutationResolvers['revokeShareLink'] = async ({
+  tripId,
+}) => {
+  const existing = await db.trip.findUnique({ where: { id: tripId } })
+
+  if (!existing || existing.userId !== context.currentUser.dbUserId) {
+    throw new ForbiddenError('You do not own this trip')
+  }
+
+  return db.trip.update({
+    where: { id: tripId },
+    data: { shareToken: null },
+  })
+}
+
 // a function to update reimbursementStatus of all trips of a specific user input will be reimbursementStatus only which can be
 // NOT_REQUESTED, PENDING, REIMBURSED
 
@@ -178,6 +215,7 @@ export const updateReimbursementStatus: MutationResolvers['updateReimbursementSt
       await db.trip.updateMany({
         data: {
           reimbursementStatus: reimbursementStatus,
+          ...(reimbursementStatus === 'REIMBURSED' && { shareToken: null }),
         },
         where: {
           id: id,

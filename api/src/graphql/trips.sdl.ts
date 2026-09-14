@@ -14,6 +14,8 @@ export const schema = gql`
     projectId: Int
     project: Project
     secondaryCurrency: String
+    isPrivate: Boolean!
+    shareToken: String
   }
 
   enum ReimbursementStatus {
@@ -27,6 +29,7 @@ export const schema = gql`
     trip(id: Int!): Trip @requireAuth
     tripsByUser(take: Int): [Trip!]! @requireAuth
     topTripsByUser: [Trip!]! @requireAuth
+    sharedTripReport(token: String!): Trip @skipAuth
   }
 
   input CreateTripInput {
@@ -51,6 +54,7 @@ export const schema = gql`
     transactionId: String
     projectId: Int
     secondaryCurrency: String
+    isPrivate: Boolean
   }
 
   input UpdateReimbursementStatusInput {
@@ -65,5 +69,7 @@ export const schema = gql`
       reimbursementStatus: ReimbursementStatus!
       id: Int!
     ): Boolean! @requireAuth
+    createShareLink(tripId: Int!): Trip! @requireAuth
+    revokeShareLink(tripId: Int!): Trip! @requireAuth
   }
 `

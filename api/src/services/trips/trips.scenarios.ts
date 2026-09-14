@@ -8,22 +8,17 @@ export const standard = defineScenario<Prisma.TripCreateArgs>({
         name: 'String',
         startDate: '2024-11-19T23:29:58.055Z',
         endDate: '2024-11-19T23:29:58.056Z',
-        user: {
+        User: {
           create: {
             username: 'String8915191',
             email: 'String729604',
-            organization: {
-              create: { regnr: 'String75909', name: 'String8427115' },
-            },
-            role: {
-              create: {
-                name: 'String',
-                organization: {
-                  create: { regnr: 'String5252450', name: 'String1321675' },
-                },
-              },
+            Organization: {
+              create: { regnr: '123456789', name: 'String8427115' },
             },
           },
+        },
+        Project: {
+          create: { name: 'String' },
         },
       },
     },
@@ -32,23 +27,38 @@ export const standard = defineScenario<Prisma.TripCreateArgs>({
         name: 'String',
         startDate: '2024-11-19T23:29:58.056Z',
         endDate: '2024-11-19T23:29:58.056Z',
-        user: {
+        User: {
           create: {
             username: 'String9835652',
             email: 'String1223250',
-            organization: {
-              create: { regnr: 'String8306848', name: 'String2468492' },
-            },
-            role: {
-              create: {
-                name: 'String',
-                organization: {
-                  create: { regnr: 'String2574908', name: 'String9533643' },
-                },
-              },
+            Organization: {
+              create: { regnr: '987654321', name: 'String1321675' },
             },
           },
         },
+        Project: {
+          create: { name: 'String' },
+        },
+      },
+    },
+    three: {
+      data: {
+        name: 'String',
+        startDate: '2024-11-19T23:29:58.056Z',
+        endDate: '2024-11-19T23:29:58.056Z',
+        User: {
+          create: {
+            username: 'String7261543',
+            email: 'String9183746',
+            Organization: {
+              create: { regnr: '456789123', name: 'String6392814' },
+            },
+          },
+        },
+        Project: {
+          create: { name: 'String' },
+        },
+        shareToken: 'pre-existing-share-token',
       },
     },
   },

@@ -180,6 +180,8 @@ model Trip {
   projectId           Int
   Project             Project             @relation(fields: [projectId], references: [id])
   secondaryCurrency   String?             @db.VarChar(3)
+  isPrivate           Boolean             @default(false)
+  shareToken          String?             @unique
 }
 
 // Rate model
