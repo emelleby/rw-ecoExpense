@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/Button'
 
@@ -13,8 +13,24 @@ type TravelModeType = 'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT'
 interface RouteInfo {
   distance: string
   duration: string
-  loading: boolean
-  error: string | null
+}
+
+// ponytail: localStorage is the cache. A route between two fixed points doesn't
+// change, so one Directions call per (origin, destination, mode) — ever.
+// Move to the DB only if the distance needs to be queryable server-side.
+const cacheGet = (key: string): RouteInfo | null => {
+  try {
+    return JSON.parse(localStorage.getItem(key) || 'null')
+  } catch {
+    return null
+  }
+}
+const cacheSet = (key: string, value: RouteInfo) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    /* quota / private mode — the fetch still worked */
+  }
 }
 
 const DistanceCalculation = ({
@@ -22,109 +38,62 @@ const DistanceCalculation = ({
   workLocation,
   isLoaded,
 }: DistanceCalculationProps) => {
-  console.log('Home Location:', homeLocation)
-  console.log('Work Location:', workLocation)
   const [selectedMode, setSelectedMode] = useState<TravelModeType>('DRIVING')
-  const [routeInfo, setRouteInfo] = useState<Record<TravelModeType, RouteInfo>>(
-    {
-      DRIVING: { distance: '', duration: '', loading: true, error: null },
-      WALKING: { distance: '', duration: '', loading: true, error: null },
-      BICYCLING: { distance: '', duration: '', loading: true, error: null },
-      TRANSIT: { distance: '', duration: '', loading: true, error: null },
-    }
-  )
+  const [routes, setRoutes] = useState<
+    Partial<Record<TravelModeType, RouteInfo>>
+  >({})
+  const [error, setError] = useState<string | null>(null)
 
-  const calculateRoute = useCallback(
-    (travelMode: TravelModeType) => {
-      if (!isLoaded || !homeLocation || !workLocation) {
-        return
-      }
+  // Depend on the coordinates, not the prop objects: callers pass fresh object
+  // literals every render, which re-fired this effect (and the API) endlessly.
+  const { lat: oLat, lng: oLng } = homeLocation
+  const { lat: dLat, lng: dLng } = workLocation
 
-      // Update loading state for this travel mode
-      setRouteInfo((prev) => ({
-        ...prev,
-        [travelMode]: { ...prev[travelMode], loading: true, error: null },
-      }))
-
-      try {
-        const directionsService = new window.google.maps.DirectionsService()
-
-        directionsService.route(
-          {
-            origin: new window.google.maps.LatLng(
-              homeLocation.lat,
-              homeLocation.lng
-            ),
-            destination: new window.google.maps.LatLng(
-              workLocation.lat,
-              workLocation.lng
-            ),
-            travelMode: window.google.maps.TravelMode[travelMode],
-          },
-          (result, status) => {
-            if (status === 'OK' && result) {
-              const route = result.routes[0]
-              if (route && route.legs && route.legs[0]) {
-                setRouteInfo((prev) => ({
-                  ...prev,
-                  [travelMode]: {
-                    distance: route.legs[0].distance?.text || 'Unknown',
-                    duration: route.legs[0].duration?.text || 'Unknown',
-                    loading: false,
-                    error: null,
-                  },
-                }))
-              } else {
-                setRouteInfo((prev) => ({
-                  ...prev,
-                  [travelMode]: {
-                    ...prev[travelMode],
-                    loading: false,
-                    error: 'Could not calculate route details',
-                  },
-                }))
-              }
-            } else {
-              setRouteInfo((prev) => ({
-                ...prev,
-                [travelMode]: {
-                  ...prev[travelMode],
-                  loading: false,
-                  error: `Could not calculate route: ${status}`,
-                },
-              }))
-            }
-          }
-        )
-      } catch (err) {
-        console.error(`Error calculating ${travelMode} route:`, err)
-        setRouteInfo((prev) => ({
-          ...prev,
-          [travelMode]: {
-            ...prev[travelMode],
-            loading: false,
-            error: 'Error calculating distance',
-          },
-        }))
-      }
-    },
-    [isLoaded, homeLocation, workLocation]
-  )
-
-  // Calculate the route for the selected travel mode when component mounts or locations change
+  // Only the selected mode is ever shown, so only the selected mode is fetched.
   useEffect(() => {
-    if (!isLoaded || !homeLocation || !workLocation) {
+    if (!isLoaded) return
+
+    const key = `route:${oLat},${oLng}>${dLat},${dLng}:${selectedMode}`
+    const cached = cacheGet(key)
+    if (cached) {
+      setError(null)
+      setRoutes((prev) => ({ ...prev, [selectedMode]: cached }))
       return
     }
 
-    // Calculate routes for all travel modes
-    calculateRoute('DRIVING')
-    calculateRoute('WALKING')
-    calculateRoute('BICYCLING')
-    calculateRoute('TRANSIT')
-  }, [isLoaded, homeLocation, workLocation, calculateRoute])
+    let cancelled = false
+    setError(null)
 
-  const currentRouteInfo = routeInfo[selectedMode]
+    new window.google.maps.DirectionsService().route(
+      {
+        origin: new window.google.maps.LatLng(oLat, oLng),
+        destination: new window.google.maps.LatLng(dLat, dLng),
+        travelMode: window.google.maps.TravelMode[selectedMode],
+      },
+      (result, status) => {
+        if (cancelled) return
+
+        const leg = status === 'OK' ? result?.routes[0]?.legs?.[0] : undefined
+        if (!leg) {
+          setError(`Could not calculate route: ${status}`)
+          return
+        }
+
+        const info = {
+          distance: leg.distance?.text || 'Unknown',
+          duration: leg.duration?.text || 'Unknown',
+        }
+        cacheSet(key, info)
+        setRoutes((prev) => ({ ...prev, [selectedMode]: info }))
+      }
+    )
+
+    return () => {
+      cancelled = true
+    }
+  }, [isLoaded, oLat, oLng, dLat, dLng, selectedMode])
+
+  const currentRouteInfo = routes[selectedMode]
 
   const getTravelModeIcon = (mode: TravelModeType) => {
     switch (mode) {
@@ -212,18 +181,6 @@ const DistanceCalculation = ({
     TRANSIT: 'Transit',
   }
 
-  if (currentRouteInfo.loading) {
-    return (
-      <div className="rw-text-gray">
-        Calculating {travelModeLabels[selectedMode].toLowerCase()} route...
-      </div>
-    )
-  }
-
-  if (currentRouteInfo.error) {
-    return <div className="rw-text-error">{currentRouteInfo.error}</div>
-  }
-
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
@@ -238,13 +195,9 @@ const DistanceCalculation = ({
                 ? 'bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground'
                 : 'bg-secondary text-secondary-foreground'
             }`}
-            disabled={routeInfo[mode].loading}
           >
             <span className="mr-2">{getTravelModeIcon(mode)}</span>
             <span>{travelModeLabels[mode]}</span>
-            {routeInfo[mode].loading && (
-              <span className="ml-2 animate-pulse">...</span>
-            )}
           </Button>
         ))}
       </div>
@@ -266,7 +219,9 @@ const DistanceCalculation = ({
             />
           </svg>
           <span className="font-medium">Distance:</span>
-          <span className="ml-2">{currentRouteInfo.distance}</span>
+          <span className="ml-2">
+            {error ?? currentRouteInfo?.distance ?? 'Calculating…'}
+          </span>
         </div>
         <div className="flex items-center">
           <svg
@@ -284,7 +239,9 @@ const DistanceCalculation = ({
             />
           </svg>
           <span className="font-medium">Travel time:</span>
-          <span className="ml-2">{currentRouteInfo.duration}</span>
+          <span className="ml-2">
+            {error ?? currentRouteInfo?.duration ?? 'Calculating…'}
+          </span>
         </div>
       </div>
     </div>

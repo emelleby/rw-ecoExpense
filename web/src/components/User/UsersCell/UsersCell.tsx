@@ -24,7 +24,6 @@ export const QUERY: TypedDocumentNode<
       email
       firstName
       lastName
-      bankAccount
       status
       organizationId
     }

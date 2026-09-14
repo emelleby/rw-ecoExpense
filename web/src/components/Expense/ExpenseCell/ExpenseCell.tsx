@@ -16,8 +16,6 @@ export const QUERY: TypedDocumentNode<
   query FindExpenseById($id: Int!) {
     expense: expense(id: $id) {
       id
-      userId
-      categoryId
       amount
       currency
       exchangeRate
@@ -27,18 +25,35 @@ export const QUERY: TypedDocumentNode<
       kilometers
       fuelType
       fuelAmountLiters
-      sectorId
-      supplierId
-      tripId
+      category {
+        name
+      }
+      Sector {
+        name
+      }
       trip {
+        id
+        name
         reimbursementStatus
       }
-      projectId
+      project {
+        name
+      }
+      user {
+        firstName
+        lastName
+        username
+      }
       scope1Co2Emissions
       scope2Co2Emissions
       scope3Co2Emissions
       kwh
-      scope3CategoryId
+      receipt {
+        id
+        url
+        fileName
+        fileType
+      }
     }
   }
 `

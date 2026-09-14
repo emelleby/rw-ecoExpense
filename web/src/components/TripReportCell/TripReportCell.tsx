@@ -37,6 +37,10 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
           homeAddress
           workAddress
           bankAccount
+          iban
+          swiftBic
+          internationalAccountName
+          internationalBankAddress
         }
         expenses {
           id

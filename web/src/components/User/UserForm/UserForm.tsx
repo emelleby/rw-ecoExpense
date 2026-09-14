@@ -134,23 +134,6 @@ const UserForm = (props: UserFormProps) => {
         <FieldError name="lastName" className="rw-field-error" />
 
         <Label
-          name="bankAccount"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          Bank account
-        </Label>
-
-        <TextField
-          name="bankAccount"
-          defaultValue={props.user?.bankAccount}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-        />
-
-        <FieldError name="bankAccount" className="rw-field-error" />
-
-        <Label
           name="status"
           className="rw-label"
           errorClassName="rw-label rw-label-error"

@@ -19,7 +19,6 @@ export const QUERY: TypedDocumentNode<FindUserById, FindUserByIdVariables> =
         email
         firstName
         lastName
-        bankAccount
         status
         organizationId
       }

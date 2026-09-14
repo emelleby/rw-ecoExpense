@@ -5,6 +5,7 @@ import type { FindUserById } from 'types/graphql'
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 
 import Address from 'src/components/Profile/Address/Address'
+import BankDetails from 'src/components/Profile/BankDetails/BankDetails'
 import {
   Card,
   CardContent,
@@ -24,6 +25,11 @@ export const QUERY = gql`
       homeLongitude
       workLatitude
       workLongitude
+      bankAccount
+      iban
+      swiftBic
+      internationalAccountName
+      internationalBankAddress
     }
   }
 `
@@ -56,7 +62,6 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
 
     // Use the environment variable directly
     const apiKey = process.env.REDWOOD_ENV_GOOGLE_MAPS_API_KEY
-    console.log('Google Maps API Key:', apiKey)
 
     if (!apiKey) {
       setMapError('Google Maps API key is missing')
@@ -74,11 +79,9 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
     }
 
     document.head.appendChild(script)
-
-    return () => {
-      // Clean up the global callback when component unmounts
-      delete window.initMap
-    }
+    // ponytail: no cleanup — deleting window.initMap while the script is still
+    // in flight makes Google call an undefined callback. The script is loaded
+    // once per page, so leaving it is the whole fix.
   }, [])
 
   return (
@@ -91,6 +94,16 @@ export const Success = ({ user }: CellSuccessProps<FindUserById>) => {
         </CardHeader>
         <CardContent>
           <Address user={user} isLoaded={isLoaded} mapError={mapError} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-gradient-blue-green w-fit">
+            Bank Details
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <BankDetails user={user} />
         </CardContent>
       </Card>
       <Card>

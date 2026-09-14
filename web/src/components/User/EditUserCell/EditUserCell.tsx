@@ -26,7 +26,6 @@ export const QUERY: TypedDocumentNode<EditUserById> = gql`
       email
       firstName
       lastName
-      bankAccount
       status
       organizationId
     }
@@ -45,7 +44,6 @@ const UPDATE_USER_MUTATION: TypedDocumentNode<
       email
       firstName
       lastName
-      bankAccount
       status
       organizationId
     }

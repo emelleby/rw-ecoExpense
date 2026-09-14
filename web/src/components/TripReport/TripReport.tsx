@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import {
   Calendar,
   Globe,
@@ -10,6 +12,7 @@ import {
   User,
   Home,
   CreditCard,
+  Landmark,
   Mail,
 } from 'lucide-react'
 
@@ -21,6 +24,12 @@ import {
   CardHeader,
   CardTitle,
 } from 'src/components/ui/Card'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from 'src/components/ui/Sheet'
 
 import { formatCurrency } from '@/lib/formatters'
 
@@ -48,6 +57,10 @@ interface TripReportProps {
       homeAddress?: string
       workAddress?: string
       bankAccount?: string
+      iban?: string
+      swiftBic?: string
+      internationalAccountName?: string
+      internationalBankAddress?: string
     } | null
     expenses: {
       id: number | string
@@ -73,6 +86,11 @@ interface TripReportProps {
 }
 
 const TripReport = ({ trip }: TripReportProps) => {
+  const [openReceipt, setOpenReceipt] = useState<{
+    url: string
+    merchant?: string
+  } | null>(null)
+
   // Calculate total expenses
   const totalExpenses = trip.expenses.reduce(
     (sum, expense) => sum + expense.nokAmount,
@@ -96,6 +114,17 @@ const TripReport = ({ trip }: TripReportProps) => {
   // Format dates
   const startDate = new Date(trip.startDate).toLocaleDateString()
   const endDate = new Date(trip.endDate).toLocaleDateString()
+
+  // International bank details (e.g. a Wise account), may differ from the
+  // domestic bank account. Shown so payers abroad can use SWIFT transfer.
+  const internationalBankDetails = trip.user
+    ? [
+        { label: 'Name', value: trip.user.internationalAccountName },
+        { label: 'IBAN', value: trip.user.iban },
+        { label: 'Swift/BIC', value: trip.user.swiftBic },
+        { label: 'Address', value: trip.user.internationalBankAddress },
+      ].filter((detail) => !!detail.value)
+    : []
 
   return (
     <div className="space-y-4">
@@ -148,11 +177,34 @@ const TripReport = ({ trip }: TripReportProps) => {
                   {trip.user.bankAccount && (
                     <p className="mt-2 flex items-center text-sm font-medium text-slate-700">
                       <CreditCard className="mr-2 h-4 w-4 text-slate-500" />
-                      Bank Account: {trip.user.bankAccount}
+                      Bank Account (domestic): {trip.user.bankAccount}
                     </p>
                   )}
                 </div>
               </div>
+              {internationalBankDetails.length > 0 && (
+                <div className="mt-4 break-inside-avoid-page rounded-lg border border-slate-200 bg-white p-4">
+                  <h4 className="flex items-center text-sm font-medium text-slate-900">
+                    <Landmark className="mr-2 h-4 w-4 text-slate-500" />
+                    International Bank Details
+                  </h4>
+                  <p className="mt-1 text-xs text-slate-500">
+                    If you're sending money from a bank in SEPA, you can use
+                    these details to make a domestic transfer. If you're sending
+                    from somewhere else, make an international Swift transfer.
+                  </p>
+                  <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-2 print:grid-cols-2">
+                    {internationalBankDetails.map((detail) => (
+                      <div key={detail.label} className="flex text-sm">
+                        <dt className="font-medium text-slate-500">
+                          {detail.label}:
+                        </dt>
+                        <dd className="ml-2 text-slate-700">{detail.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
             </div>
           )}
 
@@ -164,6 +216,15 @@ const TripReport = ({ trip }: TripReportProps) => {
                 {trip.project && trip.project.name
                   ? trip.project.name
                   : 'No project assigned'}
+              </p>
+            </div>
+            <div className="relative rounded-lg border border-slate-200 bg-slate-100 p-4">
+              <Globe className="absolute right-3 top-3 h-5 w-5 text-slate-400" />
+              <h3 className="text-sm font-medium text-slate-600">
+                Total CO2 Emissions
+              </h3>
+              <p className="text-lg font-semibold text-slate-900">
+                {totalEmissions.toFixed(2)} kg CO2e
               </p>
             </div>
             <div className="relative rounded-lg border border-slate-200 bg-slate-100 p-4">
@@ -179,15 +240,6 @@ const TripReport = ({ trip }: TripReportProps) => {
                   {formatCurrency(totalSecondary)} {trip.secondaryCurrency}
                 </p>
               )}
-            </div>
-            <div className="relative rounded-lg border border-slate-200 bg-slate-100 p-4">
-              <Globe className="absolute right-3 top-3 h-5 w-5 text-slate-400" />
-              <h3 className="text-sm font-medium text-slate-600">
-                Total CO2 Emissions
-              </h3>
-              <p className="text-lg font-semibold text-slate-900">
-                {totalEmissions.toFixed(2)} kg CO2e
-              </p>
             </div>
           </div>
         </CardContent>
@@ -215,6 +267,12 @@ const TripReport = ({ trip }: TripReportProps) => {
                       <ReceiptPreview
                         url={expense.receipt.url}
                         className="h-full max-h-80 w-full object-contain"
+                        onView={() =>
+                          setOpenReceipt({
+                            url: expense.receipt!.url,
+                            merchant: expense.merchant,
+                          })
+                        }
                       />
                     </div>
                   )}
@@ -262,31 +320,39 @@ const TripReport = ({ trip }: TripReportProps) => {
                         <Globe className="mr-1 h-4 w-4" />
                         {expense.totalCo2Emissions.toFixed(2)} kg CO2e
                       </span>
-                      <p className="text-xl font-semibold text-slate-900">
-                        {formatCurrency(expense.nokAmount)} NOK
-                      </p>
+                      <div className="text-right">
+                        <p className="text-xl font-semibold text-slate-900">
+                          {formatCurrency(expense.nokAmount)} NOK
+                        </p>
+                        {trip.secondaryCurrency &&
+                          expense.secondaryAmount != null && (
+                            <p className="text-sm text-slate-600">
+                              {formatCurrency(expense.secondaryAmount)}{' '}
+                              {trip.secondaryCurrency}
+                            </p>
+                          )}
+                      </div>
                     </div>
                   </div>
                 </div>
               </Card>
             ))}
           </div>
-          <div className="mt-6 flex break-inside-avoid-page flex-col items-end border-t border-slate-200 pt-4">
+          <div className="mt-6 flex break-inside-avoid-page flex-col items-end rounded-lg border-b-2 bg-accent/50 p-4">
             <p className="text-lg font-semibold text-slate-900">
               Total Amount: {formatCurrency(totalExpenses)} NOK
             </p>
             {totalSecondary !== null && (
-              <p className="text-sm text-slate-600">
-                To be reimbursed: {formatCurrency(totalSecondary)}{' '}
-                {trip.secondaryCurrency}
+              <p className="text-base text-slate-600">
+                {formatCurrency(totalSecondary)} {trip.secondaryCurrency}
               </p>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Signature section */}
-      <Card className="bg-white text-black print:mt-0">
+      {/* Signature section - print only */}
+      <Card className="hidden bg-white text-black print:mt-0 print:block">
         <CardHeader>
           <CardTitle className="text-xl text-slate-900">Signatures</CardTitle>
         </CardHeader>
@@ -313,6 +379,25 @@ const TripReport = ({ trip }: TripReportProps) => {
           </div>
         </CardContent>
       </Card>
+
+      <Sheet
+        open={!!openReceipt}
+        onOpenChange={(open) => !open && setOpenReceipt(null)}
+      >
+        <SheetContent
+          side="right"
+          className="w-full overflow-y-auto sm:max-w-xl"
+        >
+          <SheetHeader>
+            <SheetTitle>{openReceipt?.merchant || 'Receipt'}</SheetTitle>
+          </SheetHeader>
+          {openReceipt && (
+            <div className="mt-4">
+              <ReceiptPreview url={openReceipt.url} className="w-full" />
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

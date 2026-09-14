@@ -7,6 +7,7 @@ import { Link, routes, navigate } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import ReceiptPreview from 'src/components/ReceiptPreview/ReceiptPreview'
 import { Alert, AlertDescription } from 'src/components/ui/Alert'
 import { timeTag } from 'src/lib/formatters'
 
@@ -53,6 +54,33 @@ const Expense = ({ expense }: Props) => {
     return !['PENDING', 'REIMBURSED'].includes(tripStatus)
   }
 
+  // `|| null` hides zero-default fields (kilometers, fuel, kWh, scopes) that
+  // only apply to certain expense types; the filter drops rows without data.
+  const userName =
+    [expense.user.firstName, expense.user.lastName].filter(Boolean).join(' ') ||
+    expense.user.username
+  const rows: Array<[string, unknown]> = [
+    ['Id', expense.id],
+    ['Category', expense.category.name],
+    ['Amount', expense.amount],
+    ['Currency', expense.currency],
+    ['Exchange rate', expense.exchangeRate],
+    ['Nok amount', expense.nokAmount],
+    ['Date', timeTag(expense.date)],
+    ['Description', expense.description],
+    ['Kilometers', expense.kilometers || null],
+    ['Fuel type', expense.fuelType],
+    ['Fuel amount liters', expense.fuelAmountLiters || null],
+    ['Sector', expense.Sector?.name ?? null],
+    ['Trip', expense.trip.name],
+    ['Project', expense.project?.name ?? null],
+    ['User', userName],
+    ['Scope1 co2 emissions', expense.scope1Co2Emissions || null],
+    ['Scope2 co2 emissions', expense.scope2Co2Emissions || null],
+    ['Scope3 co2 emissions', expense.scope3Co2Emissions || null],
+    ['Kwh', expense.kwh || null],
+  ]
+
   return (
     <>
       <div className="rw-segment">
@@ -72,93 +100,30 @@ const Expense = ({ expense }: Props) => {
         )}
         <table className="rw-table">
           <tbody>
-            <tr>
-              <th>Id</th>
-              <td>{expense.id}</td>
-            </tr>
-            <tr>
-              <th>Category id</th>
-              <td>{expense.categoryId}</td>
-            </tr>
-            <tr>
-              <th>Amount</th>
-              <td>{expense.amount}</td>
-            </tr>
-            <tr>
-              <th>Currency</th>
-              <td>{expense.currency}</td>
-            </tr>
-            <tr>
-              <th>Exchange rate</th>
-              <td>{expense.exchangeRate}</td>
-            </tr>
-            <tr>
-              <th>Nok amount</th>
-              <td>{expense.nokAmount}</td>
-            </tr>
-            <tr>
-              <th>Date</th>
-              <td>{timeTag(expense.date)}</td>
-            </tr>
-            <tr>
-              <th>Description</th>
-              <td>{expense.description}</td>
-            </tr>
-            <tr>
-              <th>Kilometers</th>
-              <td>{expense.kilometers}</td>
-            </tr>
-            <tr>
-              <th>Fuel type</th>
-              <td>{expense.fuelType}</td>
-            </tr>
-            <tr>
-              <th>Fuel amount liters</th>
-              <td>{expense.fuelAmountLiters}</td>
-            </tr>
-            <tr>
-              <th>Sector id</th>
-              <td>{expense.sectorId}</td>
-            </tr>
-            <tr>
-              <th>Supplier id</th>
-              <td>{expense.supplierId}</td>
-            </tr>
-            <tr>
-              <th>Trip id</th>
-              <td>{expense.tripId}</td>
-            </tr>
-            <tr>
-              <th>Project id</th>
-              <td>{expense.projectId}</td>
-            </tr>
-            <tr>
-              <th>User id</th>
-              <td>{expense.userId}</td>
-            </tr>
-
-            <tr>
-              <th>Scope1 co2 emissions</th>
-              <td>{expense.scope1Co2Emissions}</td>
-            </tr>
-            <tr>
-              <th>Scope2 co2 emissions</th>
-              <td>{expense.scope2Co2Emissions}</td>
-            </tr>
-            <tr>
-              <th>Scope3 co2 emissions</th>
-              <td>{expense.scope3Co2Emissions}</td>
-            </tr>
-            <tr>
-              <th>Kwh</th>
-              <td>{expense.kwh}</td>
-            </tr>
-            <tr>
-              <th>Scope3 category id</th>
-              <td>{expense.scope3CategoryId}</td>
-            </tr>
+            {rows
+              .filter(
+                ([, value]) =>
+                  value !== null && value !== undefined && value !== ''
+              )
+              .map(([label, value]) => (
+                <tr key={label}>
+                  <th>{label}</th>
+                  <td>{value}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
+        {expense.receipt && (
+          <div className="border-t px-4 py-4">
+            <h3 className="rw-heading rw-heading-secondary mb-2">Receipt</h3>
+            <ReceiptPreview
+              url={expense.receipt.url}
+              fileType={expense.receipt.fileType}
+              fileName={expense.receipt.fileName}
+              className="max-h-96 w-auto max-w-full rounded-lg border object-contain"
+            />
+          </div>
+        )}
       </div>
       <nav className="rw-button-group">
         <Link
