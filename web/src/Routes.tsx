@@ -78,6 +78,11 @@ const Routes = () => {
         <Route path="/admin/organizations/{id:Int}" page={OrganizationOrganizationPage} name="organization" />
         <Route path="/admin/organizations" page={OrganizationOrganizationsPage} name="organizations" />
       </PrivateSet>
+      <Route
+        path="/shared/trip/{token:String}"
+        page={SharedTripReportPage}
+        name="sharedTripReport"
+      />
       <Route notfound page={NotFoundPage} />
     </Router>
   )
