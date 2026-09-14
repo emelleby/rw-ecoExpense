@@ -176,14 +176,18 @@ export const updateTrip: MutationResolvers['updateTrip'] = async ({
   return updated
 }
 
+const assertTripOwner = async (tripId: number) => {
+  const trip = await db.trip.findUnique({ where: { id: tripId } })
+
+  if (!trip || trip.userId !== context.currentUser.dbUserId) {
+    throw new ForbiddenError('You do not own this trip')
+  }
+}
+
 export const createShareLink: MutationResolvers['createShareLink'] = async ({
   tripId,
 }) => {
-  const existing = await db.trip.findUnique({ where: { id: tripId } })
-
-  if (!existing || existing.userId !== context.currentUser.dbUserId) {
-    throw new ForbiddenError('You do not own this trip')
-  }
+  await assertTripOwner(tripId)
 
   return db.trip.update({
     where: { id: tripId },
@@ -194,11 +198,7 @@ export const createShareLink: MutationResolvers['createShareLink'] = async ({
 export const revokeShareLink: MutationResolvers['revokeShareLink'] = async ({
   tripId,
 }) => {
-  const existing = await db.trip.findUnique({ where: { id: tripId } })
-
-  if (!existing || existing.userId !== context.currentUser.dbUserId) {
-    throw new ForbiddenError('You do not own this trip')
-  }
+  await assertTripOwner(tripId)
 
   return db.trip.update({
     where: { id: tripId },
