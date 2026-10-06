@@ -338,7 +338,7 @@ const TripReport = ({ trip }: TripReportProps) => {
               </Card>
             ))}
           </div>
-          <div className="mt-6 flex break-inside-avoid-page flex-col items-end rounded-lg border-b-2 bg-accent/50 p-4">
+          <div className="mt-6 flex break-inside-avoid-page flex-col items-end rounded-lg border-b-2 bg-accent/20 p-4">
             <p className="text-lg font-semibold text-slate-900">
               Total Amount: {formatCurrency(totalExpenses)} NOK
             </p>
@@ -386,7 +386,7 @@ const TripReport = ({ trip }: TripReportProps) => {
       >
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto sm:max-w-xl"
+          className="w-full overflow-y-auto sm:max-w-xl lg:max-w-2xl"
         >
           <SheetHeader>
             <SheetTitle>{openReceipt?.merchant || 'Receipt'}</SheetTitle>
