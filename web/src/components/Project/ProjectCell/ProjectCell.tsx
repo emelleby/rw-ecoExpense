@@ -7,6 +7,7 @@ import type {
 } from '@redwoodjs/web'
 
 import Project from 'src/components/Project/Project'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<
   FindProjectById,
@@ -31,7 +32,7 @@ export const QUERY: TypedDocumentNode<
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Empty = () => <div>Project not found</div>
 

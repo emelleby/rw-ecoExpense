@@ -34,6 +34,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/Popover'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<
   FindOrganizationsQuery,
@@ -70,7 +71,7 @@ const CREATE_USER = gql`
 `
 // This is the Cell we use for the onboarding page
 // Perhaps rename it to OnboardingCell?
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Empty = () => (
   <div className="rounded-lg bg-primary p-6 text-white">
@@ -97,8 +98,6 @@ export const Success = ({
   const [createUser] = useMutation(CREATE_USER)
 
   const handleJoinOrganization = async (selectedOrg: string) => {
-    console.log(user)
-
     const selectedOrgData = organizations?.find(
       (org) => org.name === selectedOrg
     )

@@ -15,12 +15,9 @@ import TasksLayout from 'src/layouts/TasksLayout/TasksLayout'
 
 import { useAuth } from './auth'
 import LoaderSpinner from './components/LoaderSpinner/LoaderSpinner'
+import PageLoading from './components/ui/PageLoading'
 
 const Routes = () => {
-  // const { user } = useUser()
-  // const roles = user.publicMetadata?.roles
-  const { currentUser } = useAuth()
-  console.log('currentUser', currentUser)
   return (
     <Router useAuth={useAuth}>
 
@@ -30,7 +27,7 @@ const Routes = () => {
         <Route path="/onboarding" page={OnboardingPage} name="onboarding" />
 
         <PrivateSet unauthenticated="login" roles={['admin', 'member']}>
-          <Set wrap={(props) => <AppshellLayout {...props} title="EcoExpense" />}>
+          <Set whileLoadingPage={PageLoading} wrap={(props) => <AppshellLayout {...props} title="EcoExpense" />}>
             <Route path="/test" page={TestPage} name="test" />
             <Route path="/home" page={HomePage} name="homey" />
             <Route path="/profile" page={ProfilePage} name="profile" />
@@ -45,14 +42,14 @@ const Routes = () => {
             <Route path="/expenses" page={ExpenseExpensesPage} name="expenses" />
           </Set>
 
-          <Set wrap={(props) => <AppshellLayout {...props} title="Trips" />}>
+          <Set whileLoadingPage={PageLoading} wrap={(props) => <AppshellLayout {...props} title="Trips" />}>
             <Route path="/trip/new" page={TripNewTripPage} name="newTrip" />
             <Route path="/trip/{id:Int}/edit" page={TripEditTripPage} name="editTrip" />
             <Route path="/trip/{id:Int}" page={TripTripPage} name="trip" />
             <Route path="/trips" page={TripTripsPage} name="trips" />
           </Set>
 
-          <Set wrap={(props) => <AppshellLayout {...props} title="Users" titleTo="users" />}>
+          <Set whileLoadingPage={PageLoading} wrap={(props) => <AppshellLayout {...props} title="Users" titleTo="users" />}>
             <Route path="/users/new" page={UserNewUserPage} name="newUser" />
             <Route path="/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
             <Route path="/users/{id:Int}" page={UserUserPage} name="user" />

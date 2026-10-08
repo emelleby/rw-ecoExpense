@@ -22,6 +22,10 @@ import {
 
 import { NavLink, Link, routes } from '@redwoodjs/router'
 import { useLocation } from '@redwoodjs/router'
+import { useApolloClient } from '@apollo/client'
+
+import { QUERY as EXPENSES_QUERY } from 'src/components/Expense/ExpensesCell/ExpensesCell'
+import { QUERY as NEW_EXPENSE_QUERY } from 'src/components/Expense/NewExpenseCell/NewExpenseCell'
 
 import { useAuth } from 'src/auth'
 import { NavMain } from 'src/components/NavMain'
@@ -160,6 +164,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     email: userMetadata.emailAddresses[0].emailAddress,
   }
 
+  const client = useApolloClient()
+
+  // Warm the page chunk (and Apollo cache where cheap) so navigation is instant
+  const prefetch = {
+    homey: () => import('src/pages/HomePage/HomePage'),
+    profile: () => import('src/pages/ProfilePage/ProfilePage'),
+    expenses: () => {
+      import('src/pages/Expense/ExpensesPage/ExpensesPage')
+      client.query({ query: EXPENSES_QUERY }).catch(() => {})
+    },
+    newExpense: () => {
+      import('src/pages/Expense/NewExpensePage/NewExpensePage')
+      client.query({ query: NEW_EXPENSE_QUERY }).catch(() => {})
+    },
+  }
+
   const handleLinkClick = () => {
     setOpenMobile(false)
   }
@@ -197,7 +217,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     data-active={pathname === routes[item.url]()}
                     className="pl-4"
                   >
-                    <Link to={routes[item.url]()} onClick={handleLinkClick}>
+                    <Link
+                      to={routes[item.url]()}
+                      onClick={handleLinkClick}
+                      onMouseEnter={prefetch[item.url]}
+                      onFocus={prefetch[item.url]}
+                    >
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

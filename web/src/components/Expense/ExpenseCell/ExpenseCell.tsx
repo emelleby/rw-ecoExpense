@@ -7,7 +7,7 @@ import type {
 } from '@redwoodjs/web'
 
 import Expense from 'src/components/Expense/Expense'
-import Spinner from 'src/components/ui/Spinner'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<
   FindExpenseById,
@@ -58,11 +58,7 @@ export const QUERY: TypedDocumentNode<
   }
 `
 
-export const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
-)
+export const Loading = PageLoading
 
 export const Empty = () => <div>Expense not found</div>
 

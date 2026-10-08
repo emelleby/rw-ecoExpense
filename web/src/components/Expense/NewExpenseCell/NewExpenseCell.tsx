@@ -2,30 +2,33 @@ import type {
   CreateExpenseMutation,
   CreateExpenseInput,
   CreateExpenseMutationVariables,
-  TripsByUser,
-  TripsByUserVariables,
+  NewExpenseFormData,
+  NewExpenseFormDataVariables,
 } from 'types/graphql'
 
 import { Link, navigate, routes } from '@redwoodjs/router'
-import { useMutation, useQuery } from '@redwoodjs/web'
-import type { TypedDocumentNode } from '@redwoodjs/web'
+import type {
+  CellFailureProps,
+  CellSuccessProps,
+  TypedDocumentNode,
+} from '@redwoodjs/web'
+import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import ExpenseForm from 'src/components/Expense/ExpenseForm'
-import Spinner from 'src/components/ui/Spinner'
+import PageLoading from 'src/components/ui/PageLoading'
 import useLoader from 'src/hooks/useLoader'
-// Add a query to fetch categories
-const CATEGORIES_QUERY = gql`
-  query ExpenseCategories {
+
+export const QUERY: TypedDocumentNode<
+  NewExpenseFormData,
+  NewExpenseFormDataVariables
+> = gql`
+  query NewExpenseFormData {
     expenseCategories {
       id
       name
       group
     }
-  }
-`
-const QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
-  query TripsByUserForNewExpense {
     tripsByUser {
       id
       name
@@ -50,33 +53,18 @@ const CREATE_EXPENSE_MUTATION: TypedDocumentNode<
     }
   }
 `
-const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
+
+export const Loading = PageLoading
+
+export const Failure = ({ error }: CellFailureProps) => (
+  <div className="rw-cell-error">Error loading data: {error?.message}</div>
 )
 
-const NewExpense = () => {
+export const Success = ({
+  expenseCategories,
+  tripsByUser,
+}: CellSuccessProps<NewExpenseFormData>) => {
   const { showLoader, hideLoader, Loader } = useLoader()
-
-  const {
-    data: categoryData,
-    loading: categoryLoading,
-    error: categoryError,
-  } = useQuery(CATEGORIES_QUERY)
-
-  const {
-    data: tripsData,
-    loading: tripsLoading,
-    error: tripsError,
-  } = useQuery(QUERY, {
-    onCompleted: (data) => {
-      console.log('Trips data loaded:', data)
-    },
-    notifyOnNetworkStatusChange: true,
-  })
-
-  console.log('Data: ', tripsData)
 
   const [createExpense, { loading, error }] = useMutation(
     CREATE_EXPENSE_MUTATION,
@@ -92,26 +80,14 @@ const NewExpense = () => {
   )
 
   const onSave = async (input: CreateExpenseInput) => {
-    console.log('Input received for NewExpense:', input)
     showLoader()
     await createExpense({ variables: { input } })
     hideLoader()
   }
 
-  // Handle loading states
-  if (categoryLoading || tripsLoading) {
-    return <Loading />
-  }
-
-  // Handle errors -  || tripsError || projectsError
-  if (categoryError) {
-    return <div>Error loading category data</div>
-  }
-
-  const trips =
-    tripsData?.tripsByUser.filter(
-      (trip) => trip.reimbursementStatus === 'NOT_REQUESTED'
-    ) || []
+  const trips = tripsByUser.filter(
+    (trip) => trip.reimbursementStatus === 'NOT_REQUESTED'
+  )
 
   if (trips.length === 0) {
     return (
@@ -139,7 +115,7 @@ const NewExpense = () => {
       <div className="rw-segment-main">
         <ExpenseForm
           trips={trips}
-          categories={categoryData?.expenseCategories}
+          categories={expenseCategories}
           onSave={onSave}
           loading={loading}
           error={error}
@@ -149,5 +125,3 @@ const NewExpense = () => {
     </div>
   )
 }
-
-export default NewExpense

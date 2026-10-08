@@ -2,7 +2,7 @@
 import { Metadata } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
-import ProfileCell from 'src/components/ProfileCell'
+import ProfileCell from 'src/components/Profile/ProfileCell/ProfileCell'
 
 const ProfilePage = ({ title = 'My Profile' }) => {
   const { currentUser } = useAuth()

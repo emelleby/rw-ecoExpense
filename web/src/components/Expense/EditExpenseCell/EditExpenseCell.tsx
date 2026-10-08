@@ -15,7 +15,7 @@ import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import ExpenseForm from 'src/components/Expense/ExpenseForm'
-import Spinner from 'src/components/ui/Spinner'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<EditExpenseById> = gql`
   query EditExpenseById($id: Int!) {
@@ -86,11 +86,7 @@ const TRIPS_QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
   }
 `
 
-export const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
-)
+export const Loading = PageLoading
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>

@@ -11,6 +11,7 @@ import type {
 import Projects from 'src/components/Project/Projects'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<FindProjects, FindProjectsVariables> =
   gql`
@@ -38,7 +39,7 @@ export const QUERY: TypedDocumentNode<FindProjects, FindProjectsVariables> =
     }
   `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Empty = () => {
   return (

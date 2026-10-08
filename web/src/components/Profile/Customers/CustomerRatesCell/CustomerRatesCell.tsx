@@ -8,11 +8,19 @@ import type {
 } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-// Define the Rate type directly in this file
+// Values match the Prisma RATE_TYPE enum
+export type RateType = 'HOURLY' | 'DAILY' | 'WEEKLY'
+
+export const RATE_TYPE_LABELS: Record<RateType, string> = {
+  HOURLY: 'Hourly',
+  DAILY: 'Daily',
+  WEEKLY: 'Weekly',
+}
+
 export type Rate = {
   id: number
   customerId: number
-  rateType: 'hourly' | 'daily'
+  rateType: RateType
   rateAmount: number
   description?: string | null
 }
@@ -51,7 +59,7 @@ export const QUERY: TypedDocumentNode<
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = () => <div>Loading...</div> // small and embedded in a dialog
 
 export const Empty = () => (
   <div className="py-4 text-center text-muted-foreground">
@@ -115,7 +123,7 @@ export const Success = ({
         {ratesByCustomer &&
           ratesByCustomer.map((rate: Rate) => (
             <TableRow key={rate.id}>
-              <TableCell className="capitalize">{rate.rateType}</TableCell>
+              <TableCell>{RATE_TYPE_LABELS[rate.rateType]}</TableCell>
               <TableCell>{rate.rateAmount}</TableCell>
               <TableCell>{rate.description || '-'}</TableCell>
               <TableCell className="text-right">

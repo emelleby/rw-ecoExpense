@@ -6,8 +6,8 @@ import type {
   TypedDocumentNode,
 } from '@redwoodjs/web'
 
-import Spinner from 'src/components/ui/Spinner'
 import User from 'src/components/User/User'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<FindUserById, FindUserByIdVariables> =
   gql`
@@ -25,11 +25,7 @@ export const QUERY: TypedDocumentNode<FindUserById, FindUserByIdVariables> =
     }
   `
 
-export const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
-)
+export const Loading = PageLoading
 export const Empty = () => <div>User not found</div>
 
 export const Failure = ({ error }: CellFailureProps<FindUserByIdVariables>) => (

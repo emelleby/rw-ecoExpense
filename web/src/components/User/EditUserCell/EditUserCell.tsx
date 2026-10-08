@@ -13,9 +13,9 @@ import type {
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import Spinner from 'src/components/ui/Spinner'
 import UserForm from 'src/components/User/UserForm'
 import useLoader from 'src/hooks/useLoader'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<EditUserById> = gql`
   query EditUserById($id: Int!) {
@@ -50,11 +50,7 @@ const UPDATE_USER_MUTATION: TypedDocumentNode<
   }
 `
 
-export const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
-)
+export const Loading = PageLoading
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>

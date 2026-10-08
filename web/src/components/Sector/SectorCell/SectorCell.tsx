@@ -7,6 +7,7 @@ import type {
 } from '@redwoodjs/web'
 
 import Sector from 'src/components/Sector/Sector'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<FindSectorById, FindSectorByIdVariables> =
   gql`
@@ -20,7 +21,7 @@ export const QUERY: TypedDocumentNode<FindSectorById, FindSectorByIdVariables> =
     }
   `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Empty = () => <div>Sector not found</div>
 

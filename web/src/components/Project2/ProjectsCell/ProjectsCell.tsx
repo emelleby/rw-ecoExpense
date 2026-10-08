@@ -5,6 +5,7 @@ import type {
   CellFailureProps,
   TypedDocumentNode,
 } from '@redwoodjs/web'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<ProjectsQuery, ProjectsQueryVariables> =
   gql`
@@ -15,7 +16,7 @@ export const QUERY: TypedDocumentNode<ProjectsQuery, ProjectsQueryVariables> =
     }
   `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Empty = () => <div>Tom</div>
 

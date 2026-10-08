@@ -48,7 +48,7 @@ const OnboardingPage = () => {
           <pre>{JSON.stringify(userMetadata.username, null, 2)}</pre>
           <pre>
             {JSON.stringify(
-              userMetadata.primaryEmailAddress.emailAddress,
+              userMetadata.primaryEmailAddress?.emailAddress,
               null,
               2
             )}

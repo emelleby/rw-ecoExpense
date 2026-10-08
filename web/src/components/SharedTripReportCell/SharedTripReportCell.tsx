@@ -9,9 +9,9 @@ import type {
   TypedDocumentNode,
 } from '@redwoodjs/web'
 
-import Spinner from 'src/components/ui/Spinner'
 
 import TripReport from '../TripReport/TripReport'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<
   FindSharedTripByToken,
@@ -71,11 +71,7 @@ export const QUERY: TypedDocumentNode<
   }
 `
 
-export const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
-)
+export const Loading = PageLoading
 
 export const Empty = () => <div>Trip not found</div>
 

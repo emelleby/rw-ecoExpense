@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import { ClerkProvider, useUser } from '@clerk/clerk-react'
 
@@ -9,13 +9,30 @@ export const { AuthProvider: ClerkRwAuthProvider, useAuth } = createAuth()
 
 const ClerkStatusUpdater = () => {
   const { isSignedIn, user, isLoaded } = useUser()
-  const { reauthenticate } = useAuth()
+  const { reauthenticate, isAuthenticated, loading } = useAuth()
+  const retries = useRef(0)
 
   useEffect(() => {
     if (isLoaded) {
       reauthenticate()
     }
   }, [isSignedIn, user, reauthenticate, isLoaded])
+
+  // Redwood's reauthenticate() has no retry: a failed or slow current-user
+  // fetch (e.g. DB cold start) leaves isAuthenticated:false while Clerk is
+  // signed in. Retry up to 3 times with backoff (0.5s, 1s, 2s).
+  useEffect(() => {
+    if (isAuthenticated) {
+      retries.current = 0
+      return
+    }
+    if (!isLoaded || !isSignedIn || loading || retries.current >= 3) return
+    const timer = setTimeout(() => {
+      retries.current++
+      reauthenticate()
+    }, 500 * 2 ** retries.current)
+    return () => clearTimeout(timer)
+  }, [isAuthenticated, loading, isSignedIn, isLoaded, reauthenticate])
 
   return null
 }

@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from 'src/components/ui/Card'
+import PageLoading from 'src/components/ui/PageLoading'
 
 import Customers from '@/components/Profile/Customers/Customers'
 
@@ -34,7 +35,7 @@ export const QUERY = gql`
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Empty = () => <div>Empty</div>
 
