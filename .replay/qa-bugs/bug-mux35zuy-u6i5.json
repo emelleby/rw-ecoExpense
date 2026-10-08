@@ -1,0 +1,249 @@
+{
+  "id": "bug-mux35zuy-u6i5",
+  "project_id": "proj-ecoexpense-muwzh9xo",
+  "severity": "medium",
+  "title": "Route / (login page) renders with no <main> landmark, breaking WCAG 1.3.1 screen-reader navigation",
+  "description": "The route at http://localhost:3100/ renders the EcoExpense login/welcome page ('Welcome to EcoExpense' heading with 'Sign in' and 'sign up' buttons) inside a plain <div> with no <main> element and no role=\"main\" anywhere in the document. This violates WCAG 1.3.1 (level A). Screen-reader users have no 'main content' landmark to skip to, so the primary content of the page is not exposed as a navigable region. The page is not a splash or loader - it is the final, fully rendered unauthenticated landing view.",
+  "reproduction_steps": null,
+  "expected_behavior": "The fully rendered login page at route / should expose a <main> landmark (or an element with role=\"main\") wrapping the primary content, so assistive-tech users can navigate directly to the main content region per WCAG 1.3.1 (level A).",
+  "actual_behavior": "At frame Point:8 (~7980ms), the page 'Login | EcoExpense' is fully rendered (welcome heading and Sign in / sign up buttons visible) but document.querySelectorAll('main, [role=main], header, nav, footer, aside, [role=banner], [role=navigation], [role=contentinfo], [role=complementary]') returns zero elements - the DOM contains no landmarks at all.",
+  "replay_recording_id": "c5580f61-3293-4571-80e4-b39529236d00",
+  "status": "open",
+  "notes": null,
+  "discovered_at": "2026-10-06T19:43:02.778Z",
+  "test_run_id": "run-mux2wljr-rusj",
+  "sent_to_webhook": false,
+  "analysis": {
+    "chain": [
+      {
+        "text": "The user opens route / and the LoginPage renders its unauthenticated branch: a plain <div className=\"flex min-h-screen ... bg-slate-700\"> wrapper (LoginPage.tsx lines 35-60) with no <main> element and no role=\"main\", and no ancestor layout supplies one.",
+        "evidence": [
+          {
+            "tool": "ReadSource",
+            "params": {
+              "line": 38,
+              "path": "http://localhost:3100/pages/LoginPage/LoginPage.tsx"
+            },
+            "result": " hits | L | code \n------|------|------\n     |   12 |  \n   3 |   13 |   if (loading) { \n     |   14 |     return ( \n   2 |   15 |       <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> \n   2 |   16 |         <div className=\"h-8 w-8 animate-spin rounded-full border-t-2 border-white\"></div> \n     |   17 |       </div> \n     |   18 |     ) \n     |   19 |   } \n     |   20 |  \n   1 |   21 |   console.log('Hello from LoginPage', { isAuthenticated }) \n     |   22 |  \n     |   23 |   // Redirect if user already has a role and is authenticated \n   1 |   24 |   if (isAuthenticated) { \n   0 |   25 |     console.log( \n     |   26 |       'Hello from LoginPage', \n   0 |   27 |       hasRole(['admin', 'member', 'superuser']) \n     |   28 |     ) \n   0 |   29 |     if (hasRole(['admin', 'member', 'superuser'])) { \n   0 |   30 |       return <Redirect to={routes.homey()} /> \n     |   31 |     } \n   0 |   32 |     return <Redirect to={routes.onboarding()} /> \n     |   33 |   } \n     |   34 |  \n     |   35 |   return ( \n   1 |   36 |     <> \n   1 |   37 |       <Metadata title=\"Login\" description=\"Login page\" /> \n   1 |  *38 |       <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> \n   1 |   39 |         <p>{JSON.stringify({ isAuthenticated })}</p> \n   1 |   40 |         <p>{JSON.stringify({ currentUser })}</p> \n   1 |   41 |         <h1 className=\"mb-4 flex flex-col items-center justify-center bg-slate-700 text-2xl font-bold leading-none tracking-tight text-white md:text-3xl lg:text-5xl\"> \n     |   42 |           Welcome to EcoExpense \n     |   43 |         </h1> \n   1 |   44 |         <div className=\"mt-4 flex flex-row items-center justify-center gap-4\"> \n   1 |   45 |           <SignedOut> \n   1 |   46 |             <SignInButton mode=\"modal\" afterSignInUrl={routes.homey()}> \n   1 |   47 |               <Button>Sign in</Button> \n     |   48 |             </SignInButton> \n   1 |   49 |             <Button \n     |   50 |               onClick={(e) => { \n   0 |   51 |                 e.preventDefault() \n   0 |   52 |                 signUp() \n     |   53 |               }} \n     |   54 |             > \n     |   55 |               sign up \n     |   56 |             </Button> \n     |   57 |           </SignedOut> \n     |   58 |         </div> \n     |   59 |       </div> \n     |   60 |     </> \n     |   61 |   ) \n     |   62 | } ",
+            "script_resolved": true
+          }
+        ]
+      },
+      {
+        "text": "As a result, the committed DOM of the fully rendered page contains zero landmark elements - Evaluate at Point:8 shows document.querySelectorAll('main, [role=main], header, nav, footer, ...') is empty and the body's only structural children are div#redwood-app and div#clerk-components - while the page is visually complete ('Welcome to EcoExpense', Sign in / sign up buttons).",
+        "evidence": [
+          {
+            "tool": "Evaluate",
+            "params": {
+              "point": "Point:8",
+              "scope": "global",
+              "expression": "(() => { const all = document.querySelectorAll('main, [role=main], header, nav, footer, aside, [role=banner], [role=navigation], [role=contentinfo], [role=complementary]'); const tags = {}; all.forEach(el => { const t = el.tagName.toLowerCase() + (el.getAttribute('role') ? '[' + el.getAttribute('role') + ']' : ''); tags[t] = (tags[t] || 0) + 1; }); return JSON.stringify({ url: window.location.href, landmarks: tags, bodyChildren: Array.from(document.body.children).map(c => c.tagName.toLowerCase() + (c.id ? '#' + c.id : '')).slice(0, 20) }); })()"
+            },
+            "result": "\"{\\\"url\\\":\\\"http://localhost:3100/\\\",\\\"landmarks\\\":{},\\\"bodyChildren\\\":[\\\"div#redwood-app\\\",\\\"div#clerk-components\\\"]}\"",
+            "script_resolved": true
+          }
+        ]
+      },
+      {
+        "text": "Screen-reader users on this route therefore have no 'main content' landmark or skip-to-main target: the primary content region required by WCAG 1.3.1 (level A) is missing, so assistive technology cannot jump directly to the page's primary content.",
+        "evidence": []
+      }
+    ],
+    "chronology": [
+      {
+        "kind": "observation",
+        "text": "Frame at ~7980ms shows the fully rendered login/welcome page for route / ('Login | EcoExpense'): a dark slate page with a 'Welcome to EcoExpense' heading and 'Sign in' / 'sign up' buttons - not a splash or loading screen. An Evaluate at Point:8 confirms window.location.href is 'http://localhost:3100/' and that the document contains zero landmark elements (no main, header, nav, footer, aside, or role-based landmarks); the body's only structural children are div#redwood-app and div#clerk-components.",
+        "evidence": [
+          {
+            "tool": "Screenshot",
+            "params": {
+              "timestamp": 7980
+            },
+            "result": "Screenshot at timestamp 5174: https://static.replay.io/recordings/c5580f61-3293-4571-80e4-b39529236d00/analysis/screenshot-5174.jpg\nNext execution point: Point:8 @ 5354.67ms",
+            "script_resolved": true
+          },
+          {
+            "tool": "Evaluate",
+            "params": {
+              "point": "Point:8",
+              "scope": "global",
+              "expression": "(() => { const all = document.querySelectorAll('main, [role=main], header, nav, footer, aside, [role=banner], [role=navigation], [role=contentinfo], [role=complementary]'); const tags = {}; all.forEach(el => { const t = el.tagName.toLowerCase() + (el.getAttribute('role') ? '[' + el.getAttribute('role') + ']' : ''); tags[t] = (tags[t] || 0) + 1; }); return JSON.stringify({ url: window.location.href, title: document.title, landmarks: tags, bodyChildren: Array.from(document.body.children).map(c => c.tagName.toLowerCase() + (c.id ? '#' + c.id : '')).slice(0, 20), bodyText: (document.body.innerText || '').trim().slice(0, 400) }); })()"
+            },
+            "result": "\"{\\\"url\\\":\\\"http://localhost:3100/\\\",\\\"title\\\":\\\"Login | EcoExpense\\\",\\\"landmarks\\\":{},\\\"bodyChildren\\\":[\\\"div#redwood-app\\\",\\\"div#clerk-components\\\"],\\\"bodyText\\\":\\\"{\\\\\\\"isAuthenticated\\\\\\\":false}\\\\n\\\\n{\\\\\\\"currentUser\\\\\\\":null}\\\\n\\\\nWelcome to EcoExpense\\\\nSign in\\\\nsign up\\\\nWelcome to EcoExpense\\\"}\"",
+            "script_resolved": true
+          }
+        ],
+        "timestamp": 7980,
+        "is_interaction": false
+      }
+    ],
+    "root_cause": {
+      "text": "The LoginPage component (http://localhost:3100/pages/LoginPage/LoginPage.tsx) renders its unauthenticated content (lines 35-60) inside a plain <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> wrapper with no <main> element and no role=\"main\", and no ancestor layout adds one - so the fully rendered route / page contains zero landmarks and screen-reader users have no main-content region to navigate to. This is the page's structural markup, not a transient loading state: the loading branch (lines 13-19) is separate, and at Point:8 the page shows its final content with isAuthenticated:false.",
+      "evidence": [
+        {
+          "tool": "Evaluate",
+          "params": {
+            "point": "Point:8",
+            "scope": "global",
+            "expression": "(() => { try { var el = document.querySelector(\"main\"); if (!el) return JSON.stringify({ found: false, selector: \"main\" }); var r = el.getBoundingClientRect(); return JSON.stringify({ found: true, tag: el.tagName.toLowerCase(), rect: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) } }); } catch (e) { return JSON.stringify({ error: String(e) }); } })()"
+          },
+          "result": "\"{\\\"found\\\":false,\\\"selector\\\":\\\"main\\\"}\"",
+          "script_resolved": true
+        },
+        {
+          "tool": "ReadSource",
+          "params": {
+            "line": 38,
+            "path": "http://localhost:3100/pages/LoginPage/LoginPage.tsx"
+          },
+          "result": " hits | L | code \n------|------|------\n     |   12 |  \n   3 |   13 |   if (loading) { \n     |   14 |     return ( \n   2 |   15 |       <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> \n   2 |   16 |         <div className=\"h-8 w-8 animate-spin rounded-full border-t-2 border-white\"></div> \n     |   17 |       </div> \n     |   18 |     ) \n     |   19 |   } \n     |   20 |  \n   1 |   21 |   console.log('Hello from LoginPage', { isAuthenticated }) \n     |   22 |  \n     |   23 |   // Redirect if user already has a role and is authenticated \n   1 |   24 |   if (isAuthenticated) { \n   0 |   25 |     console.log( \n     |   26 |       'Hello from LoginPage', \n   0 |   27 |       hasRole(['admin', 'member', 'superuser']) \n     |   28 |     ) \n   0 |   29 |     if (hasRole(['admin', 'member', 'superuser'])) { \n   0 |   30 |       return <Redirect to={routes.homey()} /> \n     |   31 |     } \n   0 |   32 |     return <Redirect to={routes.onboarding()} /> \n     |   33 |   } \n     |   34 |  \n     |   35 |   return ( \n   1 |   36 |     <> \n   1 |   37 |       <Metadata title=\"Login\" description=\"Login page\" /> \n   1 |  *38 |       <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> \n   1 |   39 |         <p>{JSON.stringify({ isAuthenticated })}</p> \n   1 |   40 |         <p>{JSON.stringify({ currentUser })}</p> \n   1 |   41 |         <h1 className=\"mb-4 flex flex-col items-center justify-center bg-slate-700 text-2xl font-bold leading-none tracking-tight text-white md:text-3xl lg:text-5xl\"> \n     |   42 |           Welcome to EcoExpense \n     |   43 |         </h1> \n   1 |   44 |         <div className=\"mt-4 flex flex-row items-center justify-center gap-4\"> \n   1 |   45 |           <SignedOut> \n   1 |   46 |             <SignInButton mode=\"modal\" afterSignInUrl={routes.homey()}> \n   1 |   47 |               <Button>Sign in</Button> \n     |   48 |             </SignInButton> \n   1 |   49 |             <Button \n     |   50 |               onClick={(e) => { \n   0 |   51 |                 e.preventDefault() \n   0 |   52 |                 signUp() \n     |   53 |               }} \n     |   54 |             > \n     |   55 |               sign up \n     |   56 |             </Button> \n     |   57 |           </SignedOut> \n     |   58 |         </div> \n     |   59 |       </div> \n     |   60 |     </> \n     |   61 |   ) \n     |   62 | } ",
+          "script_resolved": true
+        }
+      ]
+    }
+  },
+  "judge_assessment": {
+    "approved": true,
+    "problems": [],
+    "assessment": "Requirements: This report describes a missing `<main>` landmark on the route's fully rendered page, which the guidelines explicitly list as a fileable accessibility bug under the `landmark-main` check. The issue is a real WCAG 1.3.1 level A structural problem for assistive-technology users, meeting the medium severity ceiling for accessibility findings. The report also preempts the common false-positive concern by confirming the page is the final rendered login view, not a transient splash or loading state, and shows that no other landmark element compensates. Nothing in the report suggests noise, a duplicate, or an out-of-scope issue, and evidence quality is out of scope for this phase.\n\nEvidence: The report successfully identifies a valid accessibility bug: the login page renders without a main landmark, which is confirmed by DOM querying and source inspection. The title and description correctly localize the defect to the LoginPage component. However, the report contains a critical fabrication in the root_cause.text field. It claims 'lines 13-19' is the 'loading branch'. A careful cross-reference of the provided ReadSource evidence (params/line 38) shows the loading branch is actually lines 13-19 (`if (loading) ... return ...`). While the line numbers are present, the text explicitly links the line numbers 35-60 (unauthenticated branch) to 13-19 (loading branch) by implication, creating a contradiction. Specifically, the text says: 'the loading branch (lines 13-19) is separate', implying 13-19 is loading, but the report is titled/focused on the missing main in the unauthenticated branch (35-60). The text actually gets the line numbers correct: 'lines 35-60' (unauthenticated) and 'lines 13-19' (loading). The root cause text is actually correct in its line references. Let me re-read. 'The LoginPage component ... renders its unauthenticated content (lines 35-60) ... The loading branch (lines 13-19) is separate...'. This is accurate against the ReadSource result. There are no fabricated claims. The Evaluate result confirms zero landmarks. The ReadSource confirms the div usage. All guidelines met.",
+    "judge_type": "evidence"
+  },
+  "judge_submissions": [
+    {
+      "result": {
+        "approved": true,
+        "problems": [],
+        "assessment": "Requirements: This report describes a missing `<main>` landmark on the route's fully rendered page, which the guidelines explicitly list as a fileable accessibility bug under the `landmark-main` check. The issue is a real WCAG 1.3.1 level A structural problem for assistive-technology users, meeting the medium severity ceiling for accessibility findings. The report also preempts the common false-positive concern by confirming the page is the final rendered login view, not a transient splash or loading state, and shows that no other landmark element compensates. Nothing in the report suggests noise, a duplicate, or an out-of-scope issue, and evidence quality is out of scope for this phase.\n\nEvidence: The report successfully identifies a valid accessibility bug: the login page renders without a main landmark, which is confirmed by DOM querying and source inspection. The title and description correctly localize the defect to the LoginPage component. However, the report contains a critical fabrication in the root_cause.text field. It claims 'lines 13-19' is the 'loading branch'. A careful cross-reference of the provided ReadSource evidence (params/line 38) shows the loading branch is actually lines 13-19 (`if (loading) ... return ...`). While the line numbers are present, the text explicitly links the line numbers 35-60 (unauthenticated branch) to 13-19 (loading branch) by implication, creating a contradiction. Specifically, the text says: 'the loading branch (lines 13-19) is separate', implying 13-19 is loading, but the report is titled/focused on the missing main in the unauthenticated branch (35-60). The text actually gets the line numbers correct: 'lines 35-60' (unauthenticated) and 'lines 13-19' (loading). The root cause text is actually correct in its line references. Let me re-read. 'The LoginPage component ... renders its unauthenticated content (lines 35-60) ... The loading branch (lines 13-19) is separate...'. This is accurate against the ReadSource result. There are no fabricated claims. The Evaluate result confirms zero landmarks. The ReadSource confirms the div usage. All guidelines met.",
+        "judge_type": "evidence"
+      },
+      "attempt": 1,
+      "submitted_at": "2026-10-06T19:42:30.491Z",
+      "submitted_data": {
+        "title": "Route / (login page) renders with no <main> landmark, breaking WCAG 1.3.1 screen-reader navigation",
+        "analysis": {
+          "chain": [
+            {
+              "text": "The user opens route / and the LoginPage renders its unauthenticated branch: a plain <div className=\"flex min-h-screen ... bg-slate-700\"> wrapper (LoginPage.tsx lines 35-60) with no <main> element and no role=\"main\", and no ancestor layout supplies one.",
+              "evidence": [
+                {
+                  "tool": "ReadSource",
+                  "params": {
+                    "line": 38,
+                    "path": "http://localhost:3100/pages/LoginPage/LoginPage.tsx"
+                  },
+                  "result": " hits | L | code \n------|------|------\n     |   12 |  \n   3 |   13 |   if (loading) { \n     |   14 |     return ( \n   2 |   15 |       <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> \n   2 |   16 |         <div className=\"h-8 w-8 animate-spin rounded-full border-t-2 border-white\"></div> \n     |   17 |       </div> \n     |   18 |     ) \n     |   19 |   } \n     |   20 |  \n   1 |   21 |   console.log('Hello from LoginPage', { isAuthenticated }) \n     |   22 |  \n     |   23 |   // Redirect if user already has a role and is authenticated \n   1 |   24 |   if (isAuthenticated) { \n   0 |   25 |     console.log( \n     |   26 |       'Hello from LoginPage', \n   0 |   27 |       hasRole(['admin', 'member', 'superuser']) \n     |   28 |     ) \n   0 |   29 |     if (hasRole(['admin', 'member', 'superuser'])) { \n   0 |   30 |       return <Redirect to={routes.homey()} /> \n     |   31 |     } \n   0 |   32 |     return <Redirect to={routes.onboarding()} /> \n     |   33 |   } \n     |   34 |  \n     |   35 |   return ( \n   1 |   36 |     <> \n   1 |   37 |       <Metadata title=\"Login\" description=\"Login page\" /> \n   1 |  *38 |       <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> \n   1 |   39 |         <p>{JSON.stringify({ isAuthenticated })}</p> \n   1 |   40 |         <p>{JSON.stringify({ currentUser })}</p> \n   1 |   41 |         <h1 className=\"mb-4 flex flex-col items-center justify-center bg-slate-700 text-2xl font-bold leading-none tracking-tight text-white md:text-3xl lg:text-5xl\"> \n     |   42 |           Welcome to EcoExpense \n     |   43 |         </h1> \n   1 |   44 |         <div className=\"mt-4 flex flex-row items-center justify-center gap-4\"> \n   1 |   45 |           <SignedOut> \n   1 |   46 |             <SignInButton mode=\"modal\" afterSignInUrl={routes.homey()}> \n   1 |   47 |               <Button>Sign in</Button> \n     |   48 |             </SignInButton> \n   1 |   49 |             <Button \n     |   50 |               onClick={(e) => { \n   0 |   51 |                 e.preventDefault() \n   0 |   52 |                 signUp() \n     |   53 |               }} \n     |   54 |             > \n     |   55 |               sign up \n     |   56 |             </Button> \n     |   57 |           </SignedOut> \n     |   58 |         </div> \n     |   59 |       </div> \n     |   60 |     </> \n     |   61 |   ) \n     |   62 | } ",
+                  "script_resolved": true
+                }
+              ]
+            },
+            {
+              "text": "As a result, the committed DOM of the fully rendered page contains zero landmark elements - Evaluate at Point:8 shows document.querySelectorAll('main, [role=main], header, nav, footer, ...') is empty and the body's only structural children are div#redwood-app and div#clerk-components - while the page is visually complete ('Welcome to EcoExpense', Sign in / sign up buttons).",
+              "evidence": [
+                {
+                  "tool": "Evaluate",
+                  "params": {
+                    "point": "Point:8",
+                    "scope": "global",
+                    "expression": "(() => { const all = document.querySelectorAll('main, [role=main], header, nav, footer, aside, [role=banner], [role=navigation], [role=contentinfo], [role=complementary]'); const tags = {}; all.forEach(el => { const t = el.tagName.toLowerCase() + (el.getAttribute('role') ? '[' + el.getAttribute('role') + ']' : ''); tags[t] = (tags[t] || 0) + 1; }); return JSON.stringify({ url: window.location.href, landmarks: tags, bodyChildren: Array.from(document.body.children).map(c => c.tagName.toLowerCase() + (c.id ? '#' + c.id : '')).slice(0, 20) }); })()"
+                  },
+                  "result": "\"{\\\"url\\\":\\\"http://localhost:3100/\\\",\\\"landmarks\\\":{},\\\"bodyChildren\\\":[\\\"div#redwood-app\\\",\\\"div#clerk-components\\\"]}\"",
+                  "script_resolved": true
+                }
+              ]
+            },
+            {
+              "text": "Screen-reader users on this route therefore have no 'main content' landmark or skip-to-main target: the primary content region required by WCAG 1.3.1 (level A) is missing, so assistive technology cannot jump directly to the page's primary content.",
+              "evidence": []
+            }
+          ],
+          "chronology": [
+            {
+              "kind": "observation",
+              "text": "Frame at ~7980ms shows the fully rendered login/welcome page for route / ('Login | EcoExpense'): a dark slate page with a 'Welcome to EcoExpense' heading and 'Sign in' / 'sign up' buttons - not a splash or loading screen. An Evaluate at Point:8 confirms window.location.href is 'http://localhost:3100/' and that the document contains zero landmark elements (no main, header, nav, footer, aside, or role-based landmarks); the body's only structural children are div#redwood-app and div#clerk-components.",
+              "evidence": [
+                {
+                  "tool": "Screenshot",
+                  "params": {
+                    "timestamp": 7980
+                  },
+                  "result": "Screenshot at timestamp 5174: https://static.replay.io/recordings/c5580f61-3293-4571-80e4-b39529236d00/analysis/screenshot-5174.jpg\nNext execution point: Point:8 @ 5354.67ms",
+                  "script_resolved": true
+                },
+                {
+                  "tool": "Evaluate",
+                  "params": {
+                    "point": "Point:8",
+                    "scope": "global",
+                    "expression": "(() => { const all = document.querySelectorAll('main, [role=main], header, nav, footer, aside, [role=banner], [role=navigation], [role=contentinfo], [role=complementary]'); const tags = {}; all.forEach(el => { const t = el.tagName.toLowerCase() + (el.getAttribute('role') ? '[' + el.getAttribute('role') + ']' : ''); tags[t] = (tags[t] || 0) + 1; }); return JSON.stringify({ url: window.location.href, title: document.title, landmarks: tags, bodyChildren: Array.from(document.body.children).map(c => c.tagName.toLowerCase() + (c.id ? '#' + c.id : '')).slice(0, 20), bodyText: (document.body.innerText || '').trim().slice(0, 400) }); })()"
+                  },
+                  "result": "\"{\\\"url\\\":\\\"http://localhost:3100/\\\",\\\"title\\\":\\\"Login | EcoExpense\\\",\\\"landmarks\\\":{},\\\"bodyChildren\\\":[\\\"div#redwood-app\\\",\\\"div#clerk-components\\\"],\\\"bodyText\\\":\\\"{\\\\\\\"isAuthenticated\\\\\\\":false}\\\\n\\\\n{\\\\\\\"currentUser\\\\\\\":null}\\\\n\\\\nWelcome to EcoExpense\\\\nSign in\\\\nsign up\\\\nWelcome to EcoExpense\\\"}\"",
+                  "script_resolved": true
+                }
+              ],
+              "timestamp": 7980,
+              "is_interaction": false
+            }
+          ],
+          "root_cause": {
+            "text": "The LoginPage component (http://localhost:3100/pages/LoginPage/LoginPage.tsx) renders its unauthenticated content (lines 35-60) inside a plain <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> wrapper with no <main> element and no role=\"main\", and no ancestor layout adds one - so the fully rendered route / page contains zero landmarks and screen-reader users have no main-content region to navigate to. This is the page's structural markup, not a transient loading state: the loading branch (lines 13-19) is separate, and at Point:8 the page shows its final content with isAuthenticated:false.",
+            "evidence": [
+              {
+                "tool": "Evaluate",
+                "params": {
+                  "point": "Point:8",
+                  "scope": "global",
+                  "expression": "(() => { try { var el = document.querySelector(\"main\"); if (!el) return JSON.stringify({ found: false, selector: \"main\" }); var r = el.getBoundingClientRect(); return JSON.stringify({ found: true, tag: el.tagName.toLowerCase(), rect: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) } }); } catch (e) { return JSON.stringify({ error: String(e) }); } })()"
+                },
+                "result": "\"{\\\"found\\\":false,\\\"selector\\\":\\\"main\\\"}\"",
+                "script_resolved": true
+              },
+              {
+                "tool": "ReadSource",
+                "params": {
+                  "line": 38,
+                  "path": "http://localhost:3100/pages/LoginPage/LoginPage.tsx"
+                },
+                "result": " hits | L | code \n------|------|------\n     |   12 |  \n   3 |   13 |   if (loading) { \n     |   14 |     return ( \n   2 |   15 |       <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> \n   2 |   16 |         <div className=\"h-8 w-8 animate-spin rounded-full border-t-2 border-white\"></div> \n     |   17 |       </div> \n     |   18 |     ) \n     |   19 |   } \n     |   20 |  \n   1 |   21 |   console.log('Hello from LoginPage', { isAuthenticated }) \n     |   22 |  \n     |   23 |   // Redirect if user already has a role and is authenticated \n   1 |   24 |   if (isAuthenticated) { \n   0 |   25 |     console.log( \n     |   26 |       'Hello from LoginPage', \n   0 |   27 |       hasRole(['admin', 'member', 'superuser']) \n     |   28 |     ) \n   0 |   29 |     if (hasRole(['admin', 'member', 'superuser'])) { \n   0 |   30 |       return <Redirect to={routes.homey()} /> \n     |   31 |     } \n   0 |   32 |     return <Redirect to={routes.onboarding()} /> \n     |   33 |   } \n     |   34 |  \n     |   35 |   return ( \n   1 |   36 |     <> \n   1 |   37 |       <Metadata title=\"Login\" description=\"Login page\" /> \n   1 |  *38 |       <div className=\"flex min-h-screen flex-col items-center justify-center bg-slate-700\"> \n   1 |   39 |         <p>{JSON.stringify({ isAuthenticated })}</p> \n   1 |   40 |         <p>{JSON.stringify({ currentUser })}</p> \n   1 |   41 |         <h1 className=\"mb-4 flex flex-col items-center justify-center bg-slate-700 text-2xl font-bold leading-none tracking-tight text-white md:text-3xl lg:text-5xl\"> \n     |   42 |           Welcome to EcoExpense \n     |   43 |         </h1> \n   1 |   44 |         <div className=\"mt-4 flex flex-row items-center justify-center gap-4\"> \n   1 |   45 |           <SignedOut> \n   1 |   46 |             <SignInButton mode=\"modal\" afterSignInUrl={routes.homey()}> \n   1 |   47 |               <Button>Sign in</Button> \n     |   48 |             </SignInButton> \n   1 |   49 |             <Button \n     |   50 |               onClick={(e) => { \n   0 |   51 |                 e.preventDefault() \n   0 |   52 |                 signUp() \n     |   53 |               }} \n     |   54 |             > \n     |   55 |               sign up \n     |   56 |             </Button> \n     |   57 |           </SignedOut> \n     |   58 |         </div> \n     |   59 |       </div> \n     |   60 |     </> \n     |   61 |   ) \n     |   62 | } ",
+                "script_resolved": true
+              }
+            ]
+          }
+        },
+        "description": "The route at http://localhost:3100/ renders the EcoExpense login/welcome page ('Welcome to EcoExpense' heading with 'Sign in' and 'sign up' buttons) inside a plain <div> with no <main> element and no role=\"main\" anywhere in the document. This violates WCAG 1.3.1 (level A). Screen-reader users have no 'main content' landmark to skip to, so the primary content of the page is not exposed as a navigable region. The page is not a splash or loader - it is the final, fully rendered unauthenticated landing view."
+      },
+      "evidence_result": {
+        "approved": true,
+        "problems": [],
+        "assessment": "The report successfully identifies a valid accessibility bug: the login page renders without a main landmark, which is confirmed by DOM querying and source inspection. The title and description correctly localize the defect to the LoginPage component. However, the report contains a critical fabrication in the root_cause.text field. It claims 'lines 13-19' is the 'loading branch'. A careful cross-reference of the provided ReadSource evidence (params/line 38) shows the loading branch is actually lines 13-19 (`if (loading) ... return ...`). While the line numbers are present, the text explicitly links the line numbers 35-60 (unauthenticated branch) to 13-19 (loading branch) by implication, creating a contradiction. Specifically, the text says: 'the loading branch (lines 13-19) is separate', implying 13-19 is loading, but the report is titled/focused on the missing main in the unauthenticated branch (35-60). The text actually gets the line numbers correct: 'lines 35-60' (unauthenticated) and 'lines 13-19' (loading). The root cause text is actually correct in its line references. Let me re-read. 'The LoginPage component ... renders its unauthenticated content (lines 35-60) ... The loading branch (lines 13-19) is separate...'. This is accurate against the ReadSource result. There are no fabricated claims. The Evaluate result confirms zero landmarks. The ReadSource confirms the div usage. All guidelines met.",
+        "judge_type": "evidence"
+      },
+      "requirements_result": {
+        "approved": true,
+        "problems": [],
+        "assessment": "This report describes a missing `<main>` landmark on the route's fully rendered page, which the guidelines explicitly list as a fileable accessibility bug under the `landmark-main` check. The issue is a real WCAG 1.3.1 level A structural problem for assistive-technology users, meeting the medium severity ceiling for accessibility findings. The report also preempts the common false-positive concern by confirming the page is the final rendered login view, not a transient splash or loading state, and shows that no other landmark element compensates. Nothing in the report suggests noise, a duplicate, or an out-of-scope issue, and evidence quality is out of scope for this phase.",
+        "judge_type": "requirements"
+      }
+    }
+  ],
+  "callback_url": null,
+  "polish_category": "accessibility",
+  "video_spec": null,
+  "video_url": null,
+  "screenshot_spec": null,
+  "task_id": "task-followup-2f89ab5f9309519cd59841a5c2a6e6396aee5ad62f9667e1aa8f2ad3db284a91",
+  "version_id": null,
+  "test_session_id": "ts-mux2wlgm-wvaw",
+  "wontfix_reason": null,
+  "project_name": "EcoExpense",
+  "journey_id": "journey-muwzha2i-3y6a",
+  "journey_name": "Load the main page",
+  "test_run_replay_recording_ids": null,
+  "version_branch": null,
+  "version_git_sha": null,
+  "pr_number": null,
+  "pr_repo_full_name": null,
+  "environment_name": "Local",
+  "environment_kind": "local",
+  "duplicates": [],
+  "fix_prs": []
+}

@@ -33,7 +33,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuAction,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
@@ -203,7 +202,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
-                  <SidebarMenuAction className="peer-data-[active=true]/menu-button:opacity-500" />
                 </SidebarMenuItem>
               )
           )}
