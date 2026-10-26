@@ -434,6 +434,7 @@ export const AIRLINES = [
   { label: 'EY', value: 'EY' },
   { label: 'FI', value: 'FI' },
   { label: 'FJ', value: 'FJ' },
+  { label: 'FR', value: 'FR' },
   { label: 'GA', value: 'GA' },
   { label: 'GF', value: 'GF' },
   { label: 'HA', value: 'HA' },
