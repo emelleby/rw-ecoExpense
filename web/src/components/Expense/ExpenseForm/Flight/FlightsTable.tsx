@@ -20,6 +20,8 @@ export interface FlightSegment {
 interface FlightsTableProps {
   data: FlightSegment[]
   handleDelete: (index: number) => void
+  /** The segment currently being typed in the form, not yet added */
+  draft?: Partial<FlightSegment> | null
 }
 
 const formatDate = (value: string) => {
@@ -33,6 +35,7 @@ const className = (value: string) =>
 export default function FlightsTable({
   data,
   handleDelete,
+  draft,
 }: FlightsTableProps) {
   return (
     <ol className="space-y-2" aria-label="Added flight segments">
@@ -68,6 +71,27 @@ export default function FlightsTable({
           </Button>
         </li>
       ))}
+      {draft && (
+        <li
+          className="flex items-center gap-3 rounded-lg border-2 border-dashed border-primary/50 p-3"
+          aria-label={`Segment ${data.length + 1}, not added yet`}
+        >
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-primary text-xs font-semibold text-primary">
+            {data.length + 1}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 font-semibold">
+              <PlaneTakeoff className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span>{draft.origin || '…'}</span>
+              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span>{draft.destination || '…'}</span>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Not added yet. Included when you save.
+            </div>
+          </div>
+        </li>
+      )}
     </ol>
   )
 }

@@ -412,6 +412,15 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
   const segmentNumber = flights.length + 1
 
+  // Live view of the segment card so the UI can say what Save will include
+  const [draftFrom, draftTo, draftAirline, draftFlightNumber] =
+    formMethods.watch(['from', 'to', 'airline', 'flightNumber'])
+  const draftStarted = Boolean(draftTo || draftAirline || draftFlightNumber)
+  // With no added segments the card is the flight; otherwise only if started
+  const draftIncluded = flights.length === 0 || draftStarted
+  const flightsOnSave = flights.length + (draftIncluded ? 1 : 0)
+  const showDraftInList = flights.length > 0 && draftStarted
+
   return (
     <Form onSubmit={onSubmit} formMethods={formMethods}>
       {flights.length > 0 && (
@@ -421,10 +430,19 @@ export const FutureFlights: FC<ExpenseFormProps> = (
               Your itinerary
             </h3>
             <span className="text-sm text-muted-foreground">
-              {flights.length} segment{flights.length === 1 ? '' : 's'} added
+              {flights.length} added
+              {showDraftInList && ' · 1 in progress'}
             </span>
           </div>
-          <FlightsTable data={flights} handleDelete={handleDeleteFlight} />
+          <FlightsTable
+            data={flights}
+            handleDelete={handleDeleteFlight}
+            draft={
+              showDraftInList
+                ? { origin: draftFrom, destination: draftTo }
+                : null
+            }
+          />
         </section>
       )}
 
@@ -434,11 +452,17 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           {flights.length === 0 ? 'Flight' : `Segment ${segmentNumber}`}
         </legend>
 
-        {flights.length > 0 && (
-          <p className="mb-2 text-sm text-muted-foreground">
-            Add the next flight, or leave the destination, airline and flight
-            number empty if your itinerary is complete. All segments above are
-            included when you save.
+        {flights.length > 0 && !draftStarted && (
+          <p className="mb-2 rounded-md bg-muted p-2 text-sm">
+            <strong>Itinerary complete?</strong> Just save. This empty card is
+            ignored. Otherwise fill in your next flight.
+          </p>
+        )}
+        {draftStarted && (
+          <p className="mb-2 rounded-md bg-muted p-2 text-sm">
+            This flight is saved as <strong>segment {segmentNumber}</strong>{' '}
+            when you press Save. Only press &ldquo;Add&rdquo; below if there is
+            another flight after it.
           </p>
         )}
 
@@ -622,7 +646,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           className="mt-4 w-full border-2 border-dashed border-primary font-semibold text-primary hover:bg-primary/10 hover:text-primary"
         >
           <PlusIcon className="h-4 w-4" />
-          Add segment {segmentNumber} &amp; continue with next flight
+          Add segment {segmentNumber} and enter another flight
         </Button>
       </fieldset>
 
@@ -815,6 +839,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       <div className="my-6 grid grid-cols-1">
         <SaveButton
           saving={props.loading || formMethods.formState.isSubmitting}
+          label={`Save expense (${flightsOnSave} flight${flightsOnSave === 1 ? '' : 's'})`}
         />
       </div>
     </Form>
