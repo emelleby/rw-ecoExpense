@@ -112,13 +112,26 @@ export default function UploadReciepts({
       const { data } = await createUploadUrl({
         variables: { contentType: file.type },
       })
+      if (!data?.createUploadUrl) {
+        throw new Error('Could not get an upload URL from the server')
+      }
       const { uploadUrl, fileUrl } = data.createUploadUrl
 
-      const response = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type },
-        body: file,
-      })
+      let response: Response
+      try {
+        response = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file,
+        })
+      } catch (networkError) {
+        // fetch rejects (TypeError) when the browser blocks the request,
+        // typically because this origin is not in the bucket's CORS config
+        console.error('Receipt upload to storage failed:', networkError)
+        throw new Error(
+          `Could not reach the upload destination from ${window.location.origin}. Ask your admin to add this address to the storage bucket CORS configuration.`
+        )
+      }
       if (!response.ok) {
         throw new Error(`Upload failed (${response.status})`)
       }
@@ -128,16 +141,10 @@ export default function UploadReciepts({
       setFileType(file.type)
       toast.success('Receipt uploaded')
     } catch (error) {
-      // fetch throws TypeError on network/CORS failures
-      if (error instanceof TypeError) {
-        toast.error(
-          'Could not reach the upload destination. Ask your admin to verify the storage bucket CORS configuration.'
-        )
-      } else {
-        toast.error(
-          error instanceof Error ? error.message : 'Receipt upload failed'
-        )
-      }
+      console.error('Receipt upload error:', error)
+      toast.error(
+        error instanceof Error ? error.message : 'Receipt upload failed'
+      )
     } finally {
       setUploading(false)
     }
