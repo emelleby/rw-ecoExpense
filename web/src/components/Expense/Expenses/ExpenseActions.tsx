@@ -1,7 +1,9 @@
+import { useState } from 'react'
+
 import { MoreHorizontal } from 'lucide-react'
 import type { DeleteExpenseMutationVariables } from 'types/graphql'
 
-import { Link, routes } from '@redwoodjs/router'
+import { navigate, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
@@ -43,6 +45,7 @@ const isExpenseEditable = (tripStatus: string) => {
 }
 
 export function ExpenseActions({ id, tripStatus }: ExpenseActionsProps) {
+  const [open, setOpen] = useState(false)
   const [deleteExpense] = useMutation(DELETE_EXPENSE_MUTATION, {
     onCompleted: (data) => {
       if ('message' in data.deleteExpense) {
@@ -76,21 +79,34 @@ export function ExpenseActions({ id, tripStatus }: ExpenseActionsProps) {
 
   return (
     <TooltipProvider>
-      <DropdownMenu>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 bg-muted p-0">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <Link to={routes.expense({ id })}>
-            <DropdownMenuItem>Show</DropdownMenuItem>
-          </Link>
+          {/* Navigate explicitly and close the menu right away, so it doesn't
+              linger on screen while the next page is still loading. */}
+          <DropdownMenuItem
+            onSelect={() => {
+              setOpen(false)
+              navigate(routes.expense({ id }))
+            }}
+          >
+            Show
+          </DropdownMenuItem>
 
           {isExpenseEditable(tripStatus) ? (
-            <Link to={routes.editExpense({ id })}>
-              <DropdownMenuItem className="text-sky-600">Edit</DropdownMenuItem>
-            </Link>
+            <DropdownMenuItem
+              className="text-sky-600"
+              onSelect={() => {
+                setOpen(false)
+                navigate(routes.editExpense({ id }))
+              }}
+            >
+              Edit
+            </DropdownMenuItem>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>

@@ -10,8 +10,8 @@ const useLoader = () => {
 
   const Loader = () =>
     loading ? (
-      <div className="absolute left-[50%] top-10 h-full  w-full -translate-x-[50%] bg-white opacity-50">
-        <Spinner />
+      <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
+        <Spinner fill={false} />
       </div>
     ) : null
 
