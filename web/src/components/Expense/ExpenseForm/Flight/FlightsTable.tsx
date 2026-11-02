@@ -19,7 +19,7 @@ interface FlightsTableProps {
     operatingCarrierCode: string
     flightNumber: string
     class: string
-    departureDate: Date
+    departureDate: string
   }>
   handleDelete: (index: number) => void
 }
