@@ -84,9 +84,40 @@ const SUBMIT_FLIGHTS_MUTATION = gql`
   }
 `
 
+interface FutureSegment {
+  origin: string
+  destination: string
+  operatingCarrierCode: string
+  flightNumber: string
+  class: string
+  departureDate: string
+}
+
+interface FutureFlightDetails {
+  mode: 'future'
+  // Every segment, in order. The last one is shown in the form fields on
+  // edit; the rest go back into the "Flights" list.
+  segments: FutureSegment[]
+  passengers?: number
+}
+
 export const FutureFlights: FC<ExpenseFormProps> = (
   props: ExpenseFormProps
 ) => {
+  // Only restore when the expense was saved as a future flight; a past-flight
+  // expense (or a legacy one with no flightDetails) starts blank here.
+  const stored = props.expense?.flightDetails as
+    | { mode?: string }
+    | null
+    | undefined
+  const saved: FutureFlightDetails | undefined =
+    stored?.mode === 'future' ? (stored as FutureFlightDetails) : undefined
+  const lastSegment = saved?.segments?.[saved.segments.length - 1]
+
+  const initialDate = props.expense?.date
+    ? new Date(props.expense.date)
+    : new Date()
+
   const [submitFlights] = useMutation(SUBMIT_FLIGHTS_MUTATION, {
     onCompleted: (data) => {
       if (data?.submitFutureFlights?.length > 0) {
@@ -113,8 +144,6 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     },
   })
 
-  const date = new Date()
-
   const formMethods = useForm({
     defaultValues: {
       currency: props.expense?.currency || 'NOK',
@@ -126,7 +155,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     props.expense?.exchangeRate || 0
   )
 
-  const [selectedDate, setSelectedDate] = useState(date)
+  const [selectedDate, setSelectedDate] = useState(initialDate)
 
   const [fileName, setFileName] = useState(
     props.expense?.receipt?.fileName || ''
@@ -140,7 +169,9 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     props.expense?.receipt?.url || ''
   )
 
-  const [flights, setFlights] = useState([])
+  const [flights, setFlights] = useState<FutureSegment[]>(
+    saved?.segments?.slice(0, -1) ?? []
+  )
 
   const onCurrencyChange = async (value: string) => {
     const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
@@ -306,6 +337,21 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       scope3CategoryId: 6,
       ...emission,
       receipt,
+      flightDetails: {
+        mode: 'future',
+        segments: [
+          ...flights,
+          {
+            origin: data.from,
+            destination: data.to,
+            operatingCarrierCode: data.airline,
+            flightNumber: data.flightNumber.toString(),
+            class: flightClass || 'economy',
+            departureDate: selectedDate.toISOString().split('T')[0],
+          },
+        ],
+        passengers: data.passengers,
+      } satisfies FutureFlightDetails,
     }
 
     props.onSave(dataWithReceipt, props?.expense?.id)
@@ -391,7 +437,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="from"
-              defaultValue={''}
+              defaultValue={lastSegment?.origin || ''}
               rules={{ required: true }}
               render={({ field }) => (
                 <AirportSelect
@@ -400,7 +446,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
                     field.onChange(value)
                   }}
                   placeholder="Departure Airport.."
-                  value=""
+                  value={lastSegment?.origin || ''}
                 />
               )}
             />
@@ -419,7 +465,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="to"
-              defaultValue={''}
+              defaultValue={lastSegment?.destination || ''}
               rules={{ required: true }}
               render={({ field }) => (
                 <AirportSelect
@@ -428,7 +474,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
                     field.onChange(value)
                   }}
                   placeholder="Select destination Airport..."
-                  value=""
+                  value={lastSegment?.destination || ''}
                 />
               )}
             />
@@ -449,12 +495,12 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="airline"
-              defaultValue={''}
+              defaultValue={lastSegment?.operatingCarrierCode || ''}
               rules={{ required: true }}
               render={({ field }) => (
                 <Combobox
                   Data={AIRLINES}
-                  defaultValue={''}
+                  defaultValue={lastSegment?.operatingCarrierCode || ''}
                   defaultText="Select an Airline..."
                   isActive={true}
                   onChangeHandle={(value) => field.onChange(value)}
@@ -475,7 +521,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             </Label>
             <TextField
               name="flightNumber"
-              defaultValue={''}
+              defaultValue={lastSegment?.flightNumber || ''}
               className="rw-input"
               errorClassName="rw-input rw-input-error"
               validation={{ required: true }}
@@ -496,13 +542,13 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="flightClass"
-              defaultValue={'economy'}
+              defaultValue={lastSegment?.class || 'economy'}
               rules={{ required: true }}
               render={({ field }) => (
                 <Select
                   onValueChange={(value) => field.onChange(value)}
                   value={field.value?.toString()}
-                  defaultValue={'economy'}
+                  defaultValue={lastSegment?.class || 'economy'}
                 >
                   <SelectTrigger
                     className={cn(
@@ -536,7 +582,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             </Label>
             <NumberField
               name="passengers"
-              defaultValue={1}
+              defaultValue={saved?.passengers || 1}
               className="rw-input appearance-none"
               errorClassName="rw-input rw-input-error"
               validation={{ valueAsNumber: true, required: true, min: 1 }}
@@ -580,7 +626,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <DatetimeLocalField
               name="date"
-              defaultValue={new Date()}
+              defaultValue={initialDate}
               onChange={(date) => {
                 setSelectedDate(date)
               }}

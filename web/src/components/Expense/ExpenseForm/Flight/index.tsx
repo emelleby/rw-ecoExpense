@@ -42,7 +42,15 @@ export const Flight: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           </p>
         </AlertDescription>
       </Alert>
-      <Tabs defaultValue="pastFlight">
+      {/* flightDetails.mode records which variant the expense was saved with */}
+      <Tabs
+        defaultValue={
+          (props.expense?.flightDetails as { mode?: string } | null)?.mode ===
+          'future'
+            ? 'futureFlight'
+            : 'pastFlight'
+        }
+      >
         <TabsList className="flex w-full justify-center">
           <TabsTrigger className="w-1/2" value="pastFlight">
             Past Flight

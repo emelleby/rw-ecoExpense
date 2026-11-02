@@ -56,8 +56,31 @@ interface ExpenseFormProps {
   loading?: boolean
 }
 
+interface PastFlightDetails {
+  mode: 'past'
+  flightType?: string
+  from?: string
+  via?: string
+  to?: string
+  flightClass?: string
+  passengers?: number
+  radiativeFactor?: boolean
+}
+
 export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
-  const date = new Date()
+  // Only restore when the expense was saved as a past flight; a future-flight
+  // expense (or a legacy one with no flightDetails) starts blank here.
+  const stored = props.expense?.flightDetails as
+    | { mode?: string }
+    | null
+    | undefined
+  const saved: PastFlightDetails | undefined =
+    stored?.mode === 'past' ? (stored as PastFlightDetails) : undefined
+
+  const initialDate = props.expense?.date
+    ? new Date(props.expense.date)
+    : new Date()
+  const date = initialDate
 
   const formMethods = useForm({
     defaultValues: {
@@ -89,7 +112,9 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
     props.expense?.receipt?.url || ''
   )
 
-  const [radiativeFactor, setRadiativeFactor] = useState(true)
+  const [radiativeFactor, setRadiativeFactor] = useState(
+    saved?.radiativeFactor ?? true
+  )
 
   const onCurrencyChange = async (value: string) => {
     const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
@@ -173,6 +198,16 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       scope3CategoryId: 6,
       ...emission,
       receipt, // Add the nested receipt object
+      flightDetails: {
+        mode: 'past',
+        flightType: data.flightType,
+        from: data.from,
+        via: data.via || '',
+        to: data.to,
+        flightClass: data.flightClass,
+        passengers: data.passengers,
+        radiativeFactor,
+      } satisfies PastFlightDetails,
     }
 
     // format the data before sending it to the server
@@ -214,13 +249,13 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
 
           <Controller
             name="flightType"
-            defaultValue={flightTypeOptions[0].value}
+            defaultValue={saved?.flightType || flightTypeOptions[0].value}
             rules={{ required: true }}
             render={({ field }) => (
               <Select
                 onValueChange={(value) => field.onChange(value)}
                 value={field.value}
-                defaultValue={flightTypeOptions[0].value}
+                defaultValue={saved?.flightType || flightTypeOptions[0].value}
               >
                 <SelectTrigger
                   className={cn(
@@ -255,17 +290,16 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
 
           <Controller
             name="from"
-            defaultValue={''}
+            defaultValue={saved?.from || ''}
             rules={{ required: true }}
             render={({ field }) => (
               <AirportSelect
                 label=""
                 onChange={(value) => {
                   field.onChange(value)
-                  console.log(value)
                 }}
                 placeholder="Select an Origin Airport..."
-                value=""
+                value={saved?.from || ''}
               />
             )}
           />
@@ -286,17 +320,16 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
 
           <Controller
             name="via"
-            defaultValue={''}
+            defaultValue={saved?.via || ''}
             rules={{ required: false }}
             render={({ field }) => (
               <AirportSelect
                 label=""
                 onChange={(value) => {
                   field.onChange(value)
-                  console.log(value)
                 }}
                 placeholder="Select a Via Airport..."
-                value=""
+                value={saved?.via || ''}
               />
             )}
           />
@@ -315,17 +348,16 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
 
           <Controller
             name="to"
-            defaultValue={''}
+            defaultValue={saved?.to || ''}
             rules={{ required: true }}
             render={({ field }) => (
               <AirportSelect
                 label=""
                 onChange={(value) => {
                   field.onChange(value)
-                  console.log(value)
                 }}
                 placeholder="Select a Destination Airport..."
-                value=""
+                value={saved?.to || ''}
               />
             )}
           />
@@ -346,13 +378,13 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
 
           <Controller
             name="flightClass"
-            defaultValue={'economy'}
+            defaultValue={saved?.flightClass || 'economy'}
             rules={{ required: true }}
             render={({ field }) => (
               <Select
                 onValueChange={(value) => field.onChange(value)}
                 value={field.value?.toString()}
-                defaultValue={'economy'}
+                defaultValue={saved?.flightClass || 'economy'}
               >
                 <SelectTrigger
                   className={cn(
@@ -386,7 +418,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
           </Label>
           <NumberField
             name="passengers"
-            defaultValue={1}
+            defaultValue={saved?.passengers || 1}
             className="rw-input appearance-none"
             errorClassName="rw-input rw-input-error"
             validation={{ valueAsNumber: true, required: true, min: 1 }}
@@ -430,7 +462,7 @@ export const PastFlights: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
 
           <DatetimeLocalField
             name="date"
-            defaultValue={new Date()}
+            defaultValue={initialDate}
             onChange={(date) => {
               setSelectedDate(date)
             }}
