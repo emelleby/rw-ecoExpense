@@ -36,7 +36,7 @@ describe('HomeCell', () => {
 
   it('renders Success successfully', async () => {
     expect(() => {
-      render(<Success home={standard().home} />)
+      render(<Success dashboard={standard().dashboard} />)
     }).not.toThrow()
   })
 })

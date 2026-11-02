@@ -7,6 +7,15 @@ import AppshellLayout from './AppshellLayout'
 
 describe('AppshellLayout', () => {
   it('renders successfully', () => {
+    mockCurrentUser({
+      id: 'user_test',
+      dbUserId: 42,
+      roles: 'user',
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@example.com',
+      emailAddresses: [{ emailAddress: 'test@example.com' }],
+    })
     expect(() => {
       render(<AppshellLayout />)
     }).not.toThrow()

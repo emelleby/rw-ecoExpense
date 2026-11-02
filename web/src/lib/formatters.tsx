@@ -56,8 +56,11 @@ export const jsonTruncate = (obj: unknown) => {
 //   return output
 // }
 
-export const timeTag = (datetime: string) => {
-  return format(new Date(datetime), 'PPP')
+export const timeTag = (datetime: string | null | undefined) => {
+  if (!datetime) return ''
+  const date = new Date(datetime)
+  // An unparseable value would make date-fns throw and crash the page
+  return isNaN(date.getTime()) ? '' : format(date, 'PPP')
 }
 
 export const checkboxInputTag2 = (checked: boolean) => {

@@ -1,5 +1,7 @@
 import { render } from '@redwoodjs/testing/web'
 
+import { SidebarProvider } from 'src/components/ui/Sidebar'
+
 import { Loading, Empty, Failure, Success } from './UserSidebarGroupCell'
 import { standard } from './UserSidebarGroupCell.mock'
 
@@ -18,7 +20,11 @@ describe('UserSidebarGroupCell', () => {
 
   it('renders Empty successfully', async () => {
     expect(() => {
-      render(<Empty />)
+      render(
+        <SidebarProvider>
+          <Empty />
+        </SidebarProvider>
+      )
     }).not.toThrow()
   })
 
@@ -36,7 +42,11 @@ describe('UserSidebarGroupCell', () => {
 
   it('renders Success successfully', async () => {
     expect(() => {
-      render(<Success userSidebarGroup={standard().userSidebarGroup} />)
+      render(
+        <SidebarProvider>
+          <Success {...standard()} />
+        </SidebarProvider>
+      )
     }).not.toThrow()
   })
 })

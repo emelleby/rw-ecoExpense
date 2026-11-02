@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { render, screen, waitFor } from '@redwoodjs/testing/web'
 
 import { Accommodation } from './Accommodation'
-import { getCurrencyConversionRate } from './service'
 
 // Mock the service function
 jest.mock('./service', () => ({
@@ -74,30 +73,15 @@ describe('Accommodation', () => {
 
     render(<Accommodation {...defaultProps} onSave={onSave} />)
 
-    // Fill in the minimum required fields
-
-    // Select a trip - using the custom Combobox component
-    const tripTrigger = screen.getByText(/select a trip/i, { exact: false })
-    await userEvent.click(tripTrigger)
-
-    // Wait for the dropdown to appear and select the first trip
-    const tripOption = await screen.findByText('Business Trip 1')
-    await userEvent.click(tripOption)
+    // The first trip and NOK are pre-selected by the form
+    expect(screen.getByTestId('trip-select')).toHaveTextContent(
+      'Business Trip 1'
+    )
 
     // Fill in amount
     const amountInput = screen.getByTestId('amount-input')
     await userEvent.clear(amountInput)
     await userEvent.type(amountInput, '100')
-
-    // Set currency to NOK - using the custom Select component
-    const currencyTrigger = screen.getByText(/select currency/i, {
-      exact: false,
-    })
-    await userEvent.click(currencyTrigger)
-
-    // Wait for the dropdown to appear and select NOK
-    const nokOption = await screen.findByText('NOK')
-    await userEvent.click(nokOption)
 
     // Set exchange rate
     const exchangeRateInput = screen.getByTestId('exchange-rate-input')

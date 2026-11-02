@@ -83,9 +83,9 @@ describe('jsonTruncate', () => {
 
 describe('timeTag', () => {
   it('renders a date', async () => {
-    render(<div>{timeTag(new Date('1970-08-20').toUTCString())}</div>)
+    render(<div>{timeTag('1970-08-20T12:00:00')}</div>)
 
-    await waitFor(() => screen.getByText(/1970.*00:00:00/))
+    await waitFor(() => screen.getByText('August 20th, 1970'))
   })
 
   it('can take an empty input string', async () => {

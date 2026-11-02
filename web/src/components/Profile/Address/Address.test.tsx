@@ -1,5 +1,7 @@
 import { render } from '@redwoodjs/testing/web'
 
+import { standard } from 'src/components/ProfileCell/ProfileCell.mock'
+
 import Address from './Address'
 
 //   Improve this test with help from the Redwood Testing Doc:
@@ -8,7 +10,9 @@ import Address from './Address'
 describe('Address', () => {
   it('renders successfully', () => {
     expect(() => {
-      render(<Address />)
+      render(
+        <Address user={standard().user} isLoaded={false} mapError={null} />
+      )
     }).not.toThrow()
   })
 })

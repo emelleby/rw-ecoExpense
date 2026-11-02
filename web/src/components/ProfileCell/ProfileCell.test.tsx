@@ -36,7 +36,7 @@ describe('ProfileCell', () => {
 
   it('renders Success successfully', async () => {
     expect(() => {
-      render(<Success id={42} profile={standard().profile} />)
+      render(<Success id={42} user={standard().user} />)
     }).not.toThrow()
   })
 })

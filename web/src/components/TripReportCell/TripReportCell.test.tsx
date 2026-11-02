@@ -36,7 +36,7 @@ describe('TripReportCell', () => {
 
   it('renders Success successfully', async () => {
     expect(() => {
-      render(<Success id={42} tripReport={standard().tripReport} />)
+      render(<Success id={42} trip={standard().trip} />)
     }).not.toThrow()
   })
 })
