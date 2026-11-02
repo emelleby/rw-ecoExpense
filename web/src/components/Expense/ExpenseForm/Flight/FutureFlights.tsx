@@ -84,9 +84,47 @@ const SUBMIT_FLIGHTS_MUTATION = gql`
   }
 `
 
+interface FutureSegment {
+  origin: string
+  destination: string
+  operatingCarrierCode: string
+  flightNumber: string
+  class: string
+  departureDate: string
+}
+
+interface FutureFlightDetails {
+  mode: 'future'
+  // Every segment, in order. The last one is shown in the form fields on
+  // edit; the rest go back into the "Flights" list.
+  segments: FutureSegment[]
+  passengers?: number
+}
+
+// Local calendar date as YYYY-MM-DD. toISOString() converts to UTC, which
+// moves local-midnight dates (what the date picker yields) to the previous day.
+const toLocalYMD = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate()
+  ).padStart(2, '0')}`
+
 export const FutureFlights: FC<ExpenseFormProps> = (
   props: ExpenseFormProps
 ) => {
+  // Only restore when the expense was saved as a future flight; a past-flight
+  // expense (or a legacy one with no flightDetails) starts blank here.
+  const stored = props.expense?.flightDetails as
+    | { mode?: string }
+    | null
+    | undefined
+  const saved: FutureFlightDetails | undefined =
+    stored?.mode === 'future' ? (stored as FutureFlightDetails) : undefined
+  const lastSegment = saved?.segments?.[saved.segments.length - 1]
+
+  const initialDate = props.expense?.date
+    ? new Date(props.expense.date)
+    : new Date()
+
   const [submitFlights] = useMutation(SUBMIT_FLIGHTS_MUTATION, {
     onCompleted: (data) => {
       if (data?.submitFutureFlights?.length > 0) {
@@ -113,8 +151,6 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     },
   })
 
-  const date = new Date()
-
   const formMethods = useForm({
     defaultValues: {
       currency: props.expense?.currency || 'NOK',
@@ -126,7 +162,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     props.expense?.exchangeRate || 0
   )
 
-  const [selectedDate, setSelectedDate] = useState(date)
+  const [selectedDate, setSelectedDate] = useState(initialDate)
 
   const [fileName, setFileName] = useState(
     props.expense?.receipt?.fileName || ''
@@ -140,7 +176,9 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     props.expense?.receipt?.url || ''
   )
 
-  const [flights, setFlights] = useState([])
+  const [flights, setFlights] = useState<FutureSegment[]>(
+    saved?.segments?.slice(0, -1) ?? []
+  )
 
   const onCurrencyChange = async (value: string) => {
     const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
@@ -154,113 +192,60 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     }
   }
 
-  const getEmissionInKgs = (data: FlightEmissionResult[]): number => {
-    const classes = flights.map((flight) => {
-      return flight.class
-    })
+  const buildSegment = (data): FutureSegment => ({
+    origin: data.from,
+    destination: data.to,
+    operatingCarrierCode: data.airline,
+    flightNumber: data.flightNumber.toString(),
+    class: data.flightClass || 'economy',
+    departureDate: toLocalYMD(selectedDate),
+  })
 
-    classes.push(formMethods.getValues('flightClass'))
+  // Returns the emissions, or null if they could not be calculated (an error
+  // toast has been shown). Callers must NOT save in that case.
+  const getEmission = async (segments: FutureSegment[], passengers: number) => {
+    if (passengers < 1) {
+      toast.error('Number of passengers must be at least 1')
+      return null
+    }
 
-    const emission = data.reduce((acc, flight, i) => {
-      const { emissionsGramsPerPax } = flight
-      return acc + emissionsGramsPerPax[classes[i]]
-    }, 0)
+    // Compare calendar days: a flight today is still a valid "future" flight.
+    const today = toLocalYMD(new Date())
+    if (segments.some((s) => s.departureDate < today)) {
+      toast.error(
+        'This flight has already departed. Use the Past Flight tab instead.'
+      )
+      return null
+    }
 
-    const passengers = formMethods.getValues('passengers') || 1
-    // Convert to kg and multiply by number of passengers
-    return (emission / 1000) * passengers
-  }
-
-  const getEmission = async (data) => {
     try {
-      const { to, from, airline, flightNumber, flightClass } = data
-      const passengers = formMethods.getValues('passengers') || 1
+      const result = await submitFlights({ variables: { input: segments } })
 
-      if (passengers < 1) {
-        toast.error('Number of passengers must be at least 1')
-        return {
-          scope1Co2Emissions: 0,
-          scope2Co2Emissions: 0,
-          scope3Co2Emissions: 0,
+      // On failure the mutation's onError has already shown a toast
+      const results: FlightEmissionResult[] | undefined =
+        result?.data?.submitFutureFlights
+      if (!results?.length) return null
+
+      let grams = 0
+      for (let i = 0; i < segments.length; i++) {
+        const g = results[i]?.emissionsGramsPerPax?.[segments[i].class]
+        if (typeof g !== 'number') {
+          toast.error('No emissions data available for this flight combination')
+          return null
         }
-      }
-
-      // Validate date is in the future
-      if (selectedDate < new Date()) {
-        toast.error('Please select a future date for the flight')
-        return {
-          scope1Co2Emissions: 0,
-          scope2Co2Emissions: 0,
-          scope3Co2Emissions: 0,
-        }
-      }
-
-      const payload = {
-        origin: from,
-        destination: to,
-        operatingCarrierCode: airline,
-        flightNumber: flightNumber.toString(),
-        class: flightClass || 'economy',
-        departureDate: selectedDate.toISOString().split('T')[0],
-      }
-
-      const dataToSend = [...flights, payload]
-      console.log('Data to send:', dataToSend)
-
-      const result = await submitFlights({
-        variables: {
-          input: [...dataToSend],
-        },
-      })
-      console.log('Result from API:', result)
-
-      if (!result?.data?.submitFutureFlights) {
-        toast.error(
-          'Could not find flight information. Please verify your flight details.'
-        )
-        return {
-          scope1Co2Emissions: 0,
-          scope2Co2Emissions: 0,
-          scope3Co2Emissions: 0,
-        }
-      }
-
-      const emission = getEmissionInKgs(result.data.submitFutureFlights)
-      if (emission === 0) {
-        toast.error('No emissions data available for this flight combination')
+        grams += g
       }
 
       return {
         scope1Co2Emissions: 0,
         scope2Co2Emissions: 0,
-        scope3Co2Emissions: emission,
+        // grams -> kg, per traveller
+        scope3Co2Emissions: (grams / 1000) * passengers,
       }
     } catch (error) {
       console.error('Error calculating emissions:', error)
-
-      // More specific error messages based on error type
-      if (error.networkError) {
-        toast.error(
-          'Network error. Please check your connection and try again.'
-        )
-      } else if (error.graphQLErrors?.length > 0) {
-        const graphQLError = error.graphQLErrors[0]
-        if (graphQLError.message.includes('validation')) {
-          toast.error(
-            'Invalid flight details. Please check all fields and try again.'
-          )
-        } else {
-          toast.error(graphQLError.message)
-        }
-      } else {
-        toast.error('Failed to calculate flight emissions. Please try again.')
-      }
-
-      return {
-        scope1Co2Emissions: 0,
-        scope2Co2Emissions: 0,
-        scope3Co2Emissions: 0,
-      }
+      toast.error('Failed to calculate flight emissions. Please try again.')
+      return null
     }
   }
 
@@ -274,7 +259,6 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       nokAmount,
       exchangeRate,
       description,
-      flightClass,
       merchant,
     } = data
 
@@ -286,7 +270,28 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         }
       : undefined
 
-    const emission = await getEmission({ ...data, flightClass })
+    const segments = [...flights, buildSegment(data)]
+    const passengers = data.passengers || 1
+
+    // Editing: if the flights and travellers are unchanged, keep the stored
+    // emissions. Recalculating after the flight date would fail (the API only
+    // has data for upcoming flights) and could change the recorded figure.
+    const unchanged =
+      props.expense &&
+      saved &&
+      JSON.stringify(saved.segments) === JSON.stringify(segments) &&
+      (saved.passengers || 1) === passengers
+
+    const emission = unchanged
+      ? {
+          scope1Co2Emissions: props.expense.scope1Co2Emissions,
+          scope2Co2Emissions: props.expense.scope2Co2Emissions,
+          scope3Co2Emissions: props.expense.scope3Co2Emissions,
+        }
+      : await getEmission(segments, passengers)
+
+    // Could not calculate: stay on the form rather than saving zero emissions
+    if (!emission) return
 
     const dataWithReceipt = {
       date,
@@ -306,6 +311,11 @@ export const FutureFlights: FC<ExpenseFormProps> = (
       scope3CategoryId: 6,
       ...emission,
       receipt,
+      flightDetails: {
+        mode: 'future',
+        segments,
+        passengers: data.passengers,
+      } satisfies FutureFlightDetails,
     }
 
     props.onSave(dataWithReceipt, props?.expense?.id)
@@ -344,7 +354,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         operatingCarrierCode: airline,
         flightNumber: flightNumber.toString(),
         class: flightClass || 'economy', // Ensure we always have a class value
-        departureDate: dateStr.split('T')[0], // Convert ISO string to YYYY-MM-DD
+        departureDate: toLocalYMD(new Date(dateStr)),
       },
     ])
   }
@@ -391,7 +401,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="from"
-              defaultValue={''}
+              defaultValue={lastSegment?.origin || ''}
               rules={{ required: true }}
               render={({ field }) => (
                 <AirportSelect
@@ -400,7 +410,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
                     field.onChange(value)
                   }}
                   placeholder="Departure Airport.."
-                  value=""
+                  value={lastSegment?.origin || ''}
                 />
               )}
             />
@@ -419,7 +429,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="to"
-              defaultValue={''}
+              defaultValue={lastSegment?.destination || ''}
               rules={{ required: true }}
               render={({ field }) => (
                 <AirportSelect
@@ -428,7 +438,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
                     field.onChange(value)
                   }}
                   placeholder="Select destination Airport..."
-                  value=""
+                  value={lastSegment?.destination || ''}
                 />
               )}
             />
@@ -449,12 +459,12 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="airline"
-              defaultValue={''}
+              defaultValue={lastSegment?.operatingCarrierCode || ''}
               rules={{ required: true }}
               render={({ field }) => (
                 <Combobox
                   Data={AIRLINES}
-                  defaultValue={''}
+                  defaultValue={lastSegment?.operatingCarrierCode || ''}
                   defaultText="Select an Airline..."
                   isActive={true}
                   onChangeHandle={(value) => field.onChange(value)}
@@ -475,7 +485,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             </Label>
             <TextField
               name="flightNumber"
-              defaultValue={''}
+              defaultValue={lastSegment?.flightNumber || ''}
               className="rw-input"
               errorClassName="rw-input rw-input-error"
               validation={{ required: true }}
@@ -496,13 +506,13 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="flightClass"
-              defaultValue={'economy'}
+              defaultValue={lastSegment?.class || 'economy'}
               rules={{ required: true }}
               render={({ field }) => (
                 <Select
                   onValueChange={(value) => field.onChange(value)}
                   value={field.value?.toString()}
-                  defaultValue={'economy'}
+                  defaultValue={lastSegment?.class || 'economy'}
                 >
                   <SelectTrigger
                     className={cn(
@@ -536,7 +546,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             </Label>
             <NumberField
               name="passengers"
-              defaultValue={1}
+              defaultValue={saved?.passengers || 1}
               className="rw-input appearance-none"
               errorClassName="rw-input rw-input-error"
               validation={{ valueAsNumber: true, required: true, min: 1 }}
@@ -580,7 +590,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <DatetimeLocalField
               name="date"
-              defaultValue={new Date()}
+              defaultValue={initialDate}
               onChange={(date) => {
                 setSelectedDate(date)
               }}

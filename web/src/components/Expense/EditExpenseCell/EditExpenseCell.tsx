@@ -49,6 +49,7 @@ export const QUERY: TypedDocumentNode<EditExpenseById> = gql`
         fileType
       }
       merchant
+      flightDetails
     }
     expenseCategories {
       id

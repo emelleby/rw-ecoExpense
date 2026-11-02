@@ -80,10 +80,8 @@
       "disabled": true
     },
     "graft": {
-      "command": "npx",
+      "command": "graft",
       "args": [
-        "-y",
-        "@nanonets/graft",
         "mcp"
       ]
     }

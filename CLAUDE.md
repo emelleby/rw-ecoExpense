@@ -95,6 +95,7 @@ Required variables (see redwood.toml):
 - `CLERK_SECRET_KEY` - Clerk server-side key
 - `GOOGLE_MAPS_API_KEY` - Maps integration
 - `QUETZAL_API_KEY` - CO2 emissions calculations
+- `GOOGLE_TRAVEL_API_KEY` - Google Travel Impact Model (future-flight emissions, API side only; set in the root `.env` locally and in the host's environment variables in production)
 
 ## Common Development Workflows
 

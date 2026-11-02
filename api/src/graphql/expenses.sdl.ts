@@ -36,6 +36,7 @@ export const schema = gql`
     scope3CategoryId: Int!
     receipt: Receipt
     merchant: String
+    flightDetails: JSON
     # Server-computed from the Trip's secondaryCurrency; deliberately absent
     # from the input types so the client cannot set them.
     secondaryCurrency: String
@@ -70,6 +71,7 @@ export const schema = gql`
     scope3CategoryId: Int!
     receipt: ReceiptInput
     merchant: String
+    flightDetails: JSON
   }
 
   input UpdateExpenseInput {
@@ -94,6 +96,7 @@ export const schema = gql`
     scope3CategoryId: Int
     receipt: ReceiptInput
     merchant: String
+    flightDetails: JSON
   }
 
   type Mutation {

@@ -62,23 +62,20 @@ const formatDate = (
   }>
 ) => {
   return flightData.map((flight) => {
-    const date = new Date(flight.departureDate)
+    // departureDate is a calendar date (YYYY-MM-DD). Read the parts directly:
+    // going through `new Date()` + getDate() shifts the day with server TZ.
+    const [year, month, day] = flight.departureDate
+      .slice(0, 10)
+      .split('-')
+      .map(Number)
 
-    const data = {
+    return {
       origin: flight.origin.toUpperCase(),
       destination: flight.destination.toUpperCase(),
       operatingCarrierCode: flight.operatingCarrierCode.toUpperCase(),
       flightNumber: parseInt(flight.flightNumber, 10),
-      departureDate: {
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate(),
-      },
+      departureDate: { year, month, day },
     }
-
-    console.log('\n\nData:', data, '\n\n')
-
-    return data
   })
 }
 
@@ -93,7 +90,7 @@ export const submitFutureFlights = async ({
     departureDate: string
   }>
 }): Promise<FlightEmissionResult[]> => {
-  const TRAVEL_API_KEY = 'AIzaSyA2V3FOVoNzJxDQdZ_IxbQdrTRx_AFOoiM'
+  const TRAVEL_API_KEY = process.env.GOOGLE_TRAVEL_API_KEY
 
   if (!TRAVEL_API_KEY) {
     throw new Error(
@@ -124,7 +121,12 @@ export const submitFutureFlights = async ({
 
     const data: TravelAPIResponse = await response.json()
 
-    if (data.flightEmissions.length === 0) {
+    // The API answers 200 with the flight echoed back but no emissions when it
+    // has no data (e.g. flights too far in the past, or an unknown flight).
+    if (
+      !data.flightEmissions?.length ||
+      data.flightEmissions.some((f) => !f.emissionsGramsPerPax)
+    ) {
       throw new Error(
         'No flight emissions data returned from the API. Please check your inputs.'
       )

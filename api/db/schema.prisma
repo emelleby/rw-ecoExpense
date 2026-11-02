@@ -265,6 +265,10 @@ model Expense {
   scope3CategoryId   Int             @default(6)
   Receipt            Receipt?
 
+  // Flight-form state needed to re-populate the form when editing:
+  // { mode: 'past' | 'future', ... }. Null for non-flight / legacy expenses.
+  flightDetails Json?
+
   // Amount converted to the Trip's optional secondary (reimbursement) currency.
   // Computed server-side on create/update; null when the trip has none.
   secondaryCurrency     String?  @db.VarChar(3)

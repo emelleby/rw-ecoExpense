@@ -19,7 +19,7 @@ interface FlightsTableProps {
     operatingCarrierCode: string
     flightNumber: string
     class: string
-    departureDate: Date
+    departureDate: string
   }>
   handleDelete: (index: number) => void
 }
@@ -43,7 +43,7 @@ export default function FlightsTable({
       </TableHeader>
       <TableBody>
         {data.map((flight, index) => (
-          <TableRow key={flight.origin}>
+          <TableRow key={`${flight.origin}-${flight.flightNumber}-${index}`}>
             <TableCell className="font-medium">{flight.origin}</TableCell>
             <TableCell>{flight.destination}</TableCell>
             <TableCell>
