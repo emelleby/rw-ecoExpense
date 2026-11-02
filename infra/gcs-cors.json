@@ -3,10 +3,16 @@
     "origin": [
       "http://localhost:8910",
       "https://ecoexpense.app",
-      "https://www.ecoexpense.app"
+      "https://www.ecoexpense.app",
+      "https://development--ecoexpense.netlify.app"
     ],
-    "method": ["PUT", "GET"],
-    "responseHeader": ["Content-Type"],
+    "method": [
+      "PUT",
+      "GET"
+    ],
+    "responseHeader": [
+      "Content-Type"
+    ],
     "maxAgeSeconds": 3600
   }
 ]
