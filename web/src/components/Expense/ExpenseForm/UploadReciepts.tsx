@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 
-import { CameraIcon, PlusIcon } from 'lucide-react'
+import { CameraIcon, Loader2, PlusIcon } from 'lucide-react'
 import {
   CreateUploadUrlMutation,
   CreateUploadUrlMutationVariables,
@@ -13,7 +13,6 @@ import { toast } from '@redwoodjs/web/toast'
 
 import ReceiptPreview from 'src/components/ReceiptPreview/ReceiptPreview'
 import { Button } from 'src/components/ui/Button'
-import useLoader from 'src/hooks/useLoader'
 
 const CREATE_UPLOAD_URL_MUTATION: TypedDocumentNode<
   CreateUploadUrlMutation,
@@ -60,10 +59,10 @@ export default function UploadReciepts({
   setFileName,
   setFileType,
 }: UploadRecieptsProps) {
-  const { showLoader, hideLoader, Loader } = useLoader()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
+  const [removing, setRemoving] = useState(false)
 
   const [deleteReceipt] = useMutation(DELETE_RECEIPT_MUTATION, {
     onCompleted: () => {
@@ -80,11 +79,11 @@ export default function UploadReciepts({
 
   const onReplaceClick = async () => {
     const receiptId = id || 0
-    showLoader()
+    setRemoving(true)
     try {
       await deleteReceipt({ variables: { id: receiptId, url: receiptUrl } })
     } finally {
-      hideLoader()
+      setRemoving(false)
     }
     setReceiptUrl('')
     setFileName('')
@@ -110,7 +109,6 @@ export default function UploadReciepts({
 
     try {
       setUploading(true)
-      showLoader()
       const { data } = await createUploadUrl({
         variables: { contentType: file.type },
       })
@@ -142,13 +140,11 @@ export default function UploadReciepts({
       }
     } finally {
       setUploading(false)
-      hideLoader()
     }
   }
 
   return (
-    <div className="relative">
-      <Loader />
+    <div>
       <input
         ref={fileInputRef}
         type="file"
@@ -175,12 +171,10 @@ export default function UploadReciepts({
             className="flex-1"
             type="button"
             disabled={uploading}
+            aria-busy={uploading}
           >
-            <span>
-              {' '}
-              <PlusIcon />{' '}
-            </span>
-            Upload Receipt
+            {uploading ? <Loader2 className="animate-spin" /> : <PlusIcon />}
+            {uploading ? 'Uploading receipt...' : 'Upload Receipt'}
           </Button>
           <Button
             onClick={() => cameraInputRef.current?.click()}
@@ -217,8 +211,11 @@ export default function UploadReciepts({
               className="mt-2 w-full"
               variant="destructive"
               type="button"
+              disabled={removing}
+              aria-busy={removing}
             >
-              Replace Image
+              {removing && <Loader2 className="animate-spin" />}
+              {removing ? 'Removing...' : 'Replace Image'}
             </Button>
           </div>
         </div>

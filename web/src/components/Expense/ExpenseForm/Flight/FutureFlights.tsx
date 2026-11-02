@@ -1,5 +1,7 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 
+import { parse } from 'date-fns'
+import { PlaneTakeoff, PlusIcon } from 'lucide-react'
 import type { EditExpenseById, CreateExpenseInput } from 'types/graphql'
 
 import {
@@ -16,12 +18,6 @@ import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import DatetimeLocalField from 'src/components/Custom/DatePicker'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from 'src/components/ui/Accordion'
 import { Button } from 'src/components/ui/Button'
 import { Combobox } from 'src/components/ui/combobox'
 import {
@@ -46,7 +42,7 @@ import SaveButton from '../SaveButton'
 import { FlightEmissionResult, getCurrencyConversionRate } from '../service'
 import UploadReciepts from '../UploadReciepts'
 
-import FlightsTable from './FlightsTable'
+import FlightsTable, { FlightSegment } from './FlightsTable'
 
 type FormExpense = NonNullable<EditExpenseById['expense']>
 
@@ -84,19 +80,22 @@ const SUBMIT_FLIGHTS_MUTATION = gql`
   }
 `
 
-interface FutureSegment {
-  origin: string
-  destination: string
-  operatingCarrierCode: string
-  flightNumber: string
-  class: string
-  departureDate: string
-}
+type FutureSegment = FlightSegment
+
+const SEGMENT_FIELDS = ['from', 'to', 'airline', 'flightNumber'] as const
+
+const SEGMENT_FIELD_MESSAGES: Record<(typeof SEGMENT_FIELDS)[number], string> =
+  {
+    from: 'Departure airport is required',
+    to: 'Destination airport is required',
+    airline: 'Airline is required',
+    flightNumber: 'Flight number is required',
+  }
 
 interface FutureFlightDetails {
   mode: 'future'
-  // Every segment, in order. The last one is shown in the form fields on
-  // edit; the rest go back into the "Flights" list.
+  // Every segment, in order. On edit they all go back into the itinerary
+  // list and the segment fields start empty.
   segments: FutureSegment[]
   passengers?: number
 }
@@ -107,6 +106,9 @@ const toLocalYMD = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
     d.getDate()
   ).padStart(2, '0')}`
+
+const ymdToIso = (day: string) =>
+  parse(day, 'yyyy-MM-dd', new Date()).toISOString()
 
 export const FutureFlights: FC<ExpenseFormProps> = (
   props: ExpenseFormProps
@@ -176,9 +178,26 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     props.expense?.receipt?.url || ''
   )
 
-  const [flights, setFlights] = useState<FutureSegment[]>(
-    saved?.segments?.slice(0, -1) ?? []
-  )
+  const [flights, setFlights] = useState<FutureSegment[]>(saved?.segments ?? [])
+  // Validation callbacks read the latest segments through this ref
+  const flightsRef = useRef<FutureSegment[]>(flights)
+  flightsRef.current = flights
+
+  /** The user has typed something for a new segment beyond the pre-filled origin */
+  const segmentStarted = () => {
+    const { to, airline, flightNumber } = formMethods.getValues()
+    return Boolean(to || airline || flightNumber)
+  }
+
+  /**
+   * Segment fields are only required when no segments have been added yet,
+   * or when the user has started filling in another one.
+   */
+  const segmentFieldRule =
+    (field: (typeof SEGMENT_FIELDS)[number]) => (value: unknown) =>
+      Boolean(value) ||
+      (flightsRef.current.length > 0 && !segmentStarted()) ||
+      SEGMENT_FIELD_MESSAGES[field]
 
   const onCurrencyChange = async (value: string) => {
     const exchangeRate = await getCurrencyConversionRate(value, selectedDate)
@@ -196,7 +215,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     origin: data.from,
     destination: data.to,
     operatingCarrierCode: data.airline,
-    flightNumber: data.flightNumber.toString(),
+    flightNumber: data.flightNumber.toString().trim(),
     class: data.flightClass || 'economy',
     departureDate: toLocalYMD(selectedDate),
   })
@@ -251,7 +270,6 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
   const onSubmit = async (data) => {
     const {
-      date,
       projectId,
       tripId,
       amount,
@@ -270,7 +288,11 @@ export const FutureFlights: FC<ExpenseFormProps> = (
         }
       : undefined
 
-    const segments = [...flights, buildSegment(data)]
+    // Every added segment, plus the one in the form if the user filled it in
+    const segments =
+      flights.length === 0 || segmentStarted()
+        ? [...flights, buildSegment(data)]
+        : [...flights]
     const passengers = data.passengers || 1
 
     // Editing: if the flights and travellers are unchanged, keep the stored
@@ -294,7 +316,8 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     if (!emission) return
 
     const dataWithReceipt = {
-      date,
+      // The expense is dated by the first departure of the itinerary
+      date: ymdToIso(segments[0].departureDate),
       projectId,
       tripId,
       amount,
@@ -322,41 +345,52 @@ export const FutureFlights: FC<ExpenseFormProps> = (
   }
 
   const handleDeleteFlight = (index: number) => {
-    const newFlights = flights.filter((_, i) => i !== index)
-    setFlights(newFlights)
+    setFlights(flights.filter((_, i) => i !== index))
   }
 
   const addAnotherFlight = () => {
-    const from = formMethods.getValues('from')
-    const to = formMethods.getValues('to')
-    const airline = formMethods.getValues('airline')
-    const flightNumber = formMethods.getValues('flightNumber')
-    const flightClass = formMethods.getValues('flightClass')
-    const dateStr = formMethods.getValues('date')
+    const values = formMethods.getValues()
+    const missing = SEGMENT_FIELDS.filter((field) => !values[field])
 
-    if (!from || !to || !airline || !flightNumber || !flightClass || !dateStr) {
-      formMethods.trigger([
-        'from',
-        'to',
-        'airline',
-        'flightNumber',
-        'flightClass',
-        'date',
-      ])
+    if (missing.length > 0 || !values.date) {
+      missing.forEach((field) =>
+        formMethods.setError(field, {
+          type: 'required',
+          message: SEGMENT_FIELD_MESSAGES[field],
+        })
+      )
+      if (!values.date) {
+        formMethods.setError('date', {
+          type: 'required',
+          message: 'Departure date is required',
+        })
+      }
+      toast.error('Fill in this flight before adding another segment')
       return
     }
 
-    setFlights([
-      ...flights,
-      {
-        origin: from,
-        destination: to,
-        operatingCarrierCode: airline,
-        flightNumber: flightNumber.toString(),
-        class: flightClass || 'economy', // Ensure we always have a class value
-        departureDate: toLocalYMD(new Date(dateStr)),
-      },
-    ])
+    const segment = buildSegment(values)
+    if (segment.departureDate < toLocalYMD(new Date())) {
+      formMethods.setError('date', {
+        type: 'validate',
+        message: 'Departure date cannot be in the past',
+      })
+      return
+    }
+
+    setFlights([...flights, segment])
+
+    // Clear what changes per segment. The next flight usually departs from
+    // where this one lands; class and date are kept as a starting point.
+    formMethods.setValue('from', segment.destination)
+    formMethods.setValue('to', '')
+    formMethods.setValue('airline', '')
+    formMethods.setValue('flightNumber', '')
+    formMethods.clearErrors([...SEGMENT_FIELDS, 'date'])
+
+    toast.success(
+      `Segment ${flights.length + 1} added: ${segment.origin} → ${segment.destination}`
+    )
   }
 
   useEffect(() => {
@@ -376,19 +410,38 @@ export const FutureFlights: FC<ExpenseFormProps> = (
     }
   }, [selectedDate])
 
+  const segmentNumber = flights.length + 1
+
   return (
-    <>
+    <Form onSubmit={onSubmit} formMethods={formMethods}>
       {flights.length > 0 && (
-        <Accordion type="single" collapsible>
-          <AccordionItem value="1">
-            <AccordionTrigger>Flights</AccordionTrigger>
-            <AccordionContent>
-              <FlightsTable data={flights} handleDelete={handleDeleteFlight} />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <section className="mb-4" aria-labelledby="itinerary-heading">
+          <div className="mb-2 flex items-baseline justify-between">
+            <h3 id="itinerary-heading" className="text-base font-semibold">
+              Your itinerary
+            </h3>
+            <span className="text-sm text-muted-foreground">
+              {flights.length} segment{flights.length === 1 ? '' : 's'} added
+            </span>
+          </div>
+          <FlightsTable data={flights} handleDelete={handleDeleteFlight} />
+        </section>
       )}
-      <Form onSubmit={onSubmit} formMethods={formMethods}>
+
+      <fieldset className="rounded-lg border-2 border-primary/40 p-4">
+        <legend className="flex items-center gap-2 px-2 text-base font-semibold">
+          <PlaneTakeoff className="h-4 w-4" />
+          {flights.length === 0 ? 'Flight' : `Segment ${segmentNumber}`}
+        </legend>
+
+        {flights.length > 0 && (
+          <p className="mb-2 text-sm text-muted-foreground">
+            Add the next flight, or leave the destination, airline and flight
+            number empty if your itinerary is complete. All segments above are
+            included when you save.
+          </p>
+        )}
+
         <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
           <div>
             <Label
@@ -401,8 +454,8 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="from"
-              defaultValue={lastSegment?.origin || ''}
-              rules={{ required: true }}
+              defaultValue={flights[flights.length - 1]?.destination || ''}
+              rules={{ validate: segmentFieldRule('from') }}
               render={({ field }) => (
                 <AirportSelect
                   label=""
@@ -410,7 +463,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
                     field.onChange(value)
                   }}
                   placeholder="Departure Airport.."
-                  value={lastSegment?.origin || ''}
+                  value={field.value}
                 />
               )}
             />
@@ -429,8 +482,8 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="to"
-              defaultValue={lastSegment?.destination || ''}
-              rules={{ required: true }}
+              defaultValue={''}
+              rules={{ validate: segmentFieldRule('to') }}
               render={({ field }) => (
                 <AirportSelect
                   label=""
@@ -438,7 +491,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
                     field.onChange(value)
                   }}
                   placeholder="Select destination Airport..."
-                  value={lastSegment?.destination || ''}
+                  value={field.value}
                 />
               )}
             />
@@ -459,12 +512,13 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <Controller
               name="airline"
-              defaultValue={lastSegment?.operatingCarrierCode || ''}
-              rules={{ required: true }}
+              defaultValue={''}
+              rules={{ validate: segmentFieldRule('airline') }}
               render={({ field }) => (
                 <Combobox
                   Data={AIRLINES}
-                  defaultValue={lastSegment?.operatingCarrierCode || ''}
+                  defaultValue={''}
+                  value={field.value}
                   defaultText="Select an Airline..."
                   isActive={true}
                   onChangeHandle={(value) => field.onChange(value)}
@@ -485,10 +539,10 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             </Label>
             <TextField
               name="flightNumber"
-              defaultValue={lastSegment?.flightNumber || ''}
+              defaultValue={''}
               className="rw-input"
               errorClassName="rw-input rw-input-error"
-              validation={{ required: true }}
+              validation={{ validate: segmentFieldRule('flightNumber') }}
             />
             <FieldError name="flightNumber" className="rw-field-error" />
           </div>
@@ -536,13 +590,58 @@ export const FutureFlights: FC<ExpenseFormProps> = (
 
             <FieldError name="flightClass" className="rw-field-error" />
           </div>
+
+          <div>
+            <Label
+              name="date"
+              className="rw-label"
+              errorClassName="rw-label rw-label-error"
+            >
+              Departure date
+            </Label>
+
+            <DatetimeLocalField
+              name="date"
+              defaultValue={initialDate}
+              onChange={(date) => {
+                setSelectedDate(date)
+              }}
+              className="rw-input-calendar"
+              errorClassName="rw-input rw-input-error"
+              validation={{ required: true }}
+            />
+
+            <FieldError name="date" className="rw-field-error" />
+          </div>
+        </div>
+
+        <Button
+          variant="outline"
+          onClick={addAnotherFlight}
+          type="button"
+          className="mt-4 w-full border-2 border-dashed border-primary font-semibold text-primary hover:bg-primary/10 hover:text-primary"
+        >
+          <PlusIcon className="h-4 w-4" />
+          Add segment {segmentNumber} &amp; continue with next flight
+        </Button>
+      </fieldset>
+
+      <section className="mt-6" aria-labelledby="expense-details-heading">
+        <h3
+          id="expense-details-heading"
+          className="mb-1 text-base font-semibold"
+        >
+          Expense details
+        </h3>
+
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
           <div>
             <Label
               name="passengers"
               className="rw-label"
               errorClassName="rw-label rw-label-error"
             >
-              # Travelers
+              # Travelers (all segments)
             </Label>
             <NumberField
               name="passengers"
@@ -559,9 +658,6 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             />
             <FieldError name="passengers" className="rw-field-error" />
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
           <div>
             <Label
               name="merchant"
@@ -578,28 +674,6 @@ export const FutureFlights: FC<ExpenseFormProps> = (
               validation={{ valueAsNumber: false }}
             />
             <FieldError name="merchant" className="rw-field-error" />
-          </div>
-          <div>
-            <Label
-              name="date"
-              className="rw-label"
-              errorClassName="rw-label rw-label-error"
-            >
-              Date
-            </Label>
-
-            <DatetimeLocalField
-              name="date"
-              defaultValue={initialDate}
-              onChange={(date) => {
-                setSelectedDate(date)
-              }}
-              className="rw-input-calendar"
-              errorClassName="rw-input rw-input-error"
-              validation={{ required: true }}
-            />
-
-            <FieldError name="date" className="rw-field-error" />
           </div>
         </div>
 
@@ -725,7 +799,7 @@ export const FutureFlights: FC<ExpenseFormProps> = (
           formMethods={formMethods}
         />
 
-        <div className="mt-6 grid grid-cols-1 gap-4">
+        <div className="mt-6">
           <UploadReciepts
             fileName={fileName}
             fileType={fileType}
@@ -735,23 +809,14 @@ export const FutureFlights: FC<ExpenseFormProps> = (
             setFileType={setFileType}
             setReceiptUrl={setReceiptUrl}
           />
-
-          <Button
-            variant="link"
-            onClick={addAnotherFlight}
-            type="button"
-            className="font-normal underline"
-          >
-            Add another flight
-          </Button>
         </div>
+      </section>
 
-        <div className="my-6 grid grid-cols-1">
-          <SaveButton
-            saving={props.loading || formMethods.formState.isSubmitting}
-          />
-        </div>
-      </Form>
-    </>
+      <div className="my-6 grid grid-cols-1">
+        <SaveButton
+          saving={props.loading || formMethods.formState.isSubmitting}
+        />
+      </div>
+    </Form>
   )
 }
