@@ -9,9 +9,11 @@ export const schema = gql`
     workEntries: [WorkEntry!]!
   }
 
+  # Must match the Prisma RATE_TYPE enum values exactly
   enum RateType {
-    hourly
-    daily
+    HOURLY
+    DAILY
+    WEEKLY
   }
 
   type Query {

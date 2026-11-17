@@ -11,6 +11,7 @@ import type {
 } from '@redwoodjs/web'
 
 import Organizations from 'src/components/Organization/Organizations'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<
   FindOrganizations,
@@ -30,7 +31,7 @@ export const QUERY: TypedDocumentNode<
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Empty = () => {
   return (

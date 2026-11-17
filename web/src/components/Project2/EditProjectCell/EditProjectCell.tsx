@@ -14,6 +14,7 @@ import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import ProjectForm from 'src/components/Project/ProjectForm'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<EditProjectById> = gql`
   query EditProjectByIdOld($id: Int!) {
@@ -38,7 +39,7 @@ const UPDATE_PROJECT_MUTATION: TypedDocumentNode<
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>

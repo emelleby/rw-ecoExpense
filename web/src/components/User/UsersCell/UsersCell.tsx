@@ -10,8 +10,8 @@ import type {
   TypedDocumentNode,
 } from '@redwoodjs/web'
 
-import Spinner from 'src/components/ui/Spinner'
 import Users from 'src/components/User/Users'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<
   FindUsersByOrganization,
@@ -24,7 +24,6 @@ export const QUERY: TypedDocumentNode<
       email
       firstName
       lastName
-      bankAccount
       status
       organizationId
     }
@@ -36,11 +35,7 @@ export const QUERY: TypedDocumentNode<
   }
 `
 
-export const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
-)
+export const Loading = PageLoading
 
 export const Empty = () => {
   return (

@@ -14,6 +14,7 @@ import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import TripForm from 'src/components/Trip/TripForm'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<EditTripById> = gql`
   query EditTripById($id: Int!) {
@@ -64,7 +65,7 @@ const UPDATE_TRIP_MUTATION: TypedDocumentNode<
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>
