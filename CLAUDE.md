@@ -106,6 +106,9 @@ Required variables (see redwood.toml):
 4. Create corresponding service in `/api/src/services/`
 5. Scaffold web components if needed: `yarn rw g sdl <model_name>`
 
+**Database branches & migrations:**
+- Neon branches (`main`/`dev`/`test`), migration rules and Netlify env scoping: `docs/database-workflow.md`. Run `migrate dev` only against `dev`, never `main`.
+
 **Accessing authentication:**
 - Web side: `import { useAuth } from 'src/auth'`
 - API side: Use `@requireAuth` directive in SDL or check `context.currentUser`
