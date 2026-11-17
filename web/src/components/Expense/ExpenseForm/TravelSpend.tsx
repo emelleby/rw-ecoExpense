@@ -110,6 +110,7 @@ export const TravelSpend: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       nokAmount,
       exchangeRate,
       description,
+      merchant,
     } = data
 
     const receipt = receiptUrl
@@ -131,6 +132,7 @@ export const TravelSpend: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
       kilometers: 0,
       kwh: 0,
       description,
+      merchant,
       scope3CategoryId: 6,
       ...emission,
       receipt,
@@ -284,6 +286,26 @@ export const TravelSpend: FC<ExpenseFormProps> = (props: ExpenseFormProps) => {
             validation={{ valueAsNumber: true, required: true }}
           />
           <FieldError name="nokAmount" className="rw-field-error" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1">
+        <div>
+          <Label
+            name="merchant"
+            className="rw-label"
+            errorClassName="rw-label rw-label-error"
+          >
+            Merchant
+          </Label>
+          <TextField
+            name="merchant"
+            defaultValue={props.expense?.merchant || ''}
+            className="rw-input"
+            errorClassName="rw-input rw-input-error"
+            validation={{ valueAsNumber: false }}
+          />
+          <FieldError name="merchant" className="rw-field-error" />
         </div>
       </div>
 

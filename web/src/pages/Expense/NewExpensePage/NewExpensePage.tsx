@@ -1,7 +1,7 @@
-import NewExpense from 'src/components/Expense/NewExpense'
+import NewExpenseCell from 'src/components/Expense/NewExpenseCell'
 
 const NewExpensePage = () => {
-  return <NewExpense />
+  return <NewExpenseCell />
 }
 
 export default NewExpensePage

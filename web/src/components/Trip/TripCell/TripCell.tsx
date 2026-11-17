@@ -7,7 +7,7 @@ import type {
 } from '@redwoodjs/web'
 
 import Trip from 'src/components/Trip/Trip'
-import Spinner from 'src/components/ui/Spinner'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
   gql`
@@ -46,11 +46,7 @@ export const QUERY: TypedDocumentNode<FindTripById, FindTripByIdVariables> =
     }
   `
 
-export const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
-)
+export const Loading = PageLoading
 
 export const Empty = () => <div>Trip not found</div>
 

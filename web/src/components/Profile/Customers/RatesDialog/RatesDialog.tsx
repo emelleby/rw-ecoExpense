@@ -1,22 +1,12 @@
-import { useState } from 'react'
-
-import {
-  Controller,
-  useForm,
-  TextField,
-  Form,
-  Label,
-  NumberField,
-  FieldError,
-  Submit,
-  FormError,
-} from '@redwoodjs/forms'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import { QUERY as RATES_QUERY } from 'src/components/Profile/Customers/CustomerRatesCell/CustomerRatesCell'
+import {
+  QUERY as RATES_QUERY,
+  type Rate,
+} from 'src/components/Profile/Customers/CustomerRatesCell/CustomerRatesCell'
+import RateForm from 'src/components/Profile/Customers/RateForm'
 
-import { Button } from '@/components/ui/Button'
 import {
   Dialog,
   DialogContent,
@@ -24,27 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/Dialog'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
-
-type Rate = {
-  id: number
-  customerId: number
-  rateType: 'hourly' | 'daily'
-  rateAmount: number
-  description?: string
-}
-
-type RateFormValues = {
-  rateType: 'hourly' | 'daily'
-  rateAmount: number
-  description: string
-}
 
 const CREATE_RATE_MUTATION = gql`
   mutation CreateRateMutation($input: CreateRateInput!) {
@@ -77,6 +46,7 @@ type RatesDialogProps = {
   onComplete: () => void
 }
 
+// Owns the create/update mutations; RateForm is only the fields.
 const RatesDialog = ({
   open,
   onOpenChange,
@@ -87,90 +57,26 @@ const RatesDialog = ({
 }: RatesDialogProps) => {
   const isEditMode = !!rate
 
-  const formMethods = useForm<RateFormValues>({
-    defaultValues: {
-      rateType: rate?.rateType || 'hourly',
-      rateAmount: rate?.rateAmount,
-      description: rate?.description || '',
+  const options = (verb: string) => ({
+    onCompleted: () => {
+      toast.success(`Rate ${verb} successfully`)
+      onOpenChange(false)
+      onComplete()
     },
+    onError: (error) => toast.error(error.message),
+    refetchQueries: [{ query: RATES_QUERY, variables: { customerId } }],
   })
-
-  const [createRate, { loading: createLoading }] = useMutation(
+  const [createRate, { loading: creating }] = useMutation(
     CREATE_RATE_MUTATION,
-    {
-      onCompleted: () => {
-        toast.success('Rate created successfully')
-        onOpenChange(false)
-        formMethods.reset({
-          rateType: 'hourly',
-          rateAmount: 0,
-          description: '',
-        })
-        onComplete()
-      },
-      onError: (error) => {
-        toast.error(error.message)
-      },
-      refetchQueries: [{ query: RATES_QUERY, variables: { customerId } }],
-    }
+    options('created')
   )
-
-  const [updateRate, { loading: updateLoading }] = useMutation(
+  const [updateRate, { loading: updating }] = useMutation(
     UPDATE_RATE_MUTATION,
-    {
-      onCompleted: () => {
-        toast.success('Rate updated successfully')
-        onOpenChange(false)
-        formMethods.reset({
-          rateType: 'hourly',
-          rateAmount: 0,
-          description: '',
-        })
-        onComplete()
-      },
-      onError: (error) => {
-        toast.error(error.message)
-      },
-      refetchQueries: [{ query: RATES_QUERY, variables: { customerId } }],
-    }
+    options('updated')
   )
-
-  const onSubmit = (data: RateFormValues) => {
-    if (isEditMode && rate) {
-      updateRate({
-        variables: {
-          id: rate.id,
-          input: data,
-        },
-      })
-    } else {
-      createRate({
-        variables: {
-          input: {
-            ...data,
-            customerId,
-          },
-        },
-      })
-    }
-  }
-
-  const handleDialogClose = (open: boolean) => {
-    onOpenChange(open)
-    if (!open) {
-      // Reset form when dialog is closed
-      formMethods.reset({
-        rateType: 'hourly',
-        rateAmount: 0,
-        description: '',
-      })
-    }
-  }
-
-  const loading = createLoading || updateLoading
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEditMode ? 'Edit Rate' : 'Add New Rate'}</DialogTitle>
@@ -181,97 +87,18 @@ const RatesDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="rw-form-wrapper">
-          <Form formMethods={formMethods} onSubmit={onSubmit} error={null}>
-            <FormError
-              error={null}
-              wrapperClassName="rw-form-error-wrapper"
-              titleClassName="rw-form-error-title"
-              listClassName="rw-form-error-list"
-            />
-            <Label
-              name="rateType"
-              className="rw-label"
-              errorClassName="rw-label rw-label-error"
-            >
-              Rate Type *
-            </Label>
-            <Controller
-              name="rateType"
-              defaultValue={rate?.rateType || 'hourly'}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  defaultValue="hourly"
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select rate type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="hourly">Hourly</SelectItem>
-                    <SelectItem value="daily">Daily</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            <FieldError name="rateType" className="rw-field-error" />
-
-            <Label
-              name="rateAmount"
-              className="rw-label"
-              errorClassName="rw-label rw-label-error"
-            >
-              Rate Amount *
-            </Label>
-            <NumberField
-              name="rateAmount"
-              className="rw-input"
-              placeholder="Enter rate amount"
-              step="0.01"
-              validation={{
-                valueAsNumber: true,
-                required: true,
-                min: 0,
-              }}
-              errorClassName="rw-input rw-input-error"
-            />
-            <FieldError name="rateAmount" className="rw-field-error" />
-
-            <Label
-              name="description"
-              className="rw-label"
-              errorClassName="rw-label rw-label-error"
-            >
-              Description *
-            </Label>
-            <TextField
-              name="description"
-              className="rw-input"
-              placeholder="Enter description"
-              validation={{ required: true }}
-              errorClassName="rw-input rw-input-error"
-            />
-            <FieldError name="description" className="rw-field-error" />
-
-            <div className="rw-button-group">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={loading}
-              >
-                Cancel
-              </Button>
-              <Submit disabled={loading} className="rw-button">
-                {loading
-                  ? 'Saving...'
-                  : isEditMode
-                    ? 'Update Rate'
-                    : 'Save Rate'}
-              </Submit>
-            </div>
-          </Form>
+          <RateForm
+            rate={rate}
+            loading={creating || updating}
+            onCancel={() => onOpenChange(false)}
+            onSave={(input) =>
+              rate
+                ? updateRate({ variables: { id: rate.id, input } })
+                : createRate({
+                    variables: { input: { ...input, customerId } },
+                  })
+            }
+          />
         </div>
       </DialogContent>
     </Dialog>

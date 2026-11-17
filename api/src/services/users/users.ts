@@ -69,6 +69,29 @@ export const updateUser: MutationResolvers['updateUser'] = ({ id, input }) => {
   })
 }
 
+// Users manage their own bank details from their profile page.
+export const updateMyBankAccount: MutationResolvers['updateMyBankAccount'] =
+  async ({ input }, { context }) => {
+    const userId = context.currentUser.dbUserId
+    if (!userId) {
+      throw new Error('No user is linked to the current session')
+    }
+
+    const orNull = (value?: string | null) =>
+      value === '' || value === undefined ? null : value
+
+    return db.user.update({
+      data: {
+        bankAccount: orNull(input.bankAccount),
+        iban: orNull(input.iban),
+        swiftBic: orNull(input.swiftBic),
+        internationalAccountName: orNull(input.internationalAccountName),
+        internationalBankAddress: orNull(input.internationalBankAddress),
+      },
+      where: { id: userId },
+    })
+  }
+
 export const deleteUser: MutationResolvers['deleteUser'] = ({ id }) => {
   return db.user.delete({
     where: { id },
