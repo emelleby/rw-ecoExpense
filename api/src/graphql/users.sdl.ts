@@ -7,6 +7,10 @@ export const schema = gql`
     firstName: String
     lastName: String
     bankAccount: String
+    iban: String
+    swiftBic: String
+    internationalAccountName: String
+    internationalBankAddress: String
     status: USER_STATUS!
     homeAddress: String
     workAddress: String
@@ -39,6 +43,10 @@ export const schema = gql`
     firstName: String
     lastName: String
     bankAccount: String
+    iban: String
+    swiftBic: String
+    internationalAccountName: String
+    internationalBankAddress: String
     status: USER_STATUS!
     organizationId: Int!
     homeAddress: String
@@ -56,6 +64,10 @@ export const schema = gql`
     firstName: String
     lastName: String
     bankAccount: String
+    iban: String
+    swiftBic: String
+    internationalAccountName: String
+    internationalBankAddress: String
     status: USER_STATUS
     organizationId: Int
     homeAddress: String
@@ -66,10 +78,19 @@ export const schema = gql`
     workLongitude: Float
   }
 
+  input UpdateBankAccountInput {
+    bankAccount: String
+    iban: String
+    swiftBic: String
+    internationalAccountName: String
+    internationalBankAddress: String
+  }
+
   type Mutation {
     createUser(input: CreateUserInput!): User! @requireAuth
     updateUser(id: Int!, input: UpdateUserInput!): User! @requireAuth
     deleteUser(id: Int!): User! @requireAuth
+    updateMyBankAccount(input: UpdateBankAccountInput!): User! @requireAuth
     updateUserStatus(id: Int): User! @requireAuth
     updateUserRole(id: String!, role: String!, organizationId: Int!): User!
       @skipAuth

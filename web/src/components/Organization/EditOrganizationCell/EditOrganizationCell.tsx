@@ -14,6 +14,7 @@ import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import OrganizationForm from 'src/components/Organization/OrganizationForm'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<EditOrganizationById> = gql`
   query EditOrganizationById($id: Int!) {
@@ -45,7 +46,7 @@ const UPDATE_ORGANIZATION_MUTATION: TypedDocumentNode<
   }
 `
 
-export const Loading = () => <div>Loading...</div>
+export const Loading = PageLoading
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>

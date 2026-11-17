@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
-
 import { Link, routes } from '@redwoodjs/router'
+
+import { useReportPrintTheme } from 'src/hooks/useReportPrintTheme'
 
 type ReportLayoutProps = {
   children?: React.ReactNode
@@ -12,53 +12,7 @@ const ReportLayout = ({
   title = 'Trip Report',
 }: ReportLayoutProps) => {
   // Remove all theming for the report page, especially for printing
-  useEffect(() => {
-    // Save the current theme
-    const htmlElement = document.documentElement
-    const currentTheme = htmlElement.classList.contains('dark')
-      ? 'dark'
-      : 'light'
-
-    // Store any theme-related classes
-    const themeClasses = [...htmlElement.classList].filter(
-      (cls) => cls === 'dark' || cls === 'light' || cls.startsWith('theme-')
-    )
-
-    // Remove all theme-related classes
-    themeClasses.forEach((cls) => htmlElement.classList.remove(cls))
-
-    // Add a print-specific class
-    htmlElement.classList.add('print-report')
-
-    // Add a style tag for print media
-    const styleTag = document.createElement('style')
-    styleTag.id = 'print-report-style'
-    styleTag.innerHTML = `
-      @media print {
-        html.print-report,
-        html.print-report body {
-          background-color: white !important;
-          color: black !important;
-        }
-      }
-    `
-    document.head.appendChild(styleTag)
-
-    // Restore the original theme when component unmounts
-    return () => {
-      // Remove the print-specific class and style
-      htmlElement.classList.remove('print-report')
-      const styleElement = document.getElementById('print-report-style')
-      if (styleElement) styleElement.remove()
-
-      // Restore original theme classes
-      if (currentTheme === 'dark') {
-        htmlElement.classList.add('dark')
-      } else {
-        htmlElement.classList.add('light')
-      }
-    }
-  }, [])
+  useReportPrintTheme()
 
   return (
     <div className="rw-scaffold min-h-screen">

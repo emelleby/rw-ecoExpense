@@ -87,10 +87,6 @@ const User = ({ user }: Props) => {
               <TableCell>{user.lastName}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Bank account</TableCell>
-              <TableCell>{user.bankAccount}</TableCell>
-            </TableRow>
-            <TableRow>
               <TableCell>Status</TableCell>
               <TableCell>{formatEnum(user.status)}</TableCell>
             </TableRow>

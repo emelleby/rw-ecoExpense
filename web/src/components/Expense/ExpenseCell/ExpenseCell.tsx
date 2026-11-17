@@ -7,7 +7,7 @@ import type {
 } from '@redwoodjs/web'
 
 import Expense from 'src/components/Expense/Expense'
-import Spinner from 'src/components/ui/Spinner'
+import PageLoading from 'src/components/ui/PageLoading'
 
 export const QUERY: TypedDocumentNode<
   FindExpenseById,
@@ -16,8 +16,6 @@ export const QUERY: TypedDocumentNode<
   query FindExpenseById($id: Int!) {
     expense: expense(id: $id) {
       id
-      userId
-      categoryId
       amount
       currency
       exchangeRate
@@ -27,27 +25,40 @@ export const QUERY: TypedDocumentNode<
       kilometers
       fuelType
       fuelAmountLiters
-      sectorId
-      supplierId
-      tripId
+      category {
+        name
+      }
+      Sector {
+        name
+      }
       trip {
+        id
+        name
         reimbursementStatus
       }
-      projectId
+      project {
+        name
+      }
+      user {
+        firstName
+        lastName
+        username
+      }
       scope1Co2Emissions
       scope2Co2Emissions
       scope3Co2Emissions
       kwh
-      scope3CategoryId
+      receipt {
+        id
+        url
+        fileName
+        fileType
+      }
     }
   }
 `
 
-export const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
-)
+export const Loading = PageLoading
 
 export const Empty = () => <div>Expense not found</div>
 

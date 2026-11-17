@@ -1,6 +1,6 @@
 import { render } from '@redwoodjs/testing/web'
 
-import { standard } from 'src/components/ProfileCell/ProfileCell.mock'
+import { standard } from 'src/components/Profile/ProfileCell/ProfileCell.mock'
 
 import Address from './Address'
 

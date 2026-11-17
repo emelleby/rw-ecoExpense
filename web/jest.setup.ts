@@ -65,3 +65,17 @@ jest.mock('@googlemaps/extended-component-library/react', () => ({
   APILoader: () => null,
   PlacePicker: () => null,
 }))
+
+// pdfjs-dist is untranspiled ESM and its worker is imported with Vite's `?url`
+// suffix, neither of which Jest can load. ReceiptPreview is reachable from
+// Routes.tsx, so without a stub the whole route table (`routes.*`) fails to build.
+jest.mock('pdfjs-dist', () => ({
+  GlobalWorkerOptions: {},
+  getDocument: jest.fn(() => ({
+    promise: new Promise(() => {}), // never resolves: preview stays in its loading state
+    destroy: jest.fn(),
+  })),
+}))
+jest.mock('pdfjs-dist/build/pdf.worker.min.mjs?url', () => 'pdf.worker.min.mjs', {
+  virtual: true,
+})

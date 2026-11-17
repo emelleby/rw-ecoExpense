@@ -1,9 +1,9 @@
 export const schema = gql`
   type Customer {
     id: Int!
-    user: User!
-    userId: Int!
+    organizationId: Int!
     name: String!
+    registrationNumber: String
     rates: [Rate!]!
   }
 
