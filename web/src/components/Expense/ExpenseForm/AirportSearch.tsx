@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 
 import { Airport } from 'types/expense/airport'
 
@@ -21,11 +21,14 @@ export default function AirportSelect({
   const [inputValue, setInputValue] = useState(value || '')
   const [options, setOptions] = useState<Airport[]>([])
 
+  // Keep the input in sync when the parent changes the value (e.g. a form reset)
+  useEffect(() => {
+    setInputValue(value || '')
+  }, [value])
+
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value
-
-      console.log(newValue)
       setInputValue(newValue)
 
       if (newValue.trim()) {

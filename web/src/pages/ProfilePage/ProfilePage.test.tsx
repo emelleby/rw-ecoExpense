@@ -7,6 +7,7 @@ import ProfilePage from './ProfilePage'
 
 describe('ProfilePage', () => {
   it('renders successfully', () => {
+    mockCurrentUser({ id: 'user_test', dbUserId: 42, roles: 'user' })
     expect(() => {
       render(<ProfilePage />)
     }).not.toThrow()

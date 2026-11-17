@@ -16,7 +16,8 @@ describe('TasksCell', () => {
 
   it('renders Failure successfully', async () => {
     render(<Failure error={new Error('Oh no')} />)
-    expect(screen.getByText('Error loading tasks: Oh no')).toBeInTheDocument()
+    expect(screen.getByText('Error loading tasks')).toBeInTheDocument()
+    expect(screen.getByText('Oh no')).toBeInTheDocument()
   })
 
   it('renders Success successfully', async () => {

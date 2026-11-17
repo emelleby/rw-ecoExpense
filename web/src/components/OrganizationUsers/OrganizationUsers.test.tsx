@@ -8,7 +8,19 @@ import OrganizationUsers from './OrganizationUsers'
 describe('OrganizationUsers', () => {
   it('renders successfully', () => {
     expect(() => {
-      render(<OrganizationUsers />)
+      render(
+        <OrganizationUsers
+          users={[
+            {
+              id: 1,
+              username: 'ada',
+              email: 'ada@example.com',
+              firstName: 'Ada',
+              lastName: 'Lovelace',
+            },
+          ]}
+        />
+      )
     }).not.toThrow()
   })
 })

@@ -23,6 +23,8 @@ import {
 
 interface CurrencyFieldProps {
   defaultValue: string
+  /** Optional controlled value; when provided the selection follows it */
+  value?: string
   isActive: boolean
   Data: Array<{ label: string; value: string | number }>
   onChangeHandle?: (value: string) => void
@@ -31,13 +33,18 @@ interface CurrencyFieldProps {
 
 export function Combobox({
   defaultValue,
+  value: controlledValue,
   isActive,
   onChangeHandle,
   Data,
   defaultText,
 }: CurrencyFieldProps) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState(defaultValue)
+  const [value, setValue] = React.useState(controlledValue ?? defaultValue)
+
+  React.useEffect(() => {
+    if (controlledValue !== undefined) setValue(controlledValue)
+  }, [controlledValue])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

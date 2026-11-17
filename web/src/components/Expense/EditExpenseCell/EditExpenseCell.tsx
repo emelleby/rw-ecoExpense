@@ -87,11 +87,8 @@ const TRIPS_QUERY: TypedDocumentNode<TripsByUser, TripsByUserVariables> = gql`
   }
 `
 
-export const Loading = () => (
-  <div className="flex h-screen items-center justify-center">
-    <Spinner />
-  </div>
-)
+export const Loading = () => <Spinner />
+
 
 export const Failure = ({ error }: CellFailureProps) => (
   <div className="rw-cell-error">{error?.message}</div>

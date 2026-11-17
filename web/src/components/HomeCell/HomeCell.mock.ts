@@ -2,23 +2,27 @@ interface DashboardData {
   dashboard: {
     expenses: {
       total: number
-      percentageChange: number
+      percentageChange: number | null
       pending: {
         amount: number
         count: number
       }
-      recent: Array<{
-        id: number
-        type: string
-        project?: string
-        trip?: string
-        amount: number
-        status: string
-      }>
     }
+    trips: Array<{
+      id: number
+      name: string
+      description: string
+      project?: string
+      reimbursementStatus: string
+      expenseCount: number
+      expenseAmount: number
+      emissions: number
+      startDate: string
+      endDate: string
+    }>
     carbonFootprint: {
       total: number
-      percentageChange: number
+      percentageChange: number | null
       byCategory: Array<{
         category: string
         amount: number
@@ -37,30 +41,32 @@ export const standard = (): DashboardData => ({
         amount: 1850.0,
         count: 8,
       },
-      recent: [
-        {
-          id: 1,
-          type: 'Business Lunch',
-          project: 'Marketing Campaign',
-          amount: 85.0,
-          status: 'REIMBURSED',
-        },
-        {
-          id: 2,
-          type: 'Train Ticket',
-          trip: 'Client Meeting - Berlin',
-          amount: 125.5,
-          status: 'PENDING',
-        },
-        {
-          id: 3,
-          type: 'Hotel Stay',
-          trip: 'Sales Conference',
-          amount: 420.0,
-          status: 'REJECTED',
-        },
-      ],
     },
+    trips: [
+      {
+        id: 1,
+        name: 'Client Meeting - Berlin',
+        description: 'Quarterly review with the Berlin team',
+        project: 'Marketing Campaign',
+        reimbursementStatus: 'PENDING',
+        expenseCount: 4,
+        expenseAmount: 3200,
+        emissions: 156,
+        startDate: '2026-03-01T00:00:00.000Z',
+        endDate: '2026-03-03T00:00:00.000Z',
+      },
+      {
+        id: 2,
+        name: 'Sales Conference',
+        description: '',
+        reimbursementStatus: 'REIMBURSED',
+        expenseCount: 2,
+        expenseAmount: 1080.5,
+        emissions: 89,
+        startDate: '2026-02-10T00:00:00.000Z',
+        endDate: '2026-02-12T00:00:00.000Z',
+      },
+    ],
     carbonFootprint: {
       total: 245,
       percentageChange: 8.3,
@@ -85,7 +91,7 @@ export const standard = (): DashboardData => ({
   },
 })
 
-export const empty = () => ({
+export const empty = (): DashboardData => ({
   dashboard: {
     expenses: {
       total: 0,
@@ -94,8 +100,8 @@ export const empty = () => ({
         amount: 0,
         count: 0,
       },
-      recent: [],
     },
+    trips: [],
     carbonFootprint: {
       total: 0,
       percentageChange: 0,
