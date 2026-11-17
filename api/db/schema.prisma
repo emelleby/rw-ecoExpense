@@ -90,6 +90,10 @@ model User {
   firstName      String?      @db.VarChar(100)
   lastName       String?      @db.VarChar(50)
   bankAccount    String?      @db.VarChar(50)
+  iban                      String? @db.VarChar(50)
+  swiftBic                  String? @db.VarChar(20)
+  internationalAccountName  String? @db.VarChar(100)
+  internationalBankAddress  String? @db.VarChar(255)
   status         USER_STATUS  @default(INACTIVE)
   homeAddress    String?      @db.VarChar(255)
   workAddress    String?      @db.VarChar(255)
@@ -176,6 +180,8 @@ model Trip {
   projectId           Int
   Project             Project             @relation(fields: [projectId], references: [id])
   secondaryCurrency   String?             @db.VarChar(3)
+  isPrivate           Boolean             @default(false)
+  shareToken          String?             @unique
 }
 
 // Rate model
@@ -268,6 +274,18 @@ model Expense {
   // Flight-form state needed to re-populate the form when editing:
   // { mode: 'past' | 'future', ... }. Null for non-flight / legacy expenses.
   flightDetails Json?
+
+  // Form inputs captured but previously never persisted (nullable: each
+  // applies to one category only). Flights are covered by flightDetails.
+  // Accommodation
+  accommodationType String? @db.VarChar(50)
+  country           String? @db.VarChar(100)
+  numberOfPeople    Int?
+  nights            Int?
+  // Private car
+  passengers      Int?
+  trailer         Boolean?
+  fuelConsumption Float?
 
   // Amount converted to the Trip's optional secondary (reimbursement) currency.
   // Computed server-side on create/update; null when the trip has none.
